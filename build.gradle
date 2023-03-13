@@ -27,6 +27,7 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-mustache'
 	implementation 'org.mariadb.jdbc:mariadb-java-client'
+
 }
 
 tasks.named('test') {
