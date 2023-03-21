@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class IndexController {
 
     private final PostsService postsService;
-    private final TestJdbcRepository testJdbcRepository;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -32,10 +31,5 @@ public class IndexController {
         PostsResponseDto dto = postsService.findById(id);
         model.addAttribute("post", dto);
         return "posts-update";
-    }
-
-    @GetMapping("/test_db")
-    public void dbTest() {
-        testJdbcRepository.test();
     }
 }
