@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-@Getter
 public class WriteAuthsGetResponseDto {
 
     private final String folderCP;
@@ -27,5 +26,33 @@ public class WriteAuthsGetResponseDto {
         this.title = title;
         this.symmetricKeyEWF = symmetricKeyEWF;
         this.lastChangedDate = lastChangedDate;
+    }
+
+    public String getFolderCP() {
+        return folderCP;
+    }
+
+    public String getFolderPublicKey() {
+        return folderPublicKey;
+    }
+
+    public String getFolderPrivateKeyEWA() {
+        return folderPrivateKeyEWA;
+    }
+
+    public boolean isTitleOpen() {
+        return isTitleOpen;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getSymmetricKeyEWF() {
+        return symmetricKeyEWF;
+    }
+
+    public LocalDateTime getLastChangedDate() {
+        return lastChangedDate;
     }
 }

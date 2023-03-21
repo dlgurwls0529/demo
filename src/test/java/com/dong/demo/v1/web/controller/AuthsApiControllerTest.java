@@ -3,6 +3,7 @@ package com.dong.demo.v1.web.controller;
 import com.dong.demo.v1.web.dto.SubscribeDemandsAddRequestDto;
 import com.dong.demo.v1.web.dto.SubscribeDemandsAllowRequestDto;
 import com.dong.demo.v1.web.dto.WriteAuthsAddRequestDto;
+import com.dong.demo.v1.web.dto.WriteAuthsGetResponseDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
