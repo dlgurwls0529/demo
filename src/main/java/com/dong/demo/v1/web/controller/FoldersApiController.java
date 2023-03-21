@@ -2,6 +2,8 @@ package com.dong.demo.v1.web.controller;
 
 import com.dong.demo.v1.web.dto.FoldersGenerateRequestDto;
 import com.dong.demo.v1.web.dto.FoldersSearchResponseDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,7 +18,7 @@ public class FoldersApiController {
     @PostMapping("/api/v1/folders/{folderCP}")
     public ResponseEntity<String> generateFolder(
             @PathVariable String folderCP,
-            @RequestBody FoldersGenerateRequestDto dto) {
+            @RequestBody FoldersGenerateRequestDto dto) throws JsonProcessingException {
         return new ResponseEntity<>(folderCP, HttpStatus.OK);
     }
 

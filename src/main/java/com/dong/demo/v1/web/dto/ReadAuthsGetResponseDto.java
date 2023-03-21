@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Getter
 public class ReadAuthsGetResponseDto {
 
     private final String folderCP;
@@ -21,5 +20,25 @@ public class ReadAuthsGetResponseDto {
         this.title = title;
         this.symmetricKeyEWA = symmetricKeyEWA;
         this.lastChangedDate = lastChangedDate;
+    }
+
+    public String getFolderCP() {
+        return folderCP;
+    }
+
+    public boolean getIsTitleOpen() {
+        return isTitleOpen;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getSymmetricKeyEWA() {
+        return symmetricKeyEWA;
+    }
+
+    public LocalDateTime getLastChangedDate() {
+        return lastChangedDate;
     }
 }
