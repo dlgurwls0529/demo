@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 import static org.springframework.jdbc.datasource.DataSourceUtils.getConnection;
 
 @SpringBootTest
-// @ActiveProfiles("dev")
+@ActiveProfiles("dev")
 public class JDBCTest {
 
     @Autowired
