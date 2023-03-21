@@ -38,3 +38,4 @@ out/
 
 application-oauth.properties
 .idea
+application-real-db.properties
