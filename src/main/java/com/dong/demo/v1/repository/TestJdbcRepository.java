@@ -14,12 +14,9 @@ import java.util.List;
 @Repository
 public class TestJdbcRepository {
 
-    private final DataSource dataSource;
-
     @Autowired
-    public TestJdbcRepository(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+    private DataSource dataSource;
+
 
     public List<String> test() {
         try {
@@ -32,7 +29,6 @@ public class TestJdbcRepository {
             list.add(resultSet.getString(1));
             resultSet.next();
             list.add(resultSet.getString(2));
-            resultSet.next();
 
             return list;
         } catch (SQLException e) {
