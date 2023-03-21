@@ -23,7 +23,7 @@ public class AuthsApiController {
                         .folderCP("folderCP_TEST")
                         .folderPublicKey("folderPun_TEST")
                         .folderPrivateKeyEWA("folderPri_TEST")
-                        .isTitleOpen(true)
+                        .isTitleOpen(false)
                         .title("title_TEST")
                         .symmetricKeyEWF("sym_TEST")
                         .lastChangedDate(LocalDateTime.now())
