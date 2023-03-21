@@ -35,9 +35,10 @@ public class JDBCTest {
         try {
             List<String> list = testJdbcRepository.test();
 
-            Assertions.assertEquals("a", list.get(0));
+            Assertions.assertEquals("a", "32");
             Assertions.assertEquals("b", list.get(1));
             Assertions.assertEquals("c", list.get(2));
+
 
             Assertions.assertNotEquals(dataSource, testJdbcRepository.getDataSource());
 
