@@ -35,4 +35,7 @@ public class TestJdbcRepository {
         return list;
     }
 
+    public DataSource getDataSource() {
+        return dataSource;
+    }
 }
