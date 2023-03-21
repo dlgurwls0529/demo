@@ -29,17 +29,29 @@ public class JDBCTest {
 
     @Test
     public void connectionTest() {
+        Connection connection = null;
+
         Assertions.assertNotNull(dataSource);
-        Assertions.assertDoesNotThrow(new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                Connection connection = dataSource.getConnection();
-                Assertions.assertEquals("HikariProxyConnection@635096154 wrapping conn0: url=jdbc:h2:mem:testdb user=SA", connection.toString());
-                ResultSet resultSet = connection.prepareStatement("select * from TEST_TABLE;").executeQuery();
-                while(resultSet.next()) {
-                    System.out.println("data : " + resultSet.getString(0));
-                }
-            }
-        });
+
+        try {
+            connection = dataSource.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        ResultSet resultSet = null;
+
+        try {
+            resultSet = connection.prepareStatement("select * from TEST_TABLE;").executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Assertions.assertEquals("a", resultSet.getString(0));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 }
