@@ -31,7 +31,7 @@ public class JDBCTest {
     DataSource dataSource;*/
 
     @Test
-    public void connectionTest() throws SQLException {
+    public void connectionTest() {
             List<String> list = testJdbcRepository.test();
 
             Assertions.assertEquals("a", list.get(0));

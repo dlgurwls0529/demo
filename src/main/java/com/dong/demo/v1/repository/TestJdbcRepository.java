@@ -21,18 +21,25 @@ public class TestJdbcRepository {
         this.dataSource = dataSource;
     }
 
-    public List<String> test() throws SQLException {
-        Connection connection = dataSource.getConnection();
-        ResultSet resultSet = connection.prepareStatement("select * from TEST_TABLE;").executeQuery();
+    public List<String> test() {
+        try {
+            Connection connection = dataSource.getConnection();
+            ResultSet resultSet = connection.prepareStatement("select * from TEST_TABLE;").executeQuery();
 
-        List<String> list = new ArrayList<>();
-        list.add(resultSet.getString(0)); resultSet.next();
-        list.add(resultSet.getString(1)); resultSet.next();
-        list.add(resultSet.getString(2)); resultSet.next();
+            List<String> list = new ArrayList<>();
+            list.add(resultSet.getString(0));
+            resultSet.next();
+            list.add(resultSet.getString(1));
+            resultSet.next();
+            list.add(resultSet.getString(2));
+            resultSet.next();
 
-        connection.close();
+            return list;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-        return list;
+        return null;
     }
 
     public DataSource getDataSource() {
