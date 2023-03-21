@@ -31,8 +31,7 @@ public class JDBCTest {
     DataSource dataSource;
 
     @Test
-    public void connectionTest() {
-        try {
+    public void connectionTest() throws SQLException {
             List<String> list = testJdbcRepository.test();
 
             Assertions.assertEquals("a", "32");
@@ -41,10 +40,5 @@ public class JDBCTest {
 
 
             Assertions.assertNotEquals(dataSource, testJdbcRepository.getDataSource());
-
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 }
