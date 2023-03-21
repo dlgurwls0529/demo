@@ -7,14 +7,14 @@ import lombok.Getter;
 public class SubscribeDemandsAllowRequestDto {
 
     private final String folderPublicKey;
-    private final byte[] sign;
+    private final byte[] byteSign;
     private final String accountCP;
     private final String symmetricEWA;
 
     @Builder
-    public SubscribeDemandsAllowRequestDto(String folderPublicKey, byte[] sign, String accountCP, String symmetricEWA) {
+    public SubscribeDemandsAllowRequestDto(String folderPublicKey, byte[] byteSign, String accountCP, String symmetricEWA) {
         this.folderPublicKey = folderPublicKey;
-        this.sign = sign;
+        this.byteSign = byteSign;
         this.accountCP = accountCP;
         this.symmetricEWA = symmetricEWA;
     }

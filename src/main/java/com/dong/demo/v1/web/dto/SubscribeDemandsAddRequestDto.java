@@ -8,12 +8,12 @@ public class SubscribeDemandsAddRequestDto {
 
     private final String folderCP;
     private final String accountPublicKey;
-    private final byte[] sign;
+    private final byte[] byteSign;
 
     @Builder
-    public SubscribeDemandsAddRequestDto(String folderCP, String accountPublicKey, byte[] sign) {
+    public SubscribeDemandsAddRequestDto(String folderCP, String accountPublicKey, byte[] byteSign) {
         this.folderCP = folderCP;
         this.accountPublicKey = accountPublicKey;
-        this.sign = sign;
+        this.byteSign = byteSign;
     }
 }

@@ -6,13 +6,13 @@ import lombok.Getter;
 @Getter
 public class FilesModifyRequestDto {
 
-    private final byte[] signByte;
+    private final byte[] byteSign;
     private final String subhead;
     private final String contents;
 
     @Builder
-    public FilesModifyRequestDto(byte[] signByte, String subhead, String contents) {
-        this.signByte = signByte;
+    public FilesModifyRequestDto(byte[] byteSign, String subhead, String contents) {
+        this.byteSign = byteSign;
         this.subhead = subhead;
         this.contents = contents;
     }

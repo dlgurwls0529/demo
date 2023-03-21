@@ -9,16 +9,16 @@ import java.time.LocalDateTime;
 public class FilesGetResponseDto {
 
     private final String folderCP;
-    private final Long fileId;
-    private final LocalDateTime lastChagedDate;
+    private final String fileId;
+    private final LocalDateTime lastChangedDate;
     private final String subheadEWS;
     private final String contentsEWS;
 
     @Builder
-    public FilesGetResponseDto(String folderCP, Long fileId, LocalDateTime lastChagedDate, String subheadEWS, String contentsEWS) {
+    public FilesGetResponseDto(String folderCP, String fileId, LocalDateTime lastChangedDate, String subheadEWS, String contentsEWS) {
         this.folderCP = folderCP;
         this.fileId = fileId;
-        this.lastChagedDate = lastChagedDate;
+        this.lastChangedDate = lastChangedDate;
         this.subheadEWS = subheadEWS;
         this.contentsEWS = contentsEWS;
     }

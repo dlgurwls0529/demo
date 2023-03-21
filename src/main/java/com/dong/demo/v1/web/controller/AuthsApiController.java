@@ -1,14 +1,11 @@
 package com.dong.demo.v1.web.controller;
 
-import com.dong.demo.v1.web.dto.ReadAuthsGetResponseDto;
-import com.dong.demo.v1.web.dto.WriteAuthsGetResponseDto;
+import com.dong.demo.v1.web.dto.*;
 import org.springframework.boot.autoconfigure.security.ConditionalOnDefaultWebSecurity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -40,7 +37,8 @@ public class AuthsApiController {
     }
 
     @GetMapping("/api/v1/read-auths/{accountCP}/folders")
-    public ResponseEntity<List<ReadAuthsGetResponseDto>> getReadAuthByAccountCP(@PathVariable String accountCP) {
+    public ResponseEntity<List<ReadAuthsGetResponseDto>> getReadAuthByAccountCP(
+            @PathVariable String accountCP) {
         ReadAuthsGetResponseDto dto =
                 ReadAuthsGetResponseDto.builder()
                         .folderCP("folderCP_TEST")
@@ -55,5 +53,10 @@ public class AuthsApiController {
         list.add(dto);
 
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/v1/write-auths")
+    public ResponseEntity<Void> addWriteAuthority(@RequestBody WriteAuthsAddRequestDto dto) {
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
