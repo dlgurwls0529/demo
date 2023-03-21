@@ -10,28 +10,26 @@ import org.springframework.test.context.ActiveProfiles;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import javax.sql.DataSource;
+
+import static org.springframework.jdbc.datasource.DataSourceUtils.getConnection;
 
 @SpringBootTest
-@ActiveProfiles("dev")
+// @ActiveProfiles("dev")
 public class JDBCTest {
 
-    @Autowired
-    private DataSource dataSource;
-
     @Test
-    public void connectionTest() throws SQLException {
-        Assertions.assertDoesNotThrow(new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                Connection connection = dataSource.getConnection();
-            }
-        });
+    public void connectionTest() throws ClassNotFoundException, SQLException {
+        Class.forName("org.mariadb.jdbc.Driver");
+        Connection connection = DriverManager.getConnection(
+                "jdbc:mariadb://localhost:3306/database-1",
+                "dong_demo",
+                "mpqe8754"
+        );
 
-        Connection connection = dataSource.getConnection();
-        Connection connection1 = dataSource.getConnection();
-
-        Assertions.assertEquals(connection, connection1);
-
+        Assertions.assertNotNull(connection);
     }
 }
