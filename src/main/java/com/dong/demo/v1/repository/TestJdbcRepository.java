@@ -20,9 +20,13 @@ public class TestJdbcRepository {
     }
 
     public String test() throws SQLException {
-        Connection connection = DataSourceUtils.getConnection(dataSource);
+        Connection connection = dataSource.getConnection();
         ResultSet resultSet = connection.prepareStatement("select * from TEST_TABLE;").executeQuery();
 
         return resultSet.getString(0);
+    }
+
+    public Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 }
