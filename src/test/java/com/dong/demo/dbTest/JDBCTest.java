@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import javax.sql.DataSource;
@@ -34,6 +35,10 @@ public class JDBCTest {
             public void execute() throws Throwable {
                 Connection connection = dataSource.getConnection();
                 Assertions.assertEquals("HikariProxyConnection@635096154 wrapping conn0: url=jdbc:h2:mem:testdb user=SA", connection.toString());
+                ResultSet resultSet = connection.prepareStatement("select * from TEST_TABLE;").executeQuery();
+                while(resultSet.next()) {
+                    System.out.println("data : " + resultSet.getString(0));
+                }
             }
         });
     }
