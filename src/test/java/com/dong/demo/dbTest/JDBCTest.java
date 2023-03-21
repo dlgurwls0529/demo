@@ -1,5 +1,6 @@
 package com.dong.demo.dbTest;
 
+import com.dong.demo.v1.repository.TestJdbcRepository;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
@@ -25,33 +26,14 @@ import static org.springframework.jdbc.datasource.DataSourceUtils.getConnection;
 public class JDBCTest {
 
     @Autowired
-    private DataSource dataSource;
+    TestJdbcRepository testJdbcRepository;
 
     @Test
     public void connectionTest() {
-        Connection connection = null;
-
-        Assertions.assertNotNull(dataSource);
-
         try {
-            connection = dataSource.getConnection();
+            Assertions.assertEquals("a", testJdbcRepository.test());
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        //
-        ResultSet resultSet = null;
-
-        try {
-            resultSet = connection.prepareStatement("select * from TEST_TABLE;").executeQuery();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            Assertions.assertEquals("a", resultSet.getString(0));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
     }
 }
