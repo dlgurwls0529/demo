@@ -1,44 +1,41 @@
 package com.dong.demo.v1.repository;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.awt.*;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.jdbc.datasource.DataSourceUtils.getConnection;
+
 @Repository
+@RequiredArgsConstructor
 public class TestJdbcRepository {
 
-    @Autowired
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
-
-    public List<String> test() {
+    public void test() {
+        String sql = "insert into TEST_TABLE values(?);";
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
         try {
-            Connection connection = dataSource.getConnection();
-            ResultSet resultSet = connection.prepareStatement("select * from TEST_TABLE;").executeQuery();
-
-            List<String> list = new ArrayList<>();
-            list.add(resultSet.getString(0));
-            resultSet.next();
-            list.add(resultSet.getString(1));
-            resultSet.next();
-            list.add(resultSet.getString(2));
-
-            return list;
-        } catch (SQLException e) {
-            e.printStackTrace();
+            conn = getConnection(dataSource);
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, "e");
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
 
-        return null;
     }
 
-    public DataSource getDataSource() {
-        return dataSource;
-    }
 }

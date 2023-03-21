@@ -24,21 +24,4 @@ import static org.springframework.jdbc.datasource.DataSourceUtils.getConnection;
 @SpringBootTest
 public class JDBCTest {
 
-    @Autowired
-    TestJdbcRepository testJdbcRepository;
-
-    /*@Autowired
-    DataSource dataSource;*/
-
-    @Test
-    public void connectionTest() {
-            List<String> list = testJdbcRepository.test();
-
-            Assertions.assertEquals("a", list.get(0));
-            Assertions.assertEquals("b", list.get(1));
-            Assertions.assertEquals("c", list.get(2));
-
-
-            // Assertions.assertNotEquals(dataSource, testJdbcRepository.getDataSource());
-    }
 }
