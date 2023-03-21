@@ -3,7 +3,6 @@ package com.dong.demo.v1.web.dto;
 import lombok.Builder;
 import lombok.Getter;
 
-@Getter
 public class FoldersGenerateRequestDto {
 
     private final boolean isTitleOpen;
@@ -15,5 +14,17 @@ public class FoldersGenerateRequestDto {
         this.isTitleOpen = isTitleOpen;
         this.symmetricKeyEWF = symmetricKeyEWF;
         this.title = title;
+    }
+
+    public boolean getIsTitleOpen() {
+        return isTitleOpen;
+    }
+
+    public String getSymmetricKeyEWF() {
+        return symmetricKeyEWF;
+    }
+
+    public String getTitle() {
+        return title;
     }
 }
