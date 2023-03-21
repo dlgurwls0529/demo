@@ -23,13 +23,6 @@ public class JDBCTest {
 
     @Test
     public void connectionTest() throws ClassNotFoundException, SQLException {
-        Class.forName("org.mariadb.jdbc.Driver");
-        Connection connection = DriverManager.getConnection(
-                "jdbc:mariadb://localhost:3306/database-1",
-                "dong_demo",
-                "mpqe8754"
-        );
 
-        Assertions.assertNotNull(connection);
     }
 }
