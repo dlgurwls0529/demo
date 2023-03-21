@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.List;
 
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import javax.sql.DataSource;
@@ -20,7 +21,6 @@ import javax.sql.DataSource;
 import static org.springframework.jdbc.datasource.DataSourceUtils.getConnection;
 
 @SpringBootTest
-// @ActiveProfiles("dev")
 public class JDBCTest {
 
     @Autowired
@@ -29,7 +29,13 @@ public class JDBCTest {
     @Test
     public void connectionTest() {
         try {
-            Assertions.assertEquals("a", testJdbcRepository.test());
+            List<String> list = testJdbcRepository.test();
+
+            Assertions.assertEquals("a", list.get(0));
+            Assertions.assertEquals("b", list.get(1));
+            Assertions.assertEquals("c", list.get(2));
+
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

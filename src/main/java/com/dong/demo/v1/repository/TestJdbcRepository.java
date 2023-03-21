@@ -8,6 +8,8 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class TestJdbcRepository {
@@ -19,14 +21,18 @@ public class TestJdbcRepository {
         this.dataSource = dataSource;
     }
 
-    public String test() throws SQLException {
+    public List<String> test() throws SQLException {
         Connection connection = dataSource.getConnection();
         ResultSet resultSet = connection.prepareStatement("select * from TEST_TABLE;").executeQuery();
 
-        return resultSet.getString(0);
+        List<String> list = new ArrayList<>();
+        list.add(resultSet.getString(0)); resultSet.next();
+        list.add(resultSet.getString(1)); resultSet.next();
+        list.add(resultSet.getString(2)); resultSet.next();
+
+        connection.close();
+
+        return list;
     }
 
-    public Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
-    }
 }
