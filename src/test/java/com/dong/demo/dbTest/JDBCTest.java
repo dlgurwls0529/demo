@@ -10,8 +10,10 @@ import java.sql.Connection;
 
 public class JDBCTest {
 
+    @Autowired
     private DataSource dataSource;
 
+    @Test
     public void connectionTest() {
         Assertions.assertDoesNotThrow(new Executable() {
             @Override
