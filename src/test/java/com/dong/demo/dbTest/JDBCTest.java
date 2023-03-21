@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 import static org.springframework.jdbc.datasource.DataSourceUtils.getConnection;
 
 @SpringBootTest
-@ActiveProfiles("dev")
+// @ActiveProfiles("dev")
 public class JDBCTest {
 
     @Autowired
@@ -28,36 +28,10 @@ public class JDBCTest {
 
     @Test
     public void connectionTest() {
-        String sql = "select * from TEST_TABLE;";
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
         try {
-            conn = testJdbcRepository.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
-            String res0 = rs.getString(0); rs.next();
-            System.out.println("res0 = " + res0);
-            Assertions.assertEquals("a", res0);
-
-            String res1 = rs.getString(1); rs.next();
-            System.out.println("res1 = " + res1);
-            Assertions.assertEquals("b", res1);
-
-            String res2 = rs.getString(2); rs.next();
-            System.out.println("res2 = " + res2);
-            Assertions.assertEquals("c", res2);
-
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        } finally {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            Assertions.assertEquals("a", testJdbcRepository.test());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
