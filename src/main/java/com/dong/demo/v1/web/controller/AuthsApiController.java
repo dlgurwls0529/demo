@@ -22,7 +22,7 @@ public class AuthsApiController {
                 WriteAuthsGetResponseDto.builder()
                         .folderCP("folderCP_TEST")
                         .folderPublicKey("folderPun_TEST")
-                        .folderPrivateEWA("folderPri_TEST")
+                        .folderPrivateKeyEWA("folderPri_TEST")
                         .isTitleOpen(true)
                         .title("title_TEST")
                         .symmetricKeyEWF("sym_TEST")

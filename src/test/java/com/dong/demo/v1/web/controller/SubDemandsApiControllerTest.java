@@ -52,7 +52,7 @@ class SubDemandsApiControllerTest {
                 .folderPublicKey("folderPublicKey_TEST")
                 .byteSign(new byte[]{1, 2, 3, 4})
                 .accountCP("accountCP_TEST")
-                .symmetricEWA("symmetricKeyEWA_TEST")
+                .symmetricKeyEWA("symmetricKeyEWA_TEST")
                 .build();
 
         // when

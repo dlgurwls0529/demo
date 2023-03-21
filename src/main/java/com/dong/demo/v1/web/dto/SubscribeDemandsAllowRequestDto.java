@@ -9,13 +9,13 @@ public class SubscribeDemandsAllowRequestDto {
     private final String folderPublicKey;
     private final byte[] byteSign;
     private final String accountCP;
-    private final String symmetricEWA;
+    private final String symmetricKeyEWA;
 
     @Builder
-    public SubscribeDemandsAllowRequestDto(String folderPublicKey, byte[] byteSign, String accountCP, String symmetricEWA) {
+    public SubscribeDemandsAllowRequestDto(String folderPublicKey, byte[] byteSign, String accountCP, String symmetricKeyEWA) {
         this.folderPublicKey = folderPublicKey;
         this.byteSign = byteSign;
         this.accountCP = accountCP;
-        this.symmetricEWA = symmetricEWA;
+        this.symmetricKeyEWA = symmetricKeyEWA;
     }
 }
