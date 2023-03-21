@@ -1,6 +1,8 @@
 package com.dong.demo.dbTest;
 
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import org.jasypt.encryption.StringEncryptor;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -21,8 +23,21 @@ import static org.springframework.jdbc.datasource.DataSourceUtils.getConnection;
 // @ActiveProfiles("dev")
 public class JDBCTest {
 
-    @Test
-    public void connectionTest() throws ClassNotFoundException, SQLException {
+    @Autowired
+    StringEncryptor encryptor;
 
+    @Test
+    public void connectionTest() {
+        String text = "O+V+gjJF4nOhoOXYn45gZgKGbz1lKcQT";
+
+        Assertions.assertEquals("test_string", encryptor.decrypt(text));
+
+    }
+
+    public String jasyptEncoding(String value) {
+        StandardPBEStringEncryptor pbeEnc = new StandardPBEStringEncryptor();
+        pbeEnc.setAlgorithm("PBEWithMD5AndDES");
+        pbeEnc.setPassword(System.getenv("JASYPT_PASSWORD"));
+        return pbeEnc.encrypt(value);
     }
 }
