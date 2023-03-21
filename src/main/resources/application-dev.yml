@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url1: ENC(DCkUgF15KmME4YCmODj99oxs8XQbOmPgpM3LFEY0ov9xOGaF6OoGWSOOjrbzz25Ihrzj0OuYPxjqFU0vqrRfd8f//N/daMuxdTWr9ZRK3pAWjLsEg+0kYQ==)
+    username1: ENC(kRCjAEUw2S+i3qTBPbYlmWCqUUfGUEMs)
+    password1: ENC(SBpPWXRL9rPFsgq3rud6P2eKIcV+kan4)
+    url: jdbc:mariadb://database-1.cquadckdseqi.ap-northeast-2.rds.amazonaws.com:3306/database-1?serverTimezone=UTC&characterEncoding=UTF-8
+    username: dong_demo
+    password: mpqe8754
+    driver-class-name: org.mariadb.jdbc.Driver
+
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
