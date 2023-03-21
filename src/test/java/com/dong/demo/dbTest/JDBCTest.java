@@ -38,7 +38,7 @@ public class JDBCTest {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
+        //
         ResultSet resultSet = null;
 
         try {
