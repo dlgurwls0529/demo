@@ -20,24 +20,21 @@ import javax.sql.DataSource;
 import static org.springframework.jdbc.datasource.DataSourceUtils.getConnection;
 
 @SpringBootTest
-// @ActiveProfiles("dev")
+@ActiveProfiles("dev")
 public class JDBCTest {
 
     @Autowired
-    StringEncryptor encryptor;
+    private DataSource dataSource;
 
     @Test
     public void connectionTest() {
-        String text = "O+V+gjJF4nOhoOXYn45gZgKGbz1lKcQT";
-
-        Assertions.assertEquals("test_string", encryptor.decrypt(text));
-
-    }
-
-    public String jasyptEncoding(String value) {
-        StandardPBEStringEncryptor pbeEnc = new StandardPBEStringEncryptor();
-        pbeEnc.setAlgorithm("PBEWithMD5AndDES");
-        pbeEnc.setPassword(System.getenv("JASYPT_PASSWORD"));
-        return pbeEnc.encrypt(value);
+        Assertions.assertNotNull(dataSource);
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                Connection connection = dataSource.getConnection();
+                Assertions.assertEquals("HikariProxyConnection@635096154 wrapping conn0: url=jdbc:h2:mem:testdb user=SA", connection.toString());
+            }
+        });
     }
 }
