@@ -1,5 +1,6 @@
 package com.dong.demo.dbTest;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +11,9 @@ import java.sql.*;
 // 안띄우고(띄우기 전에) 주입받은 데이터소스는 프로필 아직 없어서 디폴트인 h2db
 @SpringBootTest
 public class JDBCTest {
+
+    @Value("${real.test}")
+    private String s;
 
     @Value("${spring.datasource.url}")
     private String url;
@@ -25,6 +29,8 @@ public class JDBCTest {
 
     @Test
     public void connectionTest() {
+        Assertions.assertEquals("test", s);
+
         try {
             Class.forName(driver);
         } catch (ClassNotFoundException e) {
