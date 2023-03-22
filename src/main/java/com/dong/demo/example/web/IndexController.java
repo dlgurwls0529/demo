@@ -2,7 +2,6 @@ package com.dong.demo.example.web;
 
 import com.dong.demo.example.service.posts.PostsService;
 import com.dong.demo.example.web.dto.PostsResponseDto;
-import com.dong.demo.v1.repository.TestJdbcRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
