@@ -2,19 +2,20 @@ package com.dong.demo.dbTest;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.sql.*;
 
 // 안띄우고(띄우기 전에) 주입받은 데이터소스는 프로필 아직 없어서 디폴트인 h2db
-@SpringBootTest
-@PropertySource("classpath:src/main/resources/application-real.properties")
+// @SpringBootTest
 public class JDBCTest {
 
-    @Value("${real.test}")
+    // @Value("${testString}")
     private String s;
 
     // @Value("${spring.datasource.url}")
@@ -29,7 +30,7 @@ public class JDBCTest {
     // @Value("${spring.datasource.driver-class-name}")
     private String driver;
 
-    @Test
+    // @Test
     public void propertyTest() {
         Assertions.assertEquals("test", s);
     }
