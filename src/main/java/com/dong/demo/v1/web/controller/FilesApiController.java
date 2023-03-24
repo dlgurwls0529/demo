@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class FilesApiController {
@@ -39,11 +40,11 @@ public class FilesApiController {
             @PathVariable String folderCP
     ) {
         FilesGetResponseDto dto = FilesGetResponseDto.builder()
-                .folderCP(folderCP)
-                .fileId("folderId_TEST")
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .fileId(String.valueOf(UUID.randomUUID()))
                 .lastChangedDate(LocalDateTime.now())
-                .subheadEWS("subheadEWS_TEST")
-                .contentsEWS("contentsEWS_TEST")
+                .subheadEWS("what meal do I eat?")
+                .contentsEWS("no pizzea")
                 .build();
 
         List<FilesGetResponseDto> list = new ArrayList<>();

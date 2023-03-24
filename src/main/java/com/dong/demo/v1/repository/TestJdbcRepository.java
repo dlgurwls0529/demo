@@ -18,7 +18,7 @@ import static org.springframework.jdbc.datasource.DataSourceUtils.getConnection;
 
 @Repository
 @RequiredArgsConstructor
-public class TestJdbcRepository {
+public class TestJdbcRepository implements TestRepository {
 
     private final DataSource dataSource;
 
