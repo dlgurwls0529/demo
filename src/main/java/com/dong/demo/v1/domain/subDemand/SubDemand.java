@@ -7,7 +7,6 @@ import lombok.Getter;
 @Builder
 public class SubDemand {
 
-    private final String accountCP;
     private final String folderCP;
     private final String accountPublicKey;
 }

@@ -23,7 +23,7 @@ public class JDBCTest {
         Connection connection = DataSourceUtils.getConnection(dataSource);
 
         String driving_sql = "insert into folder values('test', true, 'test', 'test', ?);";
-        String driven_sql = "insert into subscribedemand values('test', 'test', 'test')";
+        String driven_sql = "insert into subscribedemand values('test', 'test')";
 
         Assertions.assertThrows(SQLIntegrityConstraintViolationException.class,
                 new Executable() {
