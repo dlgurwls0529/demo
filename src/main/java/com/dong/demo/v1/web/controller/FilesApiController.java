@@ -44,7 +44,6 @@ public class FilesApiController {
                 .fileId(String.valueOf(UUID.randomUUID()))
                 .lastChangedDate(LocalDateTime.now())
                 .subheadEWS("what meal do I eat?")
-                .contentsEWS("no pizzea")
                 .build();
 
         List<FilesGetResponseDto> list = new ArrayList<>();
@@ -52,5 +51,13 @@ public class FilesApiController {
         list.add(dto);
 
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @GetMapping("api/v1/folders/{folderCP}/files/{fileId}")
+    public ResponseEntity<String> getContentsByFileIdAndFolderCP(
+            @PathVariable String folderCP,
+            @PathVariable String fileId
+    ) {
+        return new ResponseEntity<>("배고파" + folderCP + fileId, HttpStatus.OK);
     }
 }

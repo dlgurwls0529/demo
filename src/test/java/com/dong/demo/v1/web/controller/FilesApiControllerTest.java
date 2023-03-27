@@ -92,4 +92,19 @@ class FilesApiControllerTest {
         Assertions.assertEquals(responseEntity.getBody().get(0), responseEntity.getBody().get(1));
     }
 
+    @Test
+    public void getContentsByFileIdAndFolderCP() {
+        // given
+        String folderCP = "folderCP_TEST";
+        String fileId = "folderCP_TEST";
+        String url = "http://localhost:" + port + "/api/v1/folders/" + folderCP + "/files/" + fileId;
+
+        // when
+        ResponseEntity<String> responseEntity =
+                restTemplate.getForEntity(url, String.class, String.class);
+
+        // then
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    }
+
 }

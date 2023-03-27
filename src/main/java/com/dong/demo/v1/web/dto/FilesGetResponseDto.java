@@ -12,14 +12,12 @@ public class FilesGetResponseDto {
     private final String fileId;
     private final LocalDateTime lastChangedDate;
     private final String subheadEWS;
-    private final String contentsEWS;
 
     @Builder
-    public FilesGetResponseDto(String folderCP, String fileId, LocalDateTime lastChangedDate, String subheadEWS, String contentsEWS) {
+    public FilesGetResponseDto(String folderCP, String fileId, LocalDateTime lastChangedDate, String subheadEWS) {
         this.folderCP = folderCP;
         this.fileId = fileId;
         this.lastChangedDate = lastChangedDate;
         this.subheadEWS = subheadEWS;
-        this.contentsEWS = contentsEWS;
     }
 }
