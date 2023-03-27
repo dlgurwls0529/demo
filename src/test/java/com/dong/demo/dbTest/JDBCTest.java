@@ -24,7 +24,22 @@ public class JDBCTest {
         String sql = "insert into Folder values('test', true, 'test', 'test', ?);";
 
         try {
-            connection.setAutoCommit(true);
+            connection.prepareStatement(sql).execute();
+            connection.prepareStatement(sql).execute();
+            connection.prepareStatement(sql).execute();
+            connection.prepareStatement(sql).execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /*try {
+            connection.setAutoCommit(false);
             PreparedStatement pstmt = connection.prepareStatement(sql);
             pstmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             pstmt.execute();
@@ -52,7 +67,7 @@ public class JDBCTest {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
 
     }
 
