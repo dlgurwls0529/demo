@@ -30,7 +30,8 @@ public class TestEnvDDLExecutor {
                 "  `title` TEXT NOT NULL,\n" +
                 "  `symmetricKeyEWF` TEXT NOT NULL,\n" +
                 "  `lastChangedDate` TIMESTAMP(6) NOT NULL\n" +
-                ");\n" +
+                ");"; String a =
+                "\n" +
                 "\n" +
                 "CREATE TABLE IF NOT EXISTS `WriteAuthority` (\n" +
                 "  `accountCP` CHAR(60) NOT NULL,\n" +
