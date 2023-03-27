@@ -54,7 +54,7 @@ public class TestEnvDDLExecutor {
                 "FOREIGN KEY(folderCP) REFERENCES Folder(folderCP)\n" +
                 ");\n" +
                 "\n" +
-                "CREATE TABLE IF NOT EXISTS `File`(\n" +
+                "CREATE TABLE IF NOT EISTS `File`(\n" +
                 "`folderCP` CHAR(60) NOT NULL,\n" +
                 "`fileId` BINARY(16) NOT NULL,\n" +
                 "`subheadEWS` TEXT NOT NULL,\n" +
