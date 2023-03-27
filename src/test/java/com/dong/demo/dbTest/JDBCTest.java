@@ -19,6 +19,44 @@ public class JDBCTest {
     private DataSource dataSource;
 
     @Test
+    public void insertionTest() {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        String sql = "insert into Folder values('test', true, 'test', 'test', ?);";
+
+        try {
+            connection.setAutoCommit(false);
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            pstmt.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        sql = "select * from Folder;";
+        ResultSet resultSet = null;
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            resultSet = preparedStatement.executeQuery(sql);
+            String test = resultSet.getString("folderCP");
+            Assertions.assertEquals("test", test);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.rollback();
+                connection.setAutoCommit(true);
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    @Test
     public void duplicateTest() {
         Connection connection = DataSourceUtils.getConnection(dataSource);
 
