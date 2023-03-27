@@ -24,7 +24,7 @@ public class JDBCTest {
         String sql = "insert into Folder values('test', true, 'test', 'test', ?);";
 
         try {
-            connection.setAutoCommit(false);
+            connection.setAutoCommit(true);
             PreparedStatement pstmt = connection.prepareStatement(sql);
             pstmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             pstmt.execute();
