@@ -62,11 +62,10 @@ public class TestEnvDDLExecutor {
                 "  PRIMARY KEY (folderCP, fileId)\n" +
                 ");";
 
-        String constraints =
-                "ALTER TABLE WriteAuthority ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);\n" +
-                "ALTER TABLE ReadAuthority ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);\n" +
-                "ALTER TABLE SubscribeDemand ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);\n" +
-                "ALTER TABLE File ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);";
+        String const1 = "ALTER TABLE WriteAuthority ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);";
+        String const2 = "ALTER TABLE ReadAuthority ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);";
+        String const3 = "ALTER TABLE SubscribeDemand ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);";
+        String const4 = "ALTER TABLE File ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);";
 
         try {
             connection.prepareStatement(ddl1).execute();
@@ -74,7 +73,10 @@ public class TestEnvDDLExecutor {
             connection.prepareStatement(ddl3).execute();
             connection.prepareStatement(ddl4).execute();
             connection.prepareStatement(ddl5).execute();
-            connection.prepareStatement(constraints).execute();
+            connection.prepareStatement(const1).execute();
+            connection.prepareStatement(const2).execute();
+            connection.prepareStatement(const3).execute();
+            connection.prepareStatement(const4).execute();
 
             PreparedStatement preparedStatement = connection.prepareStatement("insert into Folder values('tests', true, 'tests', 'tests', ?);");
             preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
