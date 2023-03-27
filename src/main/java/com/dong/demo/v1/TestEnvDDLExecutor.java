@@ -76,7 +76,7 @@ public class TestEnvDDLExecutor {
         try {
             connection.prepareStatement(ddl).execute();
 
-            PreparedStatement preparedStatement = connection.prepareStatement("insert into Folder('tests', true, 'tests', 'tests', ?);");
+            PreparedStatement preparedStatement = connection.prepareStatement("insert into Folder values('tests', true, 'tests', 'tests', ?);");
             preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             preparedStatement.execute();
 
