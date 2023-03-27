@@ -28,8 +28,8 @@ public class JDBCTest {
             e.printStackTrace();
         }
 
-        String driving_sql = "insert into folder values('test', true, 'test', 'test', ?);";
-        String driven_sql = "insert into subscribedemand values('test', 'test', 'test')";
+        String driving_sql = "insert into Folder values('test', true, 'test', 'test', ?);";
+        String driven_sql = "insert into SubscribeDemand values('test', 'test', 'test');";
 
         Assertions.assertThrows(SQLIntegrityConstraintViolationException.class,
                 new Executable() {
