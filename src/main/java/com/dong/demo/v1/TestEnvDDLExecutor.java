@@ -7,7 +7,10 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Component
 public class TestEnvDDLExecutor {
@@ -71,6 +74,11 @@ public class TestEnvDDLExecutor {
 
         try {
             connection.prepareStatement(ddl).execute();
+
+            PreparedStatement preparedStatement = connection.prepareStatement("insert into Folder('tests', true, 'tests', 'tests', ?);");
+            preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            preparedStatement.execute();
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

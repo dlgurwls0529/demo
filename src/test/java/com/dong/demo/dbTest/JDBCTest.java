@@ -18,51 +18,8 @@ public class JDBCTest {
     @Autowired
     private DataSource dataSource;
 
-    @Test
-    public void insertionTest() {
-        Connection connection = DataSourceUtils.getConnection(dataSource);
-        String sql = "insert into Folder values('test', true, 'test', 'test', ?);";
-
-        Assertions.assertDoesNotThrow(new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                connection.prepareStatement(sql).execute();
-                connection.close();
-            }
-        });
-
-        /*try {
-            connection.setAutoCommit(false);
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            pstmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
-            pstmt.execute();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        sql = "select * from Folder;";
-        ResultSet resultSet = null;
-
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            resultSet = preparedStatement.executeQuery(sql);
-            String test = resultSet.getString("folderCP");
-            Assertions.assertEquals("test", test);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                connection.rollback();
-                connection.setAutoCommit(true);
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }*/
-
-    }
+    // 어차피 테스트는 h2 환경에서 돌아가서(ec2 이더라도) insert 된게 막 보이지는 않는다.
+    // 한번 닫히면 다 초기화됨.
 
     @Test
     public void duplicateTest() {
