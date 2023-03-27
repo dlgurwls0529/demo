@@ -6,7 +6,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class SubDemand {
-    // test
+
+    private final String accountCP;
     private final String folderCP;
     private final String accountPublicKey;
 }
