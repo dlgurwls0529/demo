@@ -40,7 +40,7 @@ public class FilesApiController {
             @PathVariable String folderCP
     ) {
         FilesGetResponseDto dto = FilesGetResponseDto.builder()
-                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK4so+Q=")
                 .fileId(String.valueOf(UUID.randomUUID()))
                 .lastChangedDate(LocalDateTime.now())
                 .subheadEWS("what meal do I eat?")
