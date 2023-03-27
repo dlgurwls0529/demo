@@ -23,20 +23,13 @@ public class JDBCTest {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "insert into Folder values('test', true, 'test', 'test', ?);";
 
-        try {
-            connection.prepareStatement(sql).execute();
-            connection.prepareStatement(sql).execute();
-            connection.prepareStatement(sql).execute();
-            connection.prepareStatement(sql).execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                connection.prepareStatement(sql).execute();
                 connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
-        }
+        });
 
         /*try {
             connection.setAutoCommit(false);
