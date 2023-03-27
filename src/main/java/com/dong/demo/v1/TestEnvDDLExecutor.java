@@ -24,7 +24,7 @@ public class TestEnvDDLExecutor {
         connection = DataSourceUtils.getConnection(dataSource);
 
         String ddl = "" +
-                "CREATE TABLE `Folder` (\n" +
+                "CREATE TABLE IF NOT EXISTS `Folder` (\n" +
                 "  `folderCP` CHAR(60) PRIMARY KEY NOT NULL,\n" +
                 "  `isTitleOpen` BOOL NOT NULL,\n" +
                 "  `title` TEXT NOT NULL,\n" +
@@ -32,7 +32,7 @@ public class TestEnvDDLExecutor {
                 "  `lastChangedDate` TIMESTAMP(6) NOT NULL\n" +
                 ");\n" +
                 "\n" +
-                "CREATE TABLE `WriteAuthority` (\n" +
+                "CREATE TABLE IF NOT EXISTS `WriteAuthority` (\n" +
                 "  `accountCP` CHAR(60) NOT NULL,\n" +
                 "  `folderCP` CHAR(60) NOT NULL,\n" +
                 "  `folderPublicKey` TEXT NOT NULL,\n" +
@@ -40,21 +40,21 @@ public class TestEnvDDLExecutor {
                 "  PRIMARY KEY (`accountCP`, `folderCP`)\n" +
                 ");\n" +
                 "\n" +
-                "CREATE TABLE `ReadAuthority` (\n" +
+                "CREATE TABLE IF NOT EXISTS `ReadAuthority` (\n" +
                 "  `accountCP` CHAR(60) NOT NULL,\n" +
                 "  `folderCP` CHAR(60) NOT NULL,\n" +
                 "  `symmetricKeyEWA` TEXT NOT NULL,\n" +
                 "  PRIMARY KEY (`accountCP`, `folderCP`)\n" +
                 ");\n" +
                 "\n" +
-                "CREATE TABLE `SubscribeDemand` (\n" +
+                "CREATE TABLE IF NOT EXISTS `SubscribeDemand` (\n" +
                 "  `accountCP` CHAR(60) NOT NULL,\n" +
                 "  `folderCP` CHAR(60) NOT NULL,\n" +
                 "  `accountPublicKey` TEXT NOT NULL,\n" +
                 "  PRIMARY KEY (`accountCP`, `folderCP`)\n" +
                 ");\n" +
                 "\n" +
-                "CREATE TABLE `File` (\n" +
+                "CREATE TABLE IF NOT EXISTS `File` (\n" +
                 "  `folderCP` CHAR(60) NOT NULL,\n" +
                 "  `fileId` BINARY(16) NOT NULL,\n" +
                 "  `subheadEWS` TEXT NOT NULL,\n" +
