@@ -78,18 +78,20 @@ public class TestEnvDDLExecutor {
             connection.prepareStatement(const3).execute();
             connection.prepareStatement(const4).execute();
 
+            /*
             connection.setAutoCommit(false);
 
             PreparedStatement preparedStatement = connection.prepareStatement("insert into Folder values('tests', true, 'tests', 'tests', ?);");
             preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             preparedStatement.execute();
+            */
 
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
-                connection.rollback();
-                connection.setAutoCommit(true);
+                // connection.rollback();
+                // connection.setAutoCommit(true);
                 connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();
