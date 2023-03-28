@@ -64,7 +64,7 @@ public class FoldersApiControllerTest {
         // then
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(2, response.getBody().size());
+        Assertions.assertEquals(keyword.length(), response.getBody().size());
         Assertions.assertEquals(response.getBody().get(0), response.getBody().get(1));
     }
 }

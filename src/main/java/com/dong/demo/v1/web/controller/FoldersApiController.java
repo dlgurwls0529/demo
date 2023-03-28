@@ -29,9 +29,13 @@ public class FoldersApiController {
                 .folderCP("folderCP_TEST")
                 .build();
 
+        int length = keyword.length();
+
         List<FoldersSearchResponseDto> list = new ArrayList<>();
-        list.add(dto);
-        list.add(dto);
+
+        for(int i = 0; i < length; i++) {
+            list.add(dto);
+        }
 
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
