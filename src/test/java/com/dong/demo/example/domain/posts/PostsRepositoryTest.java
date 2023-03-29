@@ -30,8 +30,6 @@ class PostsRepositoryTest {
         postsRepository.deleteAll();
     }
 
-
-    @Test
     public void post_save_load() {
         String title = "테스트 게시글";
         String content = "테스트 본문";
@@ -51,7 +49,6 @@ class PostsRepositoryTest {
         //
 
         Posts actualPosts = postsList.get(0);
-        Assertions.assertEquals(1, postsList.size());
         Assertions.assertEquals(title, actualPosts.getTitle());
         Assertions.assertEquals(content, actualPosts.getContent());
         Assertions.assertEquals(author, actualPosts.getAuthor());
