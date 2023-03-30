@@ -3,6 +3,7 @@ package com.dong.demo.v1.domain.folder;
 
 import lombok.Builder;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Builder
@@ -36,20 +37,11 @@ public class Folder {
 
     @Override
     public boolean equals(Object obj) {
-        boolean folderCPEquality = this.getFolderCP().equals(((Folder)obj).getFolderCP());
-        System.out.println("folderCPEquality = " + folderCPEquality);
-
-        boolean isTitleOpenEquality = this.getIsTitleOpen() == ((Folder)obj).getIsTitleOpen();
-        System.out.println("isTitleOpenEquality = " + isTitleOpenEquality);
-
-        boolean titleEquality = this.getTitle().equals(((Folder)obj).getTitle());
-        System.out.println("titleEquality = " + titleEquality);
-
-        boolean symEquality = this.getSymmetricKeyEWF().equals(((Folder)obj).getSymmetricKeyEWF());
-        System.out.println("symEquality = " + symEquality);
-
-        boolean lastEquality = this.getLastChangedDate().equals(((Folder)obj).getLastChangedDate());
-        System.out.println("lastEquality = " + lastEquality);
+        boolean folderCPEquality = this.folderCP.equals(((Folder)obj).folderCP);
+        boolean isTitleOpenEquality = this.isTitleOpen == ((Folder)obj).isTitleOpen;
+        boolean titleEquality = this.title.equals(((Folder)obj).title);
+        boolean symEquality = this.symmetricKeyEWF.equals(((Folder)obj).symmetricKeyEWF);
+        boolean lastEquality = this.lastChangedDate.equals(((Folder)obj).lastChangedDate);
 
         return folderCPEquality && isTitleOpenEquality && titleEquality && symEquality && lastEquality;
     }

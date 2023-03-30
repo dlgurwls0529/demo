@@ -23,75 +23,74 @@ public class TestEnvDDLExecutor {
         Connection connection = null;
         connection = DataSourceUtils.getConnection(dataSource);
 
-        String ddl1 = "CREATE TABLE IF NOT EXISTS Folder (\n" +
-                "  folderCP CHAR(60) PRIMARY KEY NOT NULL,\n" +
-                "  isTitleOpen BOOL NOT NULL,\n" +
-                "  title TEXT NOT NULL,\n" +
-                "  symmetricKeyEWF TEXT NOT NULL,\n" +
-                "  lastChangedDate TIMESTAMP(6) NOT NULL\n" +
-                ");";
+        String folderDDl = """
+                CREATE TABLE IF NOT EXISTS Folder (
+                  folderCP VARCHAR(60) NOT NULL,
+                  isTitleOpen BOOL NOT NULL,
+                  title TEXT NOT NULL,
+                  symmetricKeyEWF TEXT NOT NULL,
+                  lastChangedDate TIMESTAMP(6) NOT NULL,
+                  PRIMARY KEY(folderCP)
+                );""";
 
-        String ddl2 = "CREATE TABLE IF NOT EXISTS WriteAuthority (\n" +
-                "  accountCP CHAR(60) NOT NULL,\n" +
-                "  folderCP CHAR(60) NOT NULL,\n" +
-                "  folderPublicKey TEXT NOT NULL,\n" +
-                "  folderPrivateKeyEWA TEXT NOT NULL,\n" +
-                "  PRIMARY KEY (accountCP, folderCP)\n" +
-                ");";
+        String fileDDL = """
+                CREATE TABLE IF NOT EXISTS File (
+                  folderCP VARCHAR(60) NOT NULL,
+                  fileId BINARY(16) NOT NULL,
+                  subheadEWS TEXT NOT NULL,
+                  lastChangedDate TIMESTAMP(6) NOT NULL,
+                  contentsEWS TEXT NOT NULL,
+                  PRIMARY KEY(folderCP, fileId),
+                  FOREIGN KEY(folderCP) REFERENCES Folder(folderCP)
+                    ON UPDATE RESTRICT
+                    ON DELETE RESTRICT
+                );""";
 
-        String ddl3 = "CREATE TABLE IF NOT EXISTS ReadAuthority (\n" +
-                "  accountCP CHAR(60) NOT NULL,\n" +
-                "  folderCP CHAR(60) NOT NULL,\n" +
-                "  symmetricKeyEWA TEXT NOT NULL,\n" +
-                "  PRIMARY KEY (accountCP, folderCP)\n" +
-                ");";
+        String writeAuthDDL = """
+                CREATE TABLE IF NOT EXISTS WriteAuthority (
+                  accountCP VARCHAR(60) NOT NULL,
+                  folderCP VARCHAR(60) NOT NULL,
+                  folderPublicKey TEXT NOT NULL,
+                  folderPrivateKeyEWA TEXT NOT NULL,
+                  PRIMARY KEY(accountCP, folderCP),
+                  FOREIGN KEY(folderCP) REFERENCES Folder(folderCP)
+                    ON UPDATE RESTRICT
+                    ON DELETE RESTRICT
+                );""";
 
-        String ddl4 = "CREATE TABLE IF NOT EXISTS SubscribeDemand (\n" +
-                "  accountCP CHAR(60) NOT NULL,\n" +
-                "  folderCP CHAR(60) NOT NULL,\n" +
-                "  accountPublicKey TEXT NOT NULL,\n" +
-                "  PRIMARY KEY (accountCP, folderCP)\n" +
-                ");";
+        String readAuthDDL = """
+                CREATE TABLE IF NOT EXISTS ReadAuthority (
+                  accountCP VARCHAR(60) NOT NULL,
+                  folderCP VARCHAR(60) NOT NULL,
+                  symmetricKeyEWA TEXT NOT NULL,
+                  PRIMARY KEY(accountCP, folderCP),
+                  FOREIGN KEY(folderCP) REFERENCES Folder(folderCP)
+                    ON UPDATE RESTRICT
+                    ON DELETE RESTRICT
+                );""";
 
-        String ddl5 = "CREATE TABLE IF NOT EXISTS File (\n" +
-                "  folderCP CHAR(60) NOT NULL,\n" +
-                "  fileId BINARY(16) NOT NULL,\n" +
-                "  subheadEWS TEXT NOT NULL,\n" +
-                "  lastChangedDate TIMESTAMP(6) NOT NULL,\n" +
-                "  contentsEWS TEXT NOT NULL,\n" +
-                "  PRIMARY KEY (folderCP, fileId)\n" +
-                ");";
-
-        String const1 = "ALTER TABLE WriteAuthority ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);";
-        String const2 = "ALTER TABLE ReadAuthority ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);";
-        String const3 = "ALTER TABLE SubscribeDemand ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);";
-        String const4 = "ALTER TABLE File ADD FOREIGN KEY (folderCP) REFERENCES Folder (folderCP);";
+        String subDemandDDL = """
+                CREATE TABLE IF NOT EXISTS ReadAuthority (
+                  accountCP VARCHAR(60) NOT NULL,
+                  folderCP VARCHAR(60) NOT NULL,
+                  symmetricKeyEWA TEXT NOT NULL,
+                  PRIMARY KEY(accountCP, folderCP),
+                  FOREIGN KEY(folderCP) REFERENCES Folder(folderCP)
+                    ON UPDATE RESTRICT
+                    ON DELETE RESTRICT
+                );""";
 
         try {
-            connection.prepareStatement(ddl1).execute();
-            connection.prepareStatement(ddl2).execute();
-            connection.prepareStatement(ddl3).execute();
-            connection.prepareStatement(ddl4).execute();
-            connection.prepareStatement(ddl5).execute();
-            connection.prepareStatement(const1).execute();
-            connection.prepareStatement(const2).execute();
-            connection.prepareStatement(const3).execute();
-            connection.prepareStatement(const4).execute();
-
-            /*
-            connection.setAutoCommit(false);
-
-            PreparedStatement preparedStatement = connection.prepareStatement("insert into Folder values('tests', true, 'tests', 'tests', ?);");
-            preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
-            preparedStatement.execute();
-            */
+            connection.prepareStatement(folderDDl).execute();
+            connection.prepareStatement(fileDDL).execute();
+            connection.prepareStatement(writeAuthDDL).execute();
+            connection.prepareStatement(readAuthDDL).execute();
+            connection.prepareStatement(subDemandDDL).execute();
 
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
-                // connection.rollback();
-                // connection.setAutoCommit(true);
                 connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();

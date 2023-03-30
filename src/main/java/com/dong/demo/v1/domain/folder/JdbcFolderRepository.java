@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -42,7 +43,24 @@ public class JdbcFolderRepository implements FolderRepository {
 
     @Override
     public void updateLastChangedDate(String folderCP, LocalDateTime dateTime) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        String sql = "UPDATE Folder SET lastChangedDate=? WHERE folderCP=?;";
 
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setTimestamp(1, Timestamp.valueOf(dateTime));
+            preparedStatement.setString(2, folderCP);
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -90,7 +108,33 @@ public class JdbcFolderRepository implements FolderRepository {
 
     @Override
     public List<String[]> findAllFolderCPAndTitle() {
-        return null;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        String sql = "SELECT folderCP, title FROM Folder";
+        ResultSet resultSet = null;
+        List<String[]> result = new ArrayList<>();
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            resultSet = preparedStatement.executeQuery();
+
+            while(resultSet.next()) {
+                result.add(new String[]{
+                        resultSet.getString("folderCP"),
+                        resultSet.getString("title")
+                });
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
     }
 
     @Override

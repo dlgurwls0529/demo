@@ -1,5 +1,6 @@
 package com.dong.demo.v1.domain.folder;
 
+import com.dong.demo.v1.util.LocalDateTime6Digit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +9,10 @@ import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,7 +36,7 @@ class JdbcFolderRepositoryTest {
                 .isTitleOpen(true)
                 .title("title_TEST")
                 .symmetricKeyEWF("sym_TEST")
-                .lastChangedDate(LocalDateTime.now())
+                .lastChangedDate(LocalDateTime6Digit.now())
                 .build();
 
         // when
@@ -68,7 +72,7 @@ class JdbcFolderRepositoryTest {
                 .isTitleOpen(true)
                 .title("hello")
                 .symmetricKeyEWF("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqTKHrhh/X1rH6RN759oWA/7xEGj9pJEqzpwawagCVlcK52U7RMocObxROK86ZU8Yk4kweyxPThnVS8JqKGTWcZALnGImviHqONfP8kZtAFqsdyg8tfPbRaHpVxhrkDh/6y5aXpETSmQA5TQllfg5dAPDlrA9AUOsZdgxvd2Pv3+aYmrdfFVr6J6BFjm6MLCutfsfV9/wAZB86/BxWbxqTEqGtUHhGQ5mDAIvP1Ym3xoEuDRWwlFZ48o4ZmVMB8PCYiBxHwCRJBxEBKRhIQ9BKXtdC3INGfRQgGDANlifBaKyZ2JN/dUzGaQx5LLpTqZK2lDoLrC+CSY0apt3Az3ZCQIDAQAB")
-                .lastChangedDate(LocalDateTime.now())
+                .lastChangedDate(LocalDateTime6Digit.now())
                 .build();
 
         Assertions.assertDoesNotThrow(new Executable() {
@@ -81,10 +85,92 @@ class JdbcFolderRepositoryTest {
 
         Folder actual = folderRepository.find(expected.getFolderCP());
 
-        // todo : 이거 해쉬코드로 비교 되니까 도메인 객체에다가 isEquals 오버라이딩해서 구현해야 할 듯
-
         Assertions.assertNotNull(actual);
+        Assertions.assertEquals(expected, actual);
+    }
 
+    @Test
+    public void findFolderCPAndTitleTest() {
+        Folder expected1 = Folder.builder()
+                .folderCP("fdsafdgasdsg7ifLqGEamuoK/4so+/Q=")
+                .isTitleOpen(true)
+                .title("hello")
+                .symmetricKeyEWF("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqTKHrhh/X1rH6RN759oWA/7xEGj9pJEqzpwawagCVlcK52U7RMocObxROK86ZU8Yk4kweyxPThnVS8JqKGTWcZALnGImviHqONfP8kZtAFqsdyg8tfPbRaHpVxhrkDh/6y5aXpETSmQA5TQllfg5dAPDlrA9AUOsZdgxvd2Pv3+aYmrdfFVr6J6BFjm6MLCutfsfV9/wAZB86/BxWbxqTEqGtUHhGQ5mDAIvP1Ym3xoEuDRWwlFZ48o4ZmVMB8PCYiBxHwCRJBxEBKRhIQ9BKXtdC3INGfRQgGDANlifBaKyZ2JN/dUzGaQx5LLpTqZK2lDoLrC+CSY0apt3Az3ZCQIDAQAB")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        Folder expected2 = Folder.builder()
+                .folderCP("ljhiwrnjkudsjNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .isTitleOpen(true)
+                .title("hello")
+                .symmetricKeyEWF("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqTKHrhh/X1rH6RN759oWA/7xEGj9pJEqzpwawagCVlcK52U7RMocObxROK86ZU8Yk4kweyxPThnVS8JqKGTWcZALnGImviHqONfP8kZtAFqsdyg8tfPbRaHpVxhrkDh/6y5aXpETSmQA5TQllfg5dAPDlrA9AUOsZdgxvd2Pv3+aYmrdfFVr6J6BFjm6MLCutfsfV9/wAZB86/BxWbxqTEqGtUHhGQ5mDAIvP1Ym3xoEuDRWwlFZ48o4ZmVMB8PCYiBxHwCRJBxEBKRhIQ9BKXtdC3INGfRQgGDANlifBaKyZ2JN/dUzGaQx5LLpTqZK2lDoLrC+CSY0apt3Az3ZCQIDAQAB")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        Folder expected3 = Folder.builder()
+                .folderCP("pewjrwpfeipfnNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .isTitleOpen(true)
+                .title("hello")
+                .symmetricKeyEWF("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqTKHrhh/X1rH6RN759oWA/7xEGj9pJEqzpwawagCVlcK52U7RMocObxROK86ZU8Yk4kweyxPThnVS8JqKGTWcZALnGImviHqONfP8kZtAFqsdyg8tfPbRaHpVxhrkDh/6y5aXpETSmQA5TQllfg5dAPDlrA9AUOsZdgxvd2Pv3+aYmrdfFVr6J6BFjm6MLCutfsfV9/wAZB86/BxWbxqTEqGtUHhGQ5mDAIvP1Ym3xoEuDRWwlFZ48o4ZmVMB8PCYiBxHwCRJBxEBKRhIQ9BKXtdC3INGfRQgGDANlifBaKyZ2JN/dUzGaQx5LLpTqZK2lDoLrC+CSY0apt3Az3ZCQIDAQAB")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        List<Folder> expectedList = new ArrayList<>();
+        expectedList.add(expected1);
+        expectedList.add(expected2);
+        expectedList.add(expected3);
+
+        try {
+            folderRepository.save(expected1);
+            folderRepository.save(expected2);
+            folderRepository.save(expected3);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+        }
+
+        List<String[]> actualList = folderRepository.findAllFolderCPAndTitle();
+
+        Assertions.assertEquals(3, actualList.size());
+
+        for(int i = 0 ; i < expectedList.size(); i++) {
+            Assertions.assertNotNull(actualList.get(i));
+            Assertions.assertEquals(expectedList.get(i).getFolderCP(), actualList.get(i)[0]);
+            Assertions.assertEquals(expectedList.get(i).getTitle(), actualList.get(i)[1]);
+        }
+    }
+
+    @Test
+    public void updateLastChangedDateTest() {
+        // given
+        Folder expected = Folder.builder()
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .isTitleOpen(true)
+                .title("hello")
+                .symmetricKeyEWF("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqTKHrhh/X1rH6RN759oWA/7xEGj9pJEqzpwawagCVlcK52U7RMocObxROK86ZU8Yk4kweyxPThnVS8JqKGTWcZALnGImviHqONfP8kZtAFqsdyg8tfPbRaHpVxhrkDh/6y5aXpETSmQA5TQllfg5dAPDlrA9AUOsZdgxvd2Pv3+aYmrdfFVr6J6BFjm6MLCutfsfV9/wAZB86/BxWbxqTEqGtUHhGQ5mDAIvP1Ym3xoEuDRWwlFZ48o4ZmVMB8PCYiBxHwCRJBxEBKRhIQ9BKXtdC3INGfRQgGDANlifBaKyZ2JN/dUzGaQx5LLpTqZK2lDoLrC+CSY0apt3Az3ZCQIDAQAB")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        LocalDateTime localDateTime = LocalDateTime6Digit.now();
+
+        try {
+            folderRepository.save(expected);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+        }
+
+        // when
+        folderRepository.updateLastChangedDate(expected.getFolderCP(), localDateTime);
+
+        // then
+        Folder actual = folderRepository.find(expected.getFolderCP());
+        Assertions.assertNotEquals(expected.getLastChangedDate(), actual.getLastChangedDate());
+        Assertions.assertEquals(localDateTime, actual.getLastChangedDate());
 
     }
 }
