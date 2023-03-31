@@ -30,7 +30,7 @@ class JdbcReadAuthRepositoryTest {
     }
 
     @Test
-    void save_success_test() {
+    public void save_success_test() {
         // given
         ReadAuth expected_readAuth = ReadAuth.builder()
                 .accountCP("fsanjflhasfdj=/fsaf/s=sdg=/ga=/fsaf")
@@ -59,7 +59,7 @@ class JdbcReadAuthRepositoryTest {
     }
 
     @Test
-    void findByAccountCP_success_test() {
+    public void findByAccountCP_success_test() {
         // given
         String accountCP = "fsanjflhasfdj=/fsaf/s=sdg=/ga=/fsaf";
 
@@ -75,6 +75,92 @@ class JdbcReadAuthRepositoryTest {
     }
 
     @Test
-    void deleteAllTest() {
+    public void deleteAll_success_test() {
+        Executable executable = new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                readAuthRepository.deleteAll();
+            }
+        };
+
+        Assertions.assertDoesNotThrow(executable);
     }
+
+    @Test
+    public void save_3_find_test() {
+        Folder expected_folder = Folder.builder()
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .isTitleOpen(true)
+                .title("hello")
+                .symmetricKeyEWF("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqTKHrhh/X1rH6RN759oWA/7xEGj9pJEqzpwawagCVlcK52U7RMocObxROK86ZU8Yk4kweyxPThnVS8JqKGTWcZALnGImviHqONfP8kZtAFqsdyg8tfPbRaHpVxhrkDh/6y5aXpETSmQA5TQllfg5dAPDlrA9AUOsZdgxvd2Pv3+aYmrdfFVr6J6BFjm6MLCutfsfV9/wAZB86/BxWbxqTEqGtUHhGQ5mDAIvP1Ym3xoEuDRWwlFZ48o4ZmVMB8PCYiBxHwCRJBxEBKRhIQ9BKXtdC3INGfRQgGDANlifBaKyZ2JN/dUzGaQx5LLpTqZK2lDoLrC+CSY0apt3Az3ZCQIDAQAB")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        ReadAuth expected_readAuth_1 = ReadAuth.builder()
+                .accountCP("fsanjflhasfdj=/fsaf/s=sdg=/ga=/fsaf")
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .symmetricKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .build();
+
+        ReadAuth expected_readAuth_2 = ReadAuth.builder()
+                .accountCP("fsanjflhewdfsawe/s=sdg=/ga=/fsaf")
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .symmetricKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .build();
+
+        ReadAuth expected_readAuth_3 = ReadAuth.builder()
+                .accountCP("fsanjflhsdfanjaslhfauwefga=/fsaf")
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .symmetricKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .build();
+
+        try {
+            folderRepository.save(expected_folder);
+            readAuthRepository.save(expected_readAuth_1);
+            readAuthRepository.save(expected_readAuth_2);
+            readAuthRepository.save(expected_readAuth_3);
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+        }
+
+        List<ReadAuth> readAuths = readAuthRepository.findByAccountCP(expected_readAuth_1.getAccountCP());
+
+        Assertions.assertEquals(1, readAuths.size());
+        Assertions.assertEquals(expected_readAuth_1, readAuths.get(0));
+
+    }
+
+    @Test
+    public void save_delete_test() {
+        Folder expected_folder = Folder.builder()
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .isTitleOpen(true)
+                .title("hello")
+                .symmetricKeyEWF("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqTKHrhh/X1rH6RN759oWA/7xEGj9pJEqzpwawagCVlcK52U7RMocObxROK86ZU8Yk4kweyxPThnVS8JqKGTWcZALnGImviHqONfP8kZtAFqsdyg8tfPbRaHpVxhrkDh/6y5aXpETSmQA5TQllfg5dAPDlrA9AUOsZdgxvd2Pv3+aYmrdfFVr6J6BFjm6MLCutfsfV9/wAZB86/BxWbxqTEqGtUHhGQ5mDAIvP1Ym3xoEuDRWwlFZ48o4ZmVMB8PCYiBxHwCRJBxEBKRhIQ9BKXtdC3INGfRQgGDANlifBaKyZ2JN/dUzGaQx5LLpTqZK2lDoLrC+CSY0apt3Az3ZCQIDAQAB")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        ReadAuth expected_readAuth = ReadAuth.builder()
+                .accountCP("fsanjflhasfdj=/fsaf/s=sdg=/ga=/fsaf")
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .symmetricKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .build();
+
+        try {
+            folderRepository.save(expected_folder);
+            readAuthRepository.save(expected_readAuth);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+        }
+
+        Assertions.assertEquals(1,
+                readAuthRepository.findByAccountCP(expected_readAuth.getAccountCP()).size());
+
+        readAuthRepository.deleteAll();
+
+        Assertions.assertEquals(0,
+                readAuthRepository.findByAccountCP(expected_readAuth.getAccountCP()).size());
+    }
+
 }
