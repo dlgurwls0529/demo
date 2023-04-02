@@ -254,6 +254,8 @@ public class JdbcFileRepository implements FileRepository {
 
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, folderCP);
+            preparedStatement.setString(2, fileId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {

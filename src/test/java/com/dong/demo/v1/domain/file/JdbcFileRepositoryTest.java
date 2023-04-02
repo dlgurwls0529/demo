@@ -263,15 +263,136 @@ class JdbcFileRepositoryTest {
 
     @Test
     public void findByFolderCP_test() {
+        // given
+        Folder folderA = Folder.builder()
+                .folderCP("folderCP_TEST_A")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
 
+        File file1_folderA = File.builder()
+                .folderCP(folderA.getFolderCP())
+                .fileId(UUIDGenerator.createUUIDWithoutHyphen())
+                .subheadEWS("sub_TEST_1A")
+                .contentsEWS("con_TEST_1A")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        File file2_folderA = File.builder()
+                .folderCP(folderA.getFolderCP())
+                .fileId(UUIDGenerator.createUUIDWithoutHyphen())
+                .subheadEWS("sub_TEST_2A")
+                .contentsEWS("con_TEST_2A")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        Folder folderB = Folder.builder()
+                .folderCP("folderCP_TEST_B")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        File file1_folderB = File.builder()
+                .folderCP(folderB.getFolderCP())
+                .fileId(UUIDGenerator.createUUIDWithoutHyphen())
+                .subheadEWS("sub_TEST_1B")
+                .contentsEWS("con_TEST_1B")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        try {
+            folderRepository.save(folderA);
+            folderRepository.save(folderB);
+            fileRepository.save(file1_folderA);
+            fileRepository.save(file2_folderA);
+            fileRepository.save(file1_folderB);
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+        }
+
+        // when
+        List<File> list_A = fileRepository.findByFolderCP(folderA.getFolderCP());
+        List<File> list_B = fileRepository.findByFolderCP(folderB.getFolderCP());
+
+        // then
+        Assertions.assertEquals(2, list_A.size());
+        Assertions.assertEquals(folderA.getFolderCP(), list_A.get(0).getFolderCP());
+        Assertions.assertEquals(folderA.getFolderCP(), list_A.get(1).getFolderCP());
+        Assertions.assertEquals(1, list_B.size());
+        Assertions.assertEquals(folderB.getFolderCP(), list_B.get(0).getFolderCP());
     }
 
     @Test
-    public void findContentsByFolderCPAndFileId() {
+    public void findContentsByFolderCPAndFileId_test() {
+        // given
+        Folder folder = Folder.builder()
+                .folderCP("folderCP_TEST")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        File file = File.builder()
+                .folderCP("folderCP_TEST")
+                .fileId(UUIDGenerator.createUUIDWithoutHyphen())
+                .subheadEWS("sub_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .contentsEWS("contents_TEST")
+                .build();
+
+        try {
+            folderRepository.save(folder);
+            fileRepository.save(file);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+        }
+
+        // when
+        String contents = fileRepository.findContentsByFolderCPAndFileId(file.getFolderCP(), file.getFileId());
+
+        // then
+        Assertions.assertEquals(file.getContentsEWS(), contents);
     }
 
     @Test
-    public void deleteAll() {
+    public void deleteAll_test() {
+        // given
+        Folder folder = Folder.builder()
+                .folderCP("folderCP_TEST")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
 
+        File file = File.builder()
+                .folderCP("folderCP_TEST")
+                .fileId(UUIDGenerator.createUUIDWithoutHyphen())
+                .subheadEWS("sub_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .contentsEWS("contents_TEST")
+                .build();
+
+        try {
+            folderRepository.save(folder);
+            fileRepository.save(file);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+        }
+
+        // when
+        int before = fileRepository.findAllOrderByLastChangedDate().size();
+        fileRepository.deleteAll();
+        int after = fileRepository.findAllOrderByLastChangedDate().size();
+
+        // then
+        Assertions.assertEquals(1, before);
+        Assertions.assertEquals(0, after);
     }
 }
