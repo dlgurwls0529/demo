@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 import javax.xml.crypto.Data;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -72,7 +73,7 @@ public class JdbcFileRepository implements FileRepository {
             preparedStatement.setString(2, file.getFileId());
             preparedStatement.setString(3, file.getSubheadEWS());
             preparedStatement.setTimestamp(4, Timestamp.valueOf(file.getLastChangedDate()));
-            preparedStatement.setString(5, file.getContentEWS());
+            preparedStatement.setString(5, file.getContentsEWS());
             preparedStatement.execute();
 
         } catch (SQLException e) {
@@ -88,31 +89,205 @@ public class JdbcFileRepository implements FileRepository {
 
     @Override
     public void update(File file) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        String sql = """
+                        UPDATE File
+                            SET
+                                subheadEWS=?
+                                lastChangedDate=?
+                                contentsEWS=?
+                            WHERE
+                                folderCP=?
+                                fileId=UNHEX(REPLACE(?, '-', ''));
+                    """;
 
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, file.getSubheadEWS());
+            preparedStatement.setTimestamp(2, Timestamp.valueOf(file.getLastChangedDate()));
+            preparedStatement.setString(3, file.getContentsEWS());
+            preparedStatement.setString(4, file.getFolderCP());
+            preparedStatement.setString(5, file.getFileId());
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void updateLastChangedDate(String folderCP, String fileId, LocalDateTime dateTime) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        String sql = """
+                        UPDATE File
+                            SET
+                                lastChangedDate=?
+                            WHERE
+                                folderCP=?
+                                fileId=UNHEX(REPLACE(?, '-', ''));
+                    """;
 
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setTimestamp(1, Timestamp.valueOf(dateTime));
+            preparedStatement.setString(2, folderCP);
+            preparedStatement.setString(3, fileId);
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public List<File> findAllOrderByLastChangedDate() {
-        return null;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        String sql = """
+                        SELECT
+                            folderCP,
+                            HEX(fileId) AS fileId_hex,
+                            subheadEWS,
+                            lastChangedDate,
+                            contentsEWS
+                        FROM File
+                        ORDER BY lastChangedDate DESC;
+                    """;
+
+        List<File> files = new ArrayList<>();
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                files.add(File.builder()
+                        .folderCP(resultSet.getString("folderCP"))
+                        .fileId(resultSet.getString("fileId_hex"))
+                        .subheadEWS(resultSet.getString("subheadEWS"))
+                        .lastChangedDate(resultSet.getTimestamp("lastChangedDate").toLocalDateTime())
+                        .contentsEWS(resultSet.getString("contentsEWS"))
+                        .build()
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return files;
     }
 
     @Override
     public List<File> findByFolderCP(String folderCP) {
-        return null;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        String sql = """
+                        SELECT
+                            folderCP,
+                            HEX(fileId) AS fileId_hex,
+                            subheadEWS,
+                            lastChangedDate,
+                            contentsEWS
+                        FROM File
+                        WHERE folderCP=?;
+                    """;
+
+        List<File> files = new ArrayList<>();
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, folderCP);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                files.add(File.builder()
+                        .folderCP(resultSet.getString("folderCP"))
+                        .fileId(resultSet.getString("fileId_hex"))
+                        .subheadEWS(resultSet.getString("subheadEWS"))
+                        .lastChangedDate(resultSet.getTimestamp("lastChangedDate").toLocalDateTime())
+                        .contentsEWS(resultSet.getString("contentsEWS"))
+                        .build());
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return files;
     }
 
     @Override
     public String findContentsByFolderCPAndFileId(String folderCP, String fileId) {
-        return null;
+        // Optional 쓸까 말까
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        String sql = """
+                        SELECT contentsEWS
+                        FROM File
+                        WHERE
+                            folderCP=? AND
+                            fileId=UNHEX(REPLACE(?, '-', ''));
+                    """;
+        String result = "";
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                result = resultSet.getString("contentsEWS");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
     }
 
     @Override
     public void deleteAll() {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        String sql = "DELETE FROM File;";
 
+        try {
+            connection.prepareStatement(sql).execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
