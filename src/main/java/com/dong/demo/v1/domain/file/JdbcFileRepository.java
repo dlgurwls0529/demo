@@ -93,11 +93,11 @@ public class JdbcFileRepository implements FileRepository {
         String sql = """
                         UPDATE File
                             SET
-                                subheadEWS=?
-                                lastChangedDate=?
+                                subheadEWS=?,
+                                lastChangedDate=?,
                                 contentsEWS=?
                             WHERE
-                                folderCP=?
+                                folderCP=? AND
                                 fileId=UNHEX(REPLACE(?, '-', ''));
                     """;
 
@@ -129,7 +129,7 @@ public class JdbcFileRepository implements FileRepository {
                             SET
                                 lastChangedDate=?
                             WHERE
-                                folderCP=?
+                                folderCP=? AND
                                 fileId=UNHEX(REPLACE(?, '-', ''));
                     """;
 
@@ -157,7 +157,7 @@ public class JdbcFileRepository implements FileRepository {
         String sql = """
                         SELECT
                             folderCP,
-                            HEX(fileId) AS fileId_hex,
+                            LOWER(HEX(fileId)) AS fileId_hex,
                             subheadEWS,
                             lastChangedDate,
                             contentsEWS
@@ -201,7 +201,7 @@ public class JdbcFileRepository implements FileRepository {
         String sql = """
                         SELECT
                             folderCP,
-                            HEX(fileId) AS fileId_hex,
+                            LOWER(HEX(fileId)) AS fileId_hex,
                             subheadEWS,
                             lastChangedDate,
                             contentsEWS
