@@ -14,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.lang.reflect.Field;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,19 +37,171 @@ class JdbcSubDemandRepositoryTest {
 
     @Test
     public void exist_test() {
+        // given
+        Folder folder = Folder.builder()
+                .folderCP("folderCP_TEST")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        SubDemand subDemand = SubDemand.builder()
+                .accountCP("accountCP_TEST")
+                .folderCP(folder.getFolderCP())
+                .accountPublicKey("accountPub_TEST")
+                .build();
+
+        boolean exists_before = subDemandRepository.exist(subDemand.getFolderCP(), subDemand.getAccountCP());
+
+        try {
+            folderRepository.save(folder);
+            subDemandRepository.save(subDemand);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+        }
+
+
+        // when
+        boolean exists_after = subDemandRepository.exist(subDemand.getFolderCP(), subDemand.getAccountCP());
+
+        // then
+        Assertions.assertFalse(exists_before);
+        Assertions.assertTrue(exists_after);
 
     }
 
     @Test
     public void save_test() {
+        // given
+        Folder folder = Folder.builder()
+                .folderCP("folderCP_TEST")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        SubDemand subDemand = SubDemand.builder()
+                .accountCP("accountCP_TEST")
+                .folderCP(folder.getFolderCP())
+                .accountPublicKey("accountPub_TEST")
+                .build();
+
+        boolean exists_before = subDemandRepository.exist(subDemand.getFolderCP(), subDemand.getAccountCP());
+
+        try {
+            folderRepository.save(folder);
+            subDemandRepository.save(subDemand);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+        }
+
+
+        // when
+        boolean exists_after = subDemandRepository.exist(subDemand.getFolderCP(), subDemand.getAccountCP());
+
+        // then
+        Assertions.assertFalse(exists_before);
+        Assertions.assertTrue(exists_after);
     }
 
     @Test
     public void delete_test() {
+        // given
+        Folder folder = Folder.builder()
+                .folderCP("folderCP_TEST")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        SubDemand subDemand1 = SubDemand.builder()
+                .accountCP("accountCP_TEST_1")
+                .folderCP(folder.getFolderCP())
+                .accountPublicKey("accountPub_TEST")
+                .build();
+
+        SubDemand subDemand2 = SubDemand.builder()
+                .accountCP("accountCP_TEST_2")
+                .folderCP(folder.getFolderCP())
+                .accountPublicKey("accountPub_TEST")
+                .build();
+
+        try {
+            folderRepository.save(folder);
+            subDemandRepository.save(subDemand1);
+            subDemandRepository.save(subDemand2);
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+        }
+
+        // when
+        subDemandRepository.delete(subDemand1.getFolderCP(), subDemand1.getAccountCP());
+
+        // then
+        Assertions.assertFalse(subDemandRepository.exist(subDemand1.getFolderCP(), subDemand1.getAccountCP()));
+        Assertions.assertTrue(subDemandRepository.exist(subDemand2.getFolderCP(), subDemand2.getAccountCP()));
     }
 
     @Test
     public void findAccountPublicKeyByFolderCP_test() {
+        // given
+        Folder folderA = Folder.builder()
+                .folderCP("folderCP_TEST_A")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        Folder folderB = Folder.builder()
+                .folderCP("folderCP_TEST_B")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        SubDemand subDemand1 = SubDemand.builder()
+                .accountCP("accountCP_TEST_1")
+                .folderCP(folderA.getFolderCP())
+                .accountPublicKey("accountPub_TEST_1")
+                .build();
+
+        SubDemand subDemand2 = SubDemand.builder()
+                .accountCP("accountCP_TEST_2")
+                .folderCP(folderA.getFolderCP())
+                .accountPublicKey("accountPub_TEST_2")
+                .build();
+
+        SubDemand subDemand3 = SubDemand.builder()
+                .accountCP("accountCP_TEST_3")
+                .folderCP(folderB.getFolderCP())
+                .accountPublicKey("accountPub_TEST_3")
+                .build();
+
+        try {
+            folderRepository.save(folderA);
+            folderRepository.save(folderB);
+            subDemandRepository.save(subDemand1);
+            subDemandRepository.save(subDemand2);
+            subDemandRepository.save(subDemand3);
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            e.printStackTrace();
+        }
+
+        // when
+        List<String> listA = subDemandRepository.findAccountPublicKeyByFolderCP(folderA.getFolderCP());
+        List<String> listB = subDemandRepository.findAccountPublicKeyByFolderCP(folderB.getFolderCP());
+
+        // then
+        Assertions.assertEquals(listA.get(0), subDemand1.getAccountPublicKey());
+        Assertions.assertEquals(listA.get(1), subDemand2.getAccountPublicKey());
+        Assertions.assertEquals(listB.get(0), subDemand3.getAccountPublicKey());
     }
 
     @Test
