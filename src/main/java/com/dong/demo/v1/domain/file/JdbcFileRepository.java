@@ -5,7 +5,6 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import javax.xml.crypto.Data;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -76,6 +75,8 @@ public class JdbcFileRepository implements FileRepository {
             preparedStatement.setString(5, file.getContentsEWS());
             preparedStatement.execute();
 
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw e;
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

@@ -30,6 +30,8 @@ public class JdbcFolderRepository implements FolderRepository {
             preparedStatement.setTimestamp(5, Timestamp.valueOf(folder.getLastChangedDate()));
             preparedStatement.execute();
 
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw e;
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

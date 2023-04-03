@@ -65,6 +65,8 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
             preparedStatement.setString(3, demand.getAccountPublicKey());
             preparedStatement.execute();
 
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw e;
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

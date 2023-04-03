@@ -27,6 +27,8 @@ public class JdbcReadAuthRepository implements ReadAuthRepository {
             preparedStatement.setString(3, readAuth.getSymmetricKeyEWA());
             preparedStatement.execute();
 
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw e;
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

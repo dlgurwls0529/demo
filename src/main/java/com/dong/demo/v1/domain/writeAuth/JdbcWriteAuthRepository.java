@@ -29,6 +29,8 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
             preparedStatement.setString(4, writeAuth.getFolderPrivateKeyEWA());
             preparedStatement.execute();
 
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw e;
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
