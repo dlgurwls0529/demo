@@ -70,10 +70,10 @@ public class TestEnvDDLExecutor {
                 );""";
 
         String subDemandDDL = """
-                CREATE TABLE IF NOT EXISTS ReadAuthority (
+                CREATE TABLE IF NOT EXISTS SubscribeDemand (
                   accountCP VARCHAR(60) NOT NULL,
                   folderCP VARCHAR(60) NOT NULL,
-                  symmetricKeyEWA TEXT NOT NULL,
+                  accountPublicKey TEXT NOT NULL,
                   PRIMARY KEY(accountCP, folderCP),
                   FOREIGN KEY(folderCP) REFERENCES Folder(folderCP)
                     ON UPDATE RESTRICT
