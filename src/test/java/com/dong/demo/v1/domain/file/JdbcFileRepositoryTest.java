@@ -2,9 +2,11 @@ package com.dong.demo.v1.domain.file;
 
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
+import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import com.dong.demo.v1.util.UUIDGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -394,5 +396,69 @@ class JdbcFileRepositoryTest {
         // then
         Assertions.assertEquals(1, before);
         Assertions.assertEquals(0, after);
+    }
+
+    @Test
+    public void duplicate_exception_handle_test() {
+        // given
+        Folder folder = Folder.builder()
+                .folderCP("folderCP_TEST")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        File file = File.builder()
+                .folderCP("folderCP_TEST")
+                .fileId(UUIDGenerator.createUUIDWithoutHyphen())
+                .subheadEWS("sub_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .contentsEWS("contents_TEST")
+                .build();
+
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                folderRepository.save(folder);
+                fileRepository.save(file);
+            }
+        });
+
+        // when, then
+        Integer code = null;
+
+        try {
+            fileRepository.save(file);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            code = e.getErrorCode();
+        }
+
+        Assertions.assertNotNull(code);
+        Assertions.assertEquals(ICsViolationCode.ENTITY, code);
+    }
+
+    @Test
+    public void non_folder_exception_handle_test() {
+        File file = File.builder()
+                .folderCP("folderCP_TEST")
+                .fileId(UUIDGenerator.createUUIDWithoutHyphen())
+                .subheadEWS("sub_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .contentsEWS("contents_TEST")
+                .build();
+
+        // when
+        Integer code = null;
+
+        try {
+            fileRepository.save(file);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            code = e.getErrorCode();
+        }
+
+        Assertions.assertNotNull(code);
+        Assertions.assertEquals(ICsViolationCode.REFERENTIAL, code);
+
     }
 }

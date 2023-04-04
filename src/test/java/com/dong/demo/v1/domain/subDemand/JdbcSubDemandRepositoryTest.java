@@ -3,11 +3,14 @@ package com.dong.demo.v1.domain.subDemand;
 import com.dong.demo.v1.domain.file.File;
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
+import com.dong.demo.v1.domain.readAuth.ReadAuth;
+import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -237,5 +240,66 @@ class JdbcSubDemandRepositoryTest {
         // then
         Assertions.assertTrue(exists_before);
         Assertions.assertFalse(exists_after);
+    }
+
+    @Test
+    public void duplicate_exception_handle_test() {
+        // given
+        Folder folder = Folder.builder()
+                .folderCP("folderCP_TEST")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        SubDemand subDemand = SubDemand.builder()
+                .accountCP("accountCP_TEST")
+                .folderCP(folder.getFolderCP())
+                .accountPublicKey("accountPub_TEST")
+                .build();
+
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                folderRepository.save(folder);
+                subDemandRepository.save(subDemand);
+            }
+        });
+
+        // when
+        Integer code = null;
+
+        try {
+            subDemandRepository.save(subDemand);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            code = e.getErrorCode();
+        }
+
+        // then
+        Assertions.assertNotNull(code);
+        Assertions.assertEquals(ICsViolationCode.ENTITY, code);
+    }
+
+    @Test
+    public void non_folder_exception_handle_test() {
+        // given
+        SubDemand subDemand = SubDemand.builder()
+                .accountCP("accountCP_TEST")
+                .folderCP("folderCP_TEST")
+                .accountPublicKey("accountPub_TEST")
+                .build();
+
+        // when
+        Integer code = null;
+
+        try {
+            subDemandRepository.save(subDemand);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            code = e.getErrorCode();
+        }
+
+        Assertions.assertNotNull(code);
+        Assertions.assertEquals(ICsViolationCode.REFERENTIAL, code);
     }
 }

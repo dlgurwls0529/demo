@@ -4,6 +4,7 @@ import com.dong.demo.v1.domain.file.FileRepository;
 import com.dong.demo.v1.domain.readAuth.ReadAuthRepository;
 import com.dong.demo.v1.domain.subDemand.SubDemandRepository;
 import com.dong.demo.v1.domain.writeAuth.WriteAuthRepository;
+import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
@@ -175,5 +176,36 @@ class JdbcFolderRepositoryTest {
         Assertions.assertNotEquals(expected.getLastChangedDate(), actual.getLastChangedDate());
         Assertions.assertEquals(localDateTime, actual.getLastChangedDate());
 
+    }
+
+    @Test
+    public void duplicate_exception_handle_test() {
+        // given
+        Folder folder = Folder.builder()
+                .folderCP("folderCP_TEST")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                folderRepository.save(folder);
+            }
+        });
+
+        // when
+        Integer integer = null;
+
+        try {
+            folderRepository.save(folder);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            integer = e.getErrorCode();
+        }
+
+        Assertions.assertNotNull(integer);
+        Assertions.assertEquals(ICsViolationCode.ENTITY, integer);
     }
 }

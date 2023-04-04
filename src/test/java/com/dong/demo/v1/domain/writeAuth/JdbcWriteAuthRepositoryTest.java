@@ -2,6 +2,8 @@ package com.dong.demo.v1.domain.writeAuth;
 
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
+import com.dong.demo.v1.domain.subDemand.SubDemand;
+import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -172,5 +174,68 @@ class JdbcWriteAuthRepositoryTest {
 
         Assertions.assertEquals(0,
                 writeAuthRepository.findByAccountCP(expected_writeAuth.getAccountCP()).size());
+    }
+
+    @Test
+    public void duplicate_exception_handle_test() {
+        // given
+        Folder folder = Folder.builder()
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .isTitleOpen(true)
+                .title("hello")
+                .symmetricKeyEWF("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqTKHrhh/X1rH6RN759oWA/7xEGj9pJEqzpwawagCVlcK52U7RMocObxROK86ZU8Yk4kweyxPThnVS8JqKGTWcZALnGImviHqONfP8kZtAFqsdyg8tfPbRaHpVxhrkDh/6y5aXpETSmQA5TQllfg5dAPDlrA9AUOsZdgxvd2Pv3+aYmrdfFVr6J6BFjm6MLCutfsfV9/wAZB86/BxWbxqTEqGtUHhGQ5mDAIvP1Ym3xoEuDRWwlFZ48o4ZmVMB8PCYiBxHwCRJBxEBKRhIQ9BKXtdC3INGfRQgGDANlifBaKyZ2JN/dUzGaQx5LLpTqZK2lDoLrC+CSY0apt3Az3ZCQIDAQAB")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        WriteAuth writeAuth = WriteAuth.builder()
+                .accountCP("fsanjflhasfdj=/fsaf/s=sdg=/ga=/fsaf")
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .folderPublicKey("2h3ri233r93h932yqr9fhoy29")
+                .folderPrivateKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .build();
+
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                folderRepository.save(folder);
+                writeAuthRepository.save(writeAuth);
+            }
+        });
+
+        // when
+        Integer code = null;
+
+        try {
+            writeAuthRepository.save(writeAuth);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            code = e.getErrorCode();
+        }
+
+        // then
+        Assertions.assertNotNull(code);
+        Assertions.assertEquals(ICsViolationCode.ENTITY, code);
+    }
+
+    @Test
+    public void non_folder_exception_handle_test() {
+        // given
+        WriteAuth writeAuth = WriteAuth.builder()
+                .accountCP("fsanjflhasfdj=/fsaf/s=sdg=/ga=/fsaf")
+                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
+                .folderPublicKey("2h3ri233r93h932yqr9fhoy29")
+                .folderPrivateKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .build();
+
+        // when
+        Integer code = null;
+
+        try {
+            writeAuthRepository.save(writeAuth);
+        } catch (SQLIntegrityConstraintViolationException e) {
+            code = e.getErrorCode();
+        }
+
+        Assertions.assertNotNull(code);
+        Assertions.assertEquals(ICsViolationCode.REFERENTIAL, code);
     }
 }
