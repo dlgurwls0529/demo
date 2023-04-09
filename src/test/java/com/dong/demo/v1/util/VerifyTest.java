@@ -87,7 +87,7 @@ class VerifyTest {
     }
 
     @Test
-    public void real_verify_success_test() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, SignatureException, InvalidKeyException {
+    public void real_verify_success_test() throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
         PublicKey publicKey = keyPair.getPublic();  //
@@ -110,7 +110,7 @@ class VerifyTest {
     }
 
     @Test
-    public void real_verify_fail_test() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, SignatureException, InvalidKeyException {
+    public void real_verify_fail_test() throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
         PublicKey publicKey = keyPair.getPublic();  //

@@ -12,7 +12,6 @@ public class RSAVerifier {
         //Calculating the signature
         //byte[] signature = signString.getBytes();
         byte[] bytes = "hi".getBytes();
-
         //Initializing the signature
         sign.initVerify(publicKey);
         sign.update(bytes);
@@ -25,7 +24,6 @@ public class RSAVerifier {
 
     public static boolean verify(byte[] signature, PublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         Signature sign = Signature.getInstance("SHA256withRSA");
-
         //Calculating the signature
         //byte[] signature = signString.getBytes();
 
