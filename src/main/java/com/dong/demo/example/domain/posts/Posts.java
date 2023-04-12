@@ -1,3 +1,4 @@
+/*
 package com.dong.demo.example.domain.posts;
 
 import com.dong.demo.example.domain.BaseTimeEntity;
@@ -38,3 +39,4 @@ public class Posts extends BaseTimeEntity {
         this.content = content;
     }
 }
+*/

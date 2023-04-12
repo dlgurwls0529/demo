@@ -1,5 +1,8 @@
 package com.dong.demo.v1.domain.subDemand;
 
+import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
+import com.dong.demo.v1.exception.ICsViolationCode;
+import com.dong.demo.v1.exception.NoMatchParentRowException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
@@ -43,11 +46,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
 
         return exists;
@@ -66,15 +65,19 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
             preparedStatement.execute();
 
         } catch (SQLIntegrityConstraintViolationException e) {
-            throw e;
+            if (e.getErrorCode() == ICsViolationCode.ENTITY) {
+                throw new DuplicatePrimaryKeyException();
+            }
+            else if (e.getErrorCode() == ICsViolationCode.REFERENTIAL) {
+                throw new NoMatchParentRowException();
+            }
+            else {
+                throw e;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -92,11 +95,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -123,11 +122,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
 
         return accountPubs;
@@ -145,11 +140,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 }

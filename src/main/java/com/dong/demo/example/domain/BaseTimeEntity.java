@@ -1,3 +1,4 @@
+/*
 package com.dong.demo.example.domain;
 
 import jakarta.persistence.EntityListeners;
@@ -22,3 +23,4 @@ public abstract class BaseTimeEntity {
     @LastModifiedDate
     private LocalDateTime modifiedDate;
 }
+*/

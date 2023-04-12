@@ -1,3 +1,4 @@
+/*
 package com.dong.demo.example.web.dto;
 
 import lombok.Builder;
@@ -17,3 +18,4 @@ public class PostsUpdateRequestDto {
         this.content = content;
     }
 }
+*/

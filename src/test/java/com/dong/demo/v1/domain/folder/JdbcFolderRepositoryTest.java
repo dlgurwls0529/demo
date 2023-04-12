@@ -4,6 +4,7 @@ import com.dong.demo.v1.domain.file.FileRepository;
 import com.dong.demo.v1.domain.readAuth.ReadAuthRepository;
 import com.dong.demo.v1.domain.subDemand.SubDemandRepository;
 import com.dong.demo.v1.domain.writeAuth.WriteAuthRepository;
+import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import org.junit.jupiter.api.*;
@@ -197,15 +198,12 @@ class JdbcFolderRepositoryTest {
         });
 
         // when
-        Integer integer = null;
-
-        try {
-            folderRepository.save(folder);
-        } catch (SQLIntegrityConstraintViolationException e) {
-            integer = e.getErrorCode();
-        }
-
-        Assertions.assertNotNull(integer);
-        Assertions.assertEquals(ICsViolationCode.ENTITY, integer);
+        Assertions.assertThrows(DuplicatePrimaryKeyException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws Throwable {
+                        folderRepository.save(folder);
+                    }
+                });
     }
 }

@@ -1,3 +1,4 @@
+/*
 package com.dong.demo.example.web;
 
 import lombok.Getter;
@@ -10,3 +11,4 @@ public class HelloResponseDto {
     private final String name;
     private final int amount;
 }
+*/

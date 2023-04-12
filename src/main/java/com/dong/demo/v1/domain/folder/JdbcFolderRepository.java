@@ -1,14 +1,35 @@
 package com.dong.demo.v1.domain.folder;
 
+import com.sun.net.httpserver.Authenticator;
+import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
+import com.dong.demo.v1.exception.ICsViolationCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.io.Closeable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import com.sun.net.httpserver.Authenticator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+
+import javax.sql.DataSource;
+import java.io.Closeable;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Repository
 public class JdbcFolderRepository implements FolderRepository {
@@ -31,15 +52,16 @@ public class JdbcFolderRepository implements FolderRepository {
             preparedStatement.execute();
 
         } catch (SQLIntegrityConstraintViolationException e) {
-            throw e;
+            if (e.getErrorCode() == ICsViolationCode.ENTITY) {
+                throw new DuplicatePrimaryKeyException();
+            }
+            else {
+                throw e;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -57,11 +79,7 @@ public class JdbcFolderRepository implements FolderRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -98,11 +116,7 @@ public class JdbcFolderRepository implements FolderRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
 
         return resultFolder;
@@ -129,11 +143,7 @@ public class JdbcFolderRepository implements FolderRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
 
         return result;
@@ -149,11 +159,7 @@ public class JdbcFolderRepository implements FolderRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 }

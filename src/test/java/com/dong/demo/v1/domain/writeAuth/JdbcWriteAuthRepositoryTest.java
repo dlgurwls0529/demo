@@ -3,7 +3,9 @@ package com.dong.demo.v1.domain.writeAuth;
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
 import com.dong.demo.v1.domain.subDemand.SubDemand;
+import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
+import com.dong.demo.v1.exception.NoMatchParentRowException;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -203,17 +205,13 @@ class JdbcWriteAuthRepositoryTest {
         });
 
         // when
-        Integer code = null;
-
-        try {
-            writeAuthRepository.save(writeAuth);
-        } catch (SQLIntegrityConstraintViolationException e) {
-            code = e.getErrorCode();
-        }
-
-        // then
-        Assertions.assertNotNull(code);
-        Assertions.assertEquals(ICsViolationCode.ENTITY, code);
+        Assertions.assertThrows(DuplicatePrimaryKeyException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws Throwable {
+                        writeAuthRepository.save(writeAuth);
+                    }
+                });
     }
 
     @Test
@@ -227,15 +225,12 @@ class JdbcWriteAuthRepositoryTest {
                 .build();
 
         // when
-        Integer code = null;
-
-        try {
-            writeAuthRepository.save(writeAuth);
-        } catch (SQLIntegrityConstraintViolationException e) {
-            code = e.getErrorCode();
-        }
-
-        Assertions.assertNotNull(code);
-        Assertions.assertEquals(ICsViolationCode.REFERENTIAL, code);
+        Assertions.assertThrows(NoMatchParentRowException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws Throwable {
+                        writeAuthRepository.save(writeAuth);
+                    }
+                });
     }
 }

@@ -1,10 +1,14 @@
 package com.dong.demo.v1.domain.file;
 
+import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
+import com.dong.demo.v1.exception.ICsViolationCode;
+import com.dong.demo.v1.exception.NoMatchParentRowException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -45,11 +49,7 @@ public class JdbcFileRepository implements FileRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
 
         return exists;
@@ -76,15 +76,19 @@ public class JdbcFileRepository implements FileRepository {
             preparedStatement.execute();
 
         } catch (SQLIntegrityConstraintViolationException e) {
-            throw e;
+            if (e.getErrorCode() == ICsViolationCode.ENTITY) {
+                throw new DuplicatePrimaryKeyException();
+            }
+            else if (e.getErrorCode() == ICsViolationCode.REFERENTIAL) {
+                throw new NoMatchParentRowException();
+            }
+            else {
+                throw e;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -114,11 +118,7 @@ public class JdbcFileRepository implements FileRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -144,11 +144,7 @@ public class JdbcFileRepository implements FileRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -186,11 +182,7 @@ public class JdbcFileRepository implements FileRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
 
         return files;
@@ -230,11 +222,7 @@ public class JdbcFileRepository implements FileRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
 
         return files;
@@ -266,11 +254,7 @@ public class JdbcFileRepository implements FileRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
 
         return result;
@@ -286,11 +270,7 @@ public class JdbcFileRepository implements FileRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 }

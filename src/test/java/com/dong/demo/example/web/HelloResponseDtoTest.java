@@ -1,3 +1,4 @@
+/*
 package com.dong.demo.example.web;
 
 import com.dong.demo.example.web.HelloResponseDto;
@@ -17,4 +18,4 @@ class HelloResponseDtoTest {
         Assertions.assertEquals(amount, dto.getAmount());
     }
 
-}
+}*/

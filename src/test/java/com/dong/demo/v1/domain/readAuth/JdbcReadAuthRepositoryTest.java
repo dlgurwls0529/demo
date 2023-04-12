@@ -2,7 +2,9 @@ package com.dong.demo.v1.domain.readAuth;
 
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
+import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
+import com.dong.demo.v1.exception.NoMatchParentRowException;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
@@ -192,17 +194,13 @@ class JdbcReadAuthRepositoryTest {
         });
 
         // when
-        Integer code = null;
-
-        try {
-            readAuthRepository.save(expected_readAuth);
-        } catch (SQLIntegrityConstraintViolationException e) {
-            code = e.getErrorCode();
-        }
-
-        // then
-        Assertions.assertNotNull(code);
-        Assertions.assertEquals(ICsViolationCode.ENTITY, code);
+        Assertions.assertThrows(DuplicatePrimaryKeyException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws Throwable {
+                        readAuthRepository.save(expected_readAuth);
+                    }
+                });
     }
 
     @Test
@@ -215,16 +213,13 @@ class JdbcReadAuthRepositoryTest {
                 .build();
 
         // when
-        Integer code = null;
-
-        try {
-            readAuthRepository.save(readAuth);
-        } catch (SQLIntegrityConstraintViolationException e) {
-            code = e.getErrorCode();
-        }
-
-        Assertions.assertNotNull(code);
-        Assertions.assertEquals(ICsViolationCode.REFERENTIAL, code);
+        Assertions.assertThrows(NoMatchParentRowException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws Throwable {
+                        readAuthRepository.save(readAuth);
+                    }
+                });
     }
 
 }

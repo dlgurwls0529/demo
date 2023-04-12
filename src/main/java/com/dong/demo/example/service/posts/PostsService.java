@@ -1,3 +1,4 @@
+/*
 package com.dong.demo.example.service.posts;
 
 import com.dong.demo.example.domain.posts.Posts;
@@ -56,3 +57,4 @@ public class PostsService {
         postsRepository.delete(posts);
     }
 }
+*/

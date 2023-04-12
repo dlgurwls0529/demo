@@ -1,3 +1,4 @@
+/*
 package com.dong.demo.example.web;
 
 import com.dong.demo.example.service.posts.PostsService;
@@ -34,3 +35,4 @@ public class PostsApiController {
         return id;
     }
 }
+*/

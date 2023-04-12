@@ -1,3 +1,4 @@
+/*
 package com.dong.demo.example.web;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,3 +21,4 @@ public class HelloController {
         return new HelloResponseDto(name, amount);
     }
 }
+*/

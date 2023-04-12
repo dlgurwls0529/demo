@@ -1,3 +1,4 @@
+/*
 package com.dong.demo.example.web.dto;
 
 import com.dong.demo.example.domain.posts.Posts;
@@ -19,3 +20,4 @@ public class PostsListResponseDto {
         this.modifiedDate = entity.getModifiedDate();
     }
 }
+*/

@@ -1,5 +1,8 @@
 package com.dong.demo.v1.util.search;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class NgramSearchEngine implements SearchEngine {
     // s is string to split
     // m is unit of spit

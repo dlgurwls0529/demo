@@ -2,11 +2,13 @@ package com.dong.demo.v1.domain.file;
 
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
+import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
+import com.dong.demo.v1.exception.NoMatchParentRowException;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import com.dong.demo.v1.util.UUIDGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import jakarta.persistence.criteria.CriteriaBuilder;
+// import jakarta.persistence.criteria.CriteriaBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -426,16 +428,13 @@ class JdbcFileRepositoryTest {
         });
 
         // when, then
-        Integer code = null;
-
-        try {
-            fileRepository.save(file);
-        } catch (SQLIntegrityConstraintViolationException e) {
-            code = e.getErrorCode();
-        }
-
-        Assertions.assertNotNull(code);
-        Assertions.assertEquals(ICsViolationCode.ENTITY, code);
+        Assertions.assertThrows(DuplicatePrimaryKeyException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws Throwable {
+                        fileRepository.save(file);
+                    }
+                });
     }
 
     @Test
@@ -449,16 +448,12 @@ class JdbcFileRepositoryTest {
                 .build();
 
         // when
-        Integer code = null;
-
-        try {
-            fileRepository.save(file);
-        } catch (SQLIntegrityConstraintViolationException e) {
-            code = e.getErrorCode();
-        }
-
-        Assertions.assertNotNull(code);
-        Assertions.assertEquals(ICsViolationCode.REFERENTIAL, code);
-
+        Assertions.assertThrows(NoMatchParentRowException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws Throwable {
+                        fileRepository.save(file);
+                    }
+                });
     }
 }

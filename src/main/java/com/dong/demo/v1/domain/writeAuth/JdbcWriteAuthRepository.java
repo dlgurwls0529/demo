@@ -1,6 +1,9 @@
 package com.dong.demo.v1.domain.writeAuth;
 
 import com.dong.demo.v1.domain.readAuth.ReadAuth;
+import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
+import com.dong.demo.v1.exception.ICsViolationCode;
+import com.dong.demo.v1.exception.NoMatchParentRowException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
@@ -30,15 +33,19 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
             preparedStatement.execute();
 
         } catch (SQLIntegrityConstraintViolationException e) {
-            throw e;
+            if (e.getErrorCode() == ICsViolationCode.ENTITY) {
+                throw new DuplicatePrimaryKeyException();
+            }
+            else if (e.getErrorCode() == ICsViolationCode.REFERENTIAL) {
+                throw new NoMatchParentRowException();
+            }
+            else {
+                throw e;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -67,11 +74,7 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
 
         return writeAuths;
@@ -89,11 +92,7 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 }
