@@ -3,6 +3,7 @@ package com.dong.demo.v1.service.folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.web.dto.FoldersGenerateRequestDto;
+import org.apache.catalina.LifecycleState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,7 +52,7 @@ class FolderServiceTest {
         Assertions.assertDoesNotThrow(new Executable() {
             @Override
             public void execute() throws Throwable {
-                folderService.generateFolder(folderCP, dto);
+                Assertions.assertEquals(folderCP, folderService.generateFolder(folderCP, dto));
             }
         });
 
@@ -86,5 +89,79 @@ class FolderServiceTest {
                 });
 
         Assertions.assertEquals(1, folderRepository.findAllFolderCPAndTitle().size());
+    }
+
+    @Test
+    public void search_ngram_test() {
+        // todo: 값이 없는 경우, 다 같은 경우 등 여러 상황 다양하게 테스트해보기
+        // given
+        List<FoldersGenerateRequestDto> folderToSave = new ArrayList<>();
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i am so hungry")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i so hungrr")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("hungri...")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("where is bob")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i did not eat dinner")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("give me coffeee")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("hungry hungry hungry hungry")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+
+        for(int i = 0; i < folderToSave.size(); i++) {
+            try {
+                folderService.generateFolder("folderCP"+i, folderToSave.get(i));
+            } catch (SQLIntegrityConstraintViolationException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // when
+        List<String[]> list_sorted = folderService.search("hungryy");
+
+        for (String[] strings : list_sorted) {
+            System.out.println("folderCP : " + strings[0]);
+            System.out.println("title : " + strings[1]);
+            System.out.println("similarity : " + strings[2]);
+            System.out.println();
+        }
     }
 }
