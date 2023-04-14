@@ -3,6 +3,7 @@ package com.dong.demo.v1.domain.writeAuth;
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
 import com.dong.demo.v1.domain.subDemand.SubDemand;
+import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.exception.NoMatchParentRowException;
@@ -133,7 +134,7 @@ class JdbcWriteAuthRepositoryTest {
             writeAuthRepository.save(expected_writeAuth_2);
             writeAuthRepository.save(expected_writeAuth_3);
 
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 
@@ -165,7 +166,7 @@ class JdbcWriteAuthRepositoryTest {
             folderRepository.save(expected_folder);
             writeAuthRepository.save(expected_writeAuth);
 
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 

@@ -4,7 +4,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 public interface ReadAuthRepository {
-    public void save(ReadAuth readAuth) throws SQLIntegrityConstraintViolationException; // 역시 key 중복 예외 rethrow
+    public void save(ReadAuth readAuth); // 역시 key 중복 예외 rethrow
     public List<ReadAuth> findByAccountCP(String accountCP);
     public void deleteAll();
 }

@@ -1,5 +1,6 @@
 package com.dong.demo.v1.domain.subDemand;
 
+import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.exception.NoMatchParentRowException;
@@ -44,7 +45,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -53,7 +54,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
     }
 
     @Override
-    public void save(SubDemand demand) throws SQLIntegrityConstraintViolationException {
+    public void save(SubDemand demand) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "INSERT INTO SubscribeDemand VALUES(?, ?, ?);";
 
@@ -72,10 +73,10 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
                 throw new NoMatchParentRowException();
             }
             else {
-                throw e;
+                throw new DataAccessException();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -93,7 +94,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -120,7 +121,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -138,7 +139,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }

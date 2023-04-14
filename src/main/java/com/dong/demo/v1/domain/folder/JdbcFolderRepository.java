@@ -1,5 +1,6 @@
 package com.dong.demo.v1.domain.folder;
 
+import com.dong.demo.v1.exception.DataAccessException;
 import com.sun.net.httpserver.Authenticator;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
+import javax.xml.crypto.Data;
 import java.io.Closeable;
 import java.sql.*;
 import java.util.ArrayList;
@@ -38,7 +40,7 @@ public class JdbcFolderRepository implements FolderRepository {
     private DataSource dataSource;
 
     @Override
-    public void save(Folder folder) throws SQLIntegrityConstraintViolationException {
+    public void save(Folder folder) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "INSERT INTO Folder VALUES(?, ?, ?, ?, ?);";
 
@@ -56,10 +58,10 @@ public class JdbcFolderRepository implements FolderRepository {
                 throw new DuplicatePrimaryKeyException();
             }
             else {
-                throw e;
+                throw new DataAccessException();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -77,7 +79,7 @@ public class JdbcFolderRepository implements FolderRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -114,7 +116,7 @@ public class JdbcFolderRepository implements FolderRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -141,7 +143,7 @@ public class JdbcFolderRepository implements FolderRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -157,7 +159,7 @@ public class JdbcFolderRepository implements FolderRepository {
         try {
             connection.prepareStatement(sql).execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }

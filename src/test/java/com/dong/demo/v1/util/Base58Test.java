@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class Base58Test {
 
     @Test
-    public void base68_encoding_decoding_test() {
+    public void base58_encoding_decoding_test() {
         // given
         byte[] bytes = new byte[] { 1, 2, 3 };
 

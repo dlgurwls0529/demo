@@ -4,6 +4,7 @@ import com.dong.demo.v1.domain.file.FileRepository;
 import com.dong.demo.v1.domain.readAuth.ReadAuthRepository;
 import com.dong.demo.v1.domain.subDemand.SubDemandRepository;
 import com.dong.demo.v1.domain.writeAuth.WriteAuthRepository;
+import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
@@ -129,7 +130,7 @@ class JdbcFolderRepositoryTest {
             folderRepository.save(expected1);
             folderRepository.save(expected2);
             folderRepository.save(expected3);
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 
@@ -165,7 +166,7 @@ class JdbcFolderRepositoryTest {
 
         try {
             folderRepository.save(expected);
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 

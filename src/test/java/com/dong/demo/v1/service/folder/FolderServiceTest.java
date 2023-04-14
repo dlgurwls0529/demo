@@ -91,9 +91,7 @@ class FolderServiceTest {
         Assertions.assertEquals(1, folderRepository.findAllFolderCPAndTitle().size());
     }
 
-    @Test
-    public void search_ngram_test() {
-        // todo: 값이 없는 경우, 다 같은 경우 등 여러 상황 다양하게 테스트해보기
+    public void search_ngram_test_1() {
         // given
         List<FoldersGenerateRequestDto> folderToSave = new ArrayList<>();
         folderToSave.add(
@@ -163,5 +161,182 @@ class FolderServiceTest {
             System.out.println("similarity : " + strings[2]);
             System.out.println();
         }
+    }
+
+    public void search_ngram_test_2() {
+        // given
+        List<FoldersGenerateRequestDto> folderToSave = new ArrayList<>();
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i am so hungry")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i so hungrr")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("hungri...")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("where is bob")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i did not eat dinner")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("give me coffeee")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("hungry hungry hungry hungry")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+
+        for(int i = 0; i < folderToSave.size(); i++) {
+            try {
+                folderService.generateFolder("folderCP"+i, folderToSave.get(i));
+            } catch (SQLIntegrityConstraintViolationException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // when
+        List<String[]> list_sorted = folderService.search("foldeCP2");
+
+        for (String[] strings : list_sorted) {
+            System.out.println("folderCP : " + strings[0]);
+            System.out.println("title : " + strings[1]);
+            System.out.println("similarity : " + strings[2]);
+            System.out.println();
+        }
+    }
+
+    public void search_ngram_test_3() {
+        // given
+        List<FoldersGenerateRequestDto> folderToSave = new ArrayList<>();
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i am so hungry")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i am so hugry")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i am so hungry")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+
+        for(int i = 0; i < folderToSave.size(); i++) {
+            try {
+                folderService.generateFolder("folderCP"+i, folderToSave.get(i));
+            } catch (SQLIntegrityConstraintViolationException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // when
+        List<String[]> list_sorted = folderService.search("hungry");
+
+        for (String[] strings : list_sorted) {
+            System.out.println("folderCP : " + strings[0]);
+            System.out.println("title : " + strings[1]);
+            System.out.println("similarity : " + strings[2]);
+            System.out.println();
+        }
+    }
+
+    public void search_ngram_test_4() {
+        // given
+        List<FoldersGenerateRequestDto> folderToSave = new ArrayList<>();
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i am so hungry")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i am so hungry")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+        folderToSave.add(
+                FoldersGenerateRequestDto.builder()
+                        .isTitleOpen(true)
+                        .title("i am so hungry")
+                        .symmetricKeyEWF("sym_TEST")
+                        .build()
+        );
+
+        for(int i = 0; i < folderToSave.size(); i++) {
+            try {
+                folderService.generateFolder("folderCP"+i, folderToSave.get(i));
+            } catch (SQLIntegrityConstraintViolationException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // when
+        List<String[]> list_sorted = folderService.search("hungry");
+
+        for (String[] strings : list_sorted) {
+            System.out.println("folderCP : " + strings[0]);
+            System.out.println("title : " + strings[1]);
+            System.out.println("similarity : " + strings[2]);
+            System.out.println();
+        }
+    }
+
+    @Test
+    public void search_ngram_test_5() {
+        // given
+
+        // when
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                List<String[]> list_sorted = folderService.search("hungry");
+
+                for (String[] strings : list_sorted) {
+                    System.out.print(" ");
+                }
+            }
+        });
     }
 }

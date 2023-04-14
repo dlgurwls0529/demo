@@ -2,6 +2,7 @@ package com.dong.demo.v1.domain.file;
 
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
+import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.exception.NoMatchParentRowException;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import javax.xml.crypto.Data;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -68,7 +70,7 @@ class JdbcFileRepositoryTest {
         try {
             folderRepository.save(folder);
             fileRepository.save(file);
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 
@@ -140,7 +142,7 @@ class JdbcFileRepositoryTest {
             folderRepository.save(folder);
             fileRepository.save(file_before);
 
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 
@@ -184,7 +186,7 @@ class JdbcFileRepositoryTest {
         try {
             folderRepository.save(folder);
             fileRepository.save(file);
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 
@@ -252,7 +254,7 @@ class JdbcFileRepositoryTest {
             fileRepository.save(file2);
             fileRepository.save(file3);
 
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 
@@ -315,7 +317,7 @@ class JdbcFileRepositoryTest {
             fileRepository.save(file2_folderA);
             fileRepository.save(file1_folderB);
 
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 
@@ -353,7 +355,7 @@ class JdbcFileRepositoryTest {
         try {
             folderRepository.save(folder);
             fileRepository.save(file);
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 
@@ -386,7 +388,7 @@ class JdbcFileRepositoryTest {
         try {
             folderRepository.save(folder);
             fileRepository.save(file);
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 

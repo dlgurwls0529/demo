@@ -1,5 +1,6 @@
 package com.dong.demo.v1.domain.readAuth;
 
+import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.exception.NoMatchParentRowException;
@@ -19,7 +20,7 @@ public class JdbcReadAuthRepository implements ReadAuthRepository {
     private DataSource dataSource;
 
     @Override
-    public void save(ReadAuth readAuth) throws SQLIntegrityConstraintViolationException {
+    public void save(ReadAuth readAuth) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "INSERT INTO ReadAuthority VALUES(?, ?, ?);";
 
@@ -38,10 +39,10 @@ public class JdbcReadAuthRepository implements ReadAuthRepository {
                 throw new NoMatchParentRowException();
             }
             else {
-                throw e;
+                throw new DataAccessException();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -68,7 +69,7 @@ public class JdbcReadAuthRepository implements ReadAuthRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -86,7 +87,7 @@ public class JdbcReadAuthRepository implements ReadAuthRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }

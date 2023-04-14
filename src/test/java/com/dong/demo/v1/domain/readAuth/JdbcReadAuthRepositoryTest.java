@@ -2,6 +2,7 @@ package com.dong.demo.v1.domain.readAuth;
 
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
+import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.exception.NoMatchParentRowException;
@@ -125,7 +126,7 @@ class JdbcReadAuthRepositoryTest {
             readAuthRepository.save(expected_readAuth_2);
             readAuthRepository.save(expected_readAuth_3);
 
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 
@@ -155,7 +156,7 @@ class JdbcReadAuthRepositoryTest {
         try {
             folderRepository.save(expected_folder);
             readAuthRepository.save(expected_readAuth);
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
         }
 

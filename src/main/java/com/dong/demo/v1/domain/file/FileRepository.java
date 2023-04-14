@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface FileRepository {
     public boolean exist(String folderCP, String fileId);
-    public void save(File file) throws SQLIntegrityConstraintViolationException; // ref, ent
+    public void save(File file); // ref, ent
     public void update(File file);
     public void updateLastChangedDate(String folderCP, String fileId, LocalDateTime dateTime);
     public List<File> findAllOrderByLastChangedDate();

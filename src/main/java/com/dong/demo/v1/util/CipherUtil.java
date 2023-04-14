@@ -1,5 +1,7 @@
 package com.dong.demo.v1.util;
 
+import com.dong.demo.v1.exception.VerifyInvalidInputException;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -71,17 +73,21 @@ public class CipherUtil {
     }
 
     // Base58 인코딩된 문자열로 된 공개키로부터 공개키 객체를 얻는다.
-    public static PublicKey getPublicKeyFromBase58String(final String keyString)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static PublicKey getPublicKeyFromBase58String(final String keyString) {
 
         final String publicKeyString =
                 keyString.replaceAll("\\n",  "").replaceAll("-{5}[ a-zA-Z]*-{5}", "");
 
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        KeyFactory keyFactory = null;
+        try {
+            keyFactory = KeyFactory.getInstance("RSA");
+            X509EncodedKeySpec keySpecX509 =
+                    new X509EncodedKeySpec(Base58.decode(publicKeyString));
 
-        X509EncodedKeySpec keySpecX509 =
-                new X509EncodedKeySpec(Base58.decode(publicKeyString));
+            return keyFactory.generatePublic(keySpecX509);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw  new VerifyInvalidInputException(e);
+        }
 
-        return keyFactory.generatePublic(keySpecX509);
     }
 }

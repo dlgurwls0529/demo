@@ -40,6 +40,10 @@ public class FolderService {
         List<String[]> search_list = folderRepository.findAllFolderCPAndTitle();
         int length = search_list.size();
 
+        if (length == 0) {
+            return new ArrayList<>();
+        }
+
         int[] similarity_folderCP = new int[length];
         int[] similarity_title = new int[length];
 

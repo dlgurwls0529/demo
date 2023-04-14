@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface FolderRepository {
-    public void save(Folder folder) throws SQLIntegrityConstraintViolationException; // ent
+    public void save(Folder folder); // ent
     public void updateLastChangedDate(String folderCP, LocalDateTime dateTime);
     public Folder find(String folderCP);
     public List<String[]> findAllFolderCPAndTitle();

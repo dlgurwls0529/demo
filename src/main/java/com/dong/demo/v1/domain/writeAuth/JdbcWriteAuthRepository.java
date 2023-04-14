@@ -1,6 +1,7 @@
 package com.dong.demo.v1.domain.writeAuth;
 
 import com.dong.demo.v1.domain.readAuth.ReadAuth;
+import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.exception.NoMatchParentRowException;
@@ -20,7 +21,7 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
     private DataSource dataSource;
 
     @Override
-    public void save(WriteAuth writeAuth) throws SQLIntegrityConstraintViolationException {
+    public void save(WriteAuth writeAuth) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "INSERT INTO WriteAuthority VALUES(?, ?, ?, ?);";
 
@@ -40,10 +41,10 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
                 throw new NoMatchParentRowException();
             }
             else {
-                throw e;
+                throw new DataAccessException();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -72,7 +73,7 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -90,7 +91,7 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException();
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
