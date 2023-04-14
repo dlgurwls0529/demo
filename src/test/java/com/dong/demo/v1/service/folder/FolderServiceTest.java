@@ -1,6 +1,7 @@
 package com.dong.demo.v1.service.folder;
 
 import com.dong.demo.v1.domain.folder.FolderRepository;
+import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.web.dto.FoldersGenerateRequestDto;
 import org.apache.catalina.LifecycleState;
@@ -147,7 +148,7 @@ class FolderServiceTest {
         for(int i = 0; i < folderToSave.size(); i++) {
             try {
                 folderService.generateFolder("folderCP"+i, folderToSave.get(i));
-            } catch (SQLIntegrityConstraintViolationException e) {
+            } catch (DataAccessException e) {
                 e.printStackTrace();
             }
         }
@@ -219,7 +220,7 @@ class FolderServiceTest {
         for(int i = 0; i < folderToSave.size(); i++) {
             try {
                 folderService.generateFolder("folderCP"+i, folderToSave.get(i));
-            } catch (SQLIntegrityConstraintViolationException e) {
+            } catch (DataAccessException e) {
                 e.printStackTrace();
             }
         }
@@ -263,7 +264,7 @@ class FolderServiceTest {
         for(int i = 0; i < folderToSave.size(); i++) {
             try {
                 folderService.generateFolder("folderCP"+i, folderToSave.get(i));
-            } catch (SQLIntegrityConstraintViolationException e) {
+            } catch (DataAccessException e) {
                 e.printStackTrace();
             }
         }
@@ -307,7 +308,7 @@ class FolderServiceTest {
         for(int i = 0; i < folderToSave.size(); i++) {
             try {
                 folderService.generateFolder("folderCP"+i, folderToSave.get(i));
-            } catch (SQLIntegrityConstraintViolationException e) {
+            } catch (DataAccessException e) {
                 e.printStackTrace();
             }
         }

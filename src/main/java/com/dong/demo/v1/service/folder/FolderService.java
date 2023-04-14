@@ -21,7 +21,7 @@ public class FolderService {
     private final SearchEngine searchEngine;
 
     @Transactional
-    public String generateFolder(String folderCP, FoldersGenerateRequestDto dto) throws SQLIntegrityConstraintViolationException {
+    public String generateFolder(String folderCP, FoldersGenerateRequestDto dto) {
         Folder folder = Folder.builder()
                 .folderCP(folderCP)
                 .isTitleOpen(dto.getIsTitleOpen())

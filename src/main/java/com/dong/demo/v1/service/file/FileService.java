@@ -30,7 +30,7 @@ public class FileService {
 
     @Transactional
     public String generateFile(String folderPublicKey, FilesGenerateRequestDto dto) {
-        if (RSAVerifier.verify(
+        if (!RSAVerifier.verify(
                 dto.getByteSign(),
                 CipherUtil.getPublicKeyFromBase58String(folderPublicKey)
         )) {
