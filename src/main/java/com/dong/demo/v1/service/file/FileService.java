@@ -3,12 +3,10 @@ package com.dong.demo.v1.service.file;
 import com.dong.demo.v1.domain.file.File;
 import com.dong.demo.v1.domain.file.FileRepository;
 import com.dong.demo.v1.domain.folder.FolderRepository;
-import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
-import com.dong.demo.v1.exception.ICsViolationCode;
-import com.dong.demo.v1.exception.NoMatchParentRowException;
-import com.dong.demo.v1.exception.VerifyFailedException;
+import com.dong.demo.v1.exception.*;
 import com.dong.demo.v1.util.*;
 import com.dong.demo.v1.web.dto.FilesGenerateRequestDto;
+import com.dong.demo.v1.web.dto.FilesModifyRequestDto;
 import jdk.jshell.spi.ExecutionControl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -53,5 +51,36 @@ public class FileService {
 
             return file.getFileId();
         }
+    }
+
+    // todo : 테스트 작성!
+    @Transactional
+    public String modifyFile(String folderPublicKey, String fileId, FilesModifyRequestDto dto) {
+        if (!RSAVerifier.verify(
+                dto.getByteSign(),
+                CipherUtil.getPublicKeyFromBase58String(folderPublicKey)
+        )) {
+            throw new VerifyFailedException();
+        }
+
+        String folderCP = KeyCompressor.compress(folderPublicKey);
+
+        if (!fileRepository.exist(folderCP, fileId)) {
+           throw new FileDoesNotExistException();
+        }
+
+        LocalDateTime lastChangedDate = LocalDateTime6Digit.now();
+
+        fileRepository.update(File.builder()
+                .folderCP(folderCP)
+                .fileId(fileId)
+                .subheadEWS(dto.getSubhead())
+                .contentsEWS(dto.getContents())
+                .lastChangedDate(lastChangedDate)
+                .build());
+
+        folderRepository.updateLastChangedDate(folderCP, lastChangedDate);
+
+        return fileId;
     }
 }

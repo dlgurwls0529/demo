@@ -6,6 +6,7 @@ import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
 import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
+import com.dong.demo.v1.exception.NoMatchParentRowException;
 import com.dong.demo.v1.exception.VerifyFailedException;
 import com.dong.demo.v1.service.folder.FolderService;
 import com.dong.demo.v1.util.*;
@@ -51,7 +52,6 @@ class FileServiceTest {
     }
 
     // 트랜잭션 메소드 자체에서 throw 할 때, 언체크드 예외이기만 하면 반드시 롤백된다.
-    // todo : <파일 생성 예외 롤백 테스트> + lastChanged 같이 갱신되는지 + save 는 잘 되었는지..
     @Test
     public void generateFile_verify_success_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
@@ -172,4 +172,65 @@ class FileServiceTest {
         });
     }
 
+    @Test
+    public void file_save_no_match_folder_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        //given
+        KeyPair keyPair = null;
+
+        try {
+            keyPair = CipherUtil.genRSAKeyPair();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        Assertions.assertNotNull(keyPair);
+
+        // 키들
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        /*
+        // input : base64 output : base58 compressed
+        // 폴더 씨피 얻기
+        String folderCP = KeyCompressor.compress(Base58.encode(publicKey.getEncoded()));
+
+        // dto 얻기
+        FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
+                .symmetricKeyEWF("sym_TEST")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .build();
+
+        // 넣기
+        folderService.generateFolder(folderCP, foldersGenerateRequestDto);*/
+
+        // verify sign 준비
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(publicKey.getEncoded());
+
+        byte[] sign = new byte[0];
+        try {
+            sign = signature.sign();
+        } catch (SignatureException e) {
+            e.printStackTrace();
+        }
+
+        // sign 이랑 해서 file 생성 준비
+        String folderPublicKey = Base58.encode(publicKey.getEncoded());
+
+        FilesGenerateRequestDto filesGenerateRequestDto = FilesGenerateRequestDto.builder()
+                .subhead("sub_TEST")
+                .byteSign(sign)
+                .build();
+
+        // when
+        Assertions.assertThrows(NoMatchParentRowException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                fileService.generateFile(folderPublicKey, filesGenerateRequestDto);
+            }
+        });
+
+    }
 }
