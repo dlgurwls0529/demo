@@ -7,16 +7,10 @@ import com.dong.demo.v1.exception.*;
 import com.dong.demo.v1.util.*;
 import com.dong.demo.v1.web.dto.FilesGenerateRequestDto;
 import com.dong.demo.v1.web.dto.FilesModifyRequestDto;
-import jdk.jshell.spi.ExecutionControl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
@@ -66,7 +60,7 @@ public class FileService {
         String folderCP = KeyCompressor.compress(folderPublicKey);
 
         if (!fileRepository.exist(folderCP, fileId)) {
-           throw new FileDoesNotExistException();
+           throw new NoSuchFileException();
         }
 
         LocalDateTime lastChangedDate = LocalDateTime6Digit.now();
