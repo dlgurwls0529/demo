@@ -8,12 +8,10 @@ import com.dong.demo.v1.exception.*;
 import com.dong.demo.v1.service.folder.FolderService;
 import com.dong.demo.v1.util.*;
 import com.dong.demo.v1.web.dto.FilesGenerateRequestDto;
+import com.dong.demo.v1.web.dto.FilesGetResponseDto;
 import com.dong.demo.v1.web.dto.FilesModifyRequestDto;
 import com.dong.demo.v1.web.dto.FoldersGenerateRequestDto;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -428,5 +426,85 @@ class FileServiceTest {
         Folder folder = folderRepository.find(folderCP);
         Assertions.assertEquals(file.get(0).getLastChangedDate(), folder.getLastChangedDate());
 
+    }
+
+    // file 없으면 예외 안터지고 그냥 빈 리스트 리턴
+    @Test
+    public void getFileByFolderCP_no_file_handling_test() {
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                List<FilesGetResponseDto> dtoList = fileService.getFileByFolderCP("a");
+                Assertions.assertEquals(0, dtoList.size());
+            }
+        });
+    }
+    
+    @Test
+    public void getFileByFolderCP_success_test() throws InterruptedException {
+        // given
+        Folder folderA = Folder.builder()
+                .folderCP("folderCP_TEST_A")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        File file1_folderA = File.builder()
+                .folderCP(folderA.getFolderCP())
+                .fileId(UUIDGenerator.createUUIDWithoutHyphen())
+                .subheadEWS("sub_TEST_1A")
+                .contentsEWS("con_TEST_1A")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        Thread.sleep(200);
+
+        File file2_folderA = File.builder()
+                .folderCP(folderA.getFolderCP())
+                .fileId(UUIDGenerator.createUUIDWithoutHyphen())
+                .subheadEWS("sub_TEST_2A")
+                .contentsEWS("con_TEST_2A")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        Folder folderB = Folder.builder()
+                .folderCP("folderCP_TEST_B")
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        Thread.sleep(200);
+
+        File file1_folderB = File.builder()
+                .folderCP(folderB.getFolderCP())
+                .fileId(UUIDGenerator.createUUIDWithoutHyphen())
+                .subheadEWS("sub_TEST_1B")
+                .contentsEWS("con_TEST_1B")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        folderRepository.save(folderA);
+        folderRepository.save(folderB);
+        fileRepository.save(file1_folderA);
+        fileRepository.save(file2_folderA);
+        fileRepository.save(file1_folderB);
+
+        // when
+        List<FilesGetResponseDto> dtoListA = fileService.getFileByFolderCP(folderA.getFolderCP());
+        List<FilesGetResponseDto> dtoListB = fileService.getFileByFolderCP(folderB.getFolderCP());
+        
+        // then
+        // !!! 폴더와 파일 간 lastChangedDate 에서 저장소에 직접 접근했기에, 일관성이 깨지나, 테스트라서 그냥 허용한다. !!!
+        Assertions.assertEquals(2, dtoListA.size());
+        Assertions.assertTrue(dtoListA.get(0).getLastChangedDate().isAfter(dtoListA.get(1).getLastChangedDate()));
+        Assertions.assertEquals(folderA.getFolderCP(), dtoListA.get(0).getFolderCP());
+        Assertions.assertEquals(folderA.getFolderCP(), dtoListA.get(1).getFolderCP());
+
+        Assertions.assertEquals(1, dtoListB.size());
+        Assertions.assertEquals(folderB.getFolderCP(), dtoListB.get(0).getFolderCP());
     }
 }
