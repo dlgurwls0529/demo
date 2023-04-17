@@ -47,7 +47,6 @@ public class FileService {
         }
     }
 
-    // todo : 테스트 작성!
     @Transactional
     public String modifyFile(String folderPublicKey, String fileId, FilesModifyRequestDto dto) {
         if (!RSAVerifier.verify(
@@ -56,25 +55,27 @@ public class FileService {
         )) {
             throw new VerifyFailedException();
         }
+        else {
+            String folderCP = KeyCompressor.compress(folderPublicKey);
 
-        String folderCP = KeyCompressor.compress(folderPublicKey);
+            if (!fileRepository.exist(folderCP, fileId)) {
+                throw new NoSuchFileException();
+            }
+            else {
+                LocalDateTime lastChangedDate = LocalDateTime6Digit.now();
 
-        if (!fileRepository.exist(folderCP, fileId)) {
-           throw new NoSuchFileException();
+                fileRepository.update(File.builder()
+                        .folderCP(folderCP)
+                        .fileId(fileId)
+                        .subheadEWS(dto.getSubhead())
+                        .contentsEWS(dto.getContents())
+                        .lastChangedDate(lastChangedDate)
+                        .build());
+
+                folderRepository.updateLastChangedDate(folderCP, lastChangedDate);
+
+                return fileId;
+            }
         }
-
-        LocalDateTime lastChangedDate = LocalDateTime6Digit.now();
-
-        fileRepository.update(File.builder()
-                .folderCP(folderCP)
-                .fileId(fileId)
-                .subheadEWS(dto.getSubhead())
-                .contentsEWS(dto.getContents())
-                .lastChangedDate(lastChangedDate)
-                .build());
-
-        folderRepository.updateLastChangedDate(folderCP, lastChangedDate);
-
-        return fileId;
     }
 }

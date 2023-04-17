@@ -164,6 +164,8 @@ class FileServiceTest {
                 fileService.generateFile(folderPublicKey, filesGenerateRequestDto);
             }
         });
+
+        Assertions.assertEquals(0, fileRepository.findAllOrderByLastChangedDate().size());
     }
 
     @Test
@@ -226,9 +228,10 @@ class FileServiceTest {
             }
         });
 
+        Assertions.assertEquals(0, fileRepository.findAllOrderByLastChangedDate().size());
+
     }
 
-    // todo : 해당 파일 없거나, verify 실패하거나
     @Test
     public void file_modify_fail_no_file_test() throws InvalidKeyException, SignatureException, NoSuchAlgorithmException {
         // given
@@ -273,8 +276,6 @@ class FileServiceTest {
                 fileService.modifyFile(folderPublicKey, fileId_false, filesModifyRequestDto);
             }
         });
-
-
     }
 
     @Test
@@ -340,15 +341,13 @@ class FileServiceTest {
                 .byteSign(trueSign)
                 .build();
 
-        fileService.generateFile(folderPublicKey, filesGenerateRequestDto);
+        String fileId = fileService.generateFile(folderPublicKey, filesGenerateRequestDto);
 
         FilesModifyRequestDto filesModifyRequestDto = FilesModifyRequestDto.builder()
                 .subhead("sub_TEST")
                 .contents("con_TEST")
                 .byteSign(falseSign)
                 .build();
-
-        String fileId = fileService.generateFile(folderPublicKey, filesGenerateRequestDto);
 
         // when
         Assertions.assertThrows(VerifyFailedException.class, new Executable() {
@@ -357,6 +356,10 @@ class FileServiceTest {
                 fileService.modifyFile(folderPublicKey, fileId, filesModifyRequestDto);
             }
         });
+
+        Assertions.assertEquals(filesGenerateRequestDto.getSubhead(), fileRepository.findAllOrderByLastChangedDate().get(0).getSubheadEWS());
+        Assertions.assertEquals("", fileRepository.findAllOrderByLastChangedDate().get(0).getContentsEWS());
+        Assertions.assertEquals(fileRepository.findByFolderCP(folderCP).get(0).getLastChangedDate(), folderRepository.find(folderCP).getLastChangedDate());
     }
 
     @Test
