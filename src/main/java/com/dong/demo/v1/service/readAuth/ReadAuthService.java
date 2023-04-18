@@ -20,7 +20,6 @@ public class ReadAuthService {
     private final ReadAuthRepository readAuthRepository;
 
     @Transactional(readOnly = true)
-    // todo : 이거 테스트
     public List<ReadAuthsGetResponseDto> getReadAuthByAccountCP(String accountCP) {
         List<ReadAuth> readAuths = readAuthRepository.findByAccountCP(accountCP);
         List<ReadAuthsGetResponseDto> dtoList = new ArrayList<>();
