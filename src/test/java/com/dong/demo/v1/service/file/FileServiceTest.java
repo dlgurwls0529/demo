@@ -507,4 +507,44 @@ class FileServiceTest {
         Assertions.assertEquals(1, dtoListB.size());
         Assertions.assertEquals(folderB.getFolderCP(), dtoListB.get(0).getFolderCP());
     }
+    
+    @Test
+    public void getContentsByFileIdAndFolderCP_null_test() {
+        Assertions.assertThrows(NoSuchFileException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                String res = fileService.getContentsByFileIdAndFolderCP("test", "test");
+            }
+        });
+    }
+
+    @Test
+    public void getContentsByFileIdAndFolderCP_success_test() {
+        // given
+        folderRepository.save(Folder.builder()
+                .folderCP("folderCP_TEST")
+                .isTitleOpen(true)
+                .symmetricKeyEWF("sym_TEST")
+                .title("title_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build());
+
+        String uuid = UUIDGenerator.createUUIDWithoutHyphen();
+
+        fileRepository.save(File.builder()
+                .folderCP("folderCP_TEST")
+                .fileId(uuid)
+                .contentsEWS("content_TEST")
+                .subheadEWS("subhead_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build());
+
+        // when
+        String content = fileService.getContentsByFileIdAndFolderCP(
+                "folderCP_TEST", uuid
+        );
+
+        Assertions.assertNotNull(content);
+        Assertions.assertEquals("content_TEST", content);
+    }
 }

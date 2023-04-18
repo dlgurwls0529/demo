@@ -106,4 +106,19 @@ public class FileService {
 
         return res;
     }
+
+    // 그냥 null 해도 되지만, 비즈니스 규칙 상
+    // 이거는 파일 선택해서 다른 창에서 보여주는거라
+    // 없으면 안들어가지는 게 맞다.
+    // 가령 시간차로 삭제되었는데 반영이 안된 경우에
+    // 그거 눌렀을 때 내용이 있는 걸로 뜨면 안되잖냐
+    @Transactional(readOnly = true)
+    public String getContentsByFileIdAndFolderCP(String folderCP, String fileId) {
+        if (!fileRepository.exist(folderCP, fileId)) {
+            throw new NoSuchFileException();
+        }
+        else {
+            return fileRepository.findContentsByFolderCPAndFileId(folderCP, fileId);
+        }
+    }
 }
