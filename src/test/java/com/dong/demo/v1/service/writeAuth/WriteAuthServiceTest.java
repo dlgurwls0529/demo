@@ -6,6 +6,8 @@ import com.dong.demo.v1.domain.readAuth.ReadAuth;
 import com.dong.demo.v1.domain.readAuth.ReadAuthRepository;
 import com.dong.demo.v1.domain.writeAuth.WriteAuth;
 import com.dong.demo.v1.domain.writeAuth.WriteAuthRepository;
+import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
+import com.dong.demo.v1.exception.NoMatchParentRowException;
 import com.dong.demo.v1.service.readAuth.ReadAuthService;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import com.dong.demo.v1.web.dto.ReadAuthsGetResponseDto;
@@ -118,4 +120,100 @@ class WriteAuthServiceTest {
     }
 
 
+    @Test
+    public void addWriteAuth_referential_throw_TEST() {
+        // given
+        WriteAuthsAddRequestDto writeAuthsAddRequestDto = WriteAuthsAddRequestDto.builder()
+                .accountCP("accountCP_TEST")
+                .folderCP("folderCP_TEST")
+                .folderPublicKey("folderPublicKey_TEST")
+                .folderPrivateKeyEWA("folderPrivateKeyEWA_TEST")
+                .build();
+
+        // when
+        Executable executable = new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                writeAuthService.addWriteAuthority(writeAuthsAddRequestDto);
+            }
+        };
+
+        // then
+        Assertions.assertThrows(NoMatchParentRowException.class, executable);
+    }
+
+    @Test
+    public void addWriteAuth_entity_throw_TEST() {
+        // given
+        Folder folder = Folder.builder()
+                .folderCP("folderCP_TEST")
+                .isTitleOpen(true)
+                .title("title")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        WriteAuthsAddRequestDto writeAuthsAddRequestDto = WriteAuthsAddRequestDto.builder()
+                .accountCP("accountCP_TEST")
+                .folderCP("folderCP_TEST")
+                .folderPublicKey("folderPublicKey_TEST")
+                .folderPrivateKeyEWA("folderPrivateKeyEWA_TEST")
+                .build();
+
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                folderRepository.save(folder);
+                writeAuthService.addWriteAuthority(writeAuthsAddRequestDto);
+            }
+        });
+
+        // when
+        Executable executable = new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                writeAuthService.addWriteAuthority(writeAuthsAddRequestDto);
+            }
+        };
+
+        // then
+        Assertions.assertThrows(DuplicatePrimaryKeyException.class, executable);
+    }
+
+    @Test
+    public void addWriteAuth_success_TEST() {
+        // given
+        Folder folder = Folder.builder()
+                .folderCP("folderCP_TEST")
+                .isTitleOpen(true)
+                .title("title")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build();
+
+        WriteAuthsAddRequestDto writeAuthsAddRequestDto = WriteAuthsAddRequestDto.builder()
+                .accountCP("accountCP_TEST")
+                .folderCP("folderCP_TEST")
+                .folderPublicKey("folderPublicKey_TEST")
+                .folderPrivateKeyEWA("folderPrivateKeyEWA_TEST")
+                .build();
+
+        folderRepository.save(folder);
+
+        // when
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                writeAuthService.addWriteAuthority(writeAuthsAddRequestDto);
+            }
+        });
+
+        // then
+        List<WriteAuth> actual_list = writeAuthRepository.findByAccountCP("accountCP_TEST");
+        Assertions.assertEquals(1, actual_list.size());
+        Assertions.assertEquals("folderCP_TEST", actual_list.get(0).getFolderCP());
+        Assertions.assertEquals("accountCP_TEST", actual_list.get(0).getAccountCP());
+        Assertions.assertEquals("folderPublicKey_TEST", actual_list.get(0).getFolderPublicKey());
+        Assertions.assertEquals("folderPrivateKeyEWA_TEST", actual_list.get(0).getFolderPrivateKeyEWA());
+    }
 }

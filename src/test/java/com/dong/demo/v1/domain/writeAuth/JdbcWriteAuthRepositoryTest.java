@@ -8,6 +8,7 @@ import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.exception.NoMatchParentRowException;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
+import com.dong.demo.v1.web.dto.WriteAuthsAddRequestDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -233,23 +234,5 @@ class JdbcWriteAuthRepositoryTest {
                         writeAuthRepository.save(writeAuth);
                     }
                 });
-    }
-
-    @Test
-    public void addWriteAuth_referential_throw_TEST() {
-        // given
-
-        // when
-        // then
-    }
-
-    @Test
-    public void addWriteAuth_entity_throw_TEST() {
-
-    }
-
-    @Test
-    public void addWriteAuth_success_TEST() {
-
     }
 }
