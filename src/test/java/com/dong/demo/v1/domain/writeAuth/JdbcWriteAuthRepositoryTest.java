@@ -234,4 +234,22 @@ class JdbcWriteAuthRepositoryTest {
                     }
                 });
     }
+
+    @Test
+    public void addWriteAuth_referential_throw_TEST() {
+        // given
+
+        // when
+        // then
+    }
+
+    @Test
+    public void addWriteAuth_entity_throw_TEST() {
+
+    }
+
+    @Test
+    public void addWriteAuth_success_TEST() {
+
+    }
 }
