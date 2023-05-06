@@ -1,7 +1,9 @@
 package com.dong.demo.v1.util;
 
+import com.dong.demo.v1.exception.VerifyInvalidInputException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import javax.crypto.NoSuchPaddingException;
 import java.security.*;
@@ -130,6 +132,51 @@ class VerifyTest {
 
         // then
         Assertions.assertFalse(result);
+    }
+
+    @Test
+    public void real_verify_invalid_input_throw_test() throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
+        // given
+        KeyPair keyPair = CipherUtil.genRSAKeyPair();
+        PublicKey publicKey = keyPair.getPublic();  //
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // 클라이언트에서 주어지는 값은 Base58 string publicKey(sign 에서도 쓴다.) 와 byte[] sign 이다.
+        String input_publicKey = Base58.encode(publicKey.getEncoded());  // ...
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(CipherUtil.genRSAKeyPair().getPrivate()); // 가짜 프라이빗 키, 다시 만들었다.
+        signature.update(publicKey.getEncoded());
+
+        byte[] input_sign = signature.sign();  // ...
+
+        Assertions.assertThrows(VerifyInvalidInputException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromBase58String(""));
+            }
+        });
+
+        Assertions.assertThrows(VerifyInvalidInputException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromBase58String("test"));
+            }
+        });
+
+        Assertions.assertThrows(VerifyInvalidInputException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                boolean result = RSAVerifier.verify(new byte[]{1, 2, 4}, publicKey);
+            }
+        });
+
+        Assertions.assertThrows(VerifyInvalidInputException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                boolean result = RSAVerifier.verify(null, publicKey);
+            }
+        });
     }
 
 }

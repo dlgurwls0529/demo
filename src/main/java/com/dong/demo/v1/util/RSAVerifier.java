@@ -39,7 +39,7 @@ public class RSAVerifier {
             // Verifying the signature
             return sign.verify(signature);
 
-        } catch (SignatureException | InvalidKeyException e) {
+        } catch (SignatureException | InvalidKeyException | NullPointerException e) {
             throw new VerifyInvalidInputException(e);
         } catch (NoSuchAlgorithmException e) {
             throw new CompressAlgorithmDeprecatedException(e);
