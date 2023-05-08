@@ -39,10 +39,10 @@ public class JdbcReadAuthRepository implements ReadAuthRepository {
                 throw new NoMatchParentRowException();
             }
             else {
-                throw new DataAccessException();
+                throw new DataAccessException(e);
             }
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -69,7 +69,7 @@ public class JdbcReadAuthRepository implements ReadAuthRepository {
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -87,7 +87,7 @@ public class JdbcReadAuthRepository implements ReadAuthRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }

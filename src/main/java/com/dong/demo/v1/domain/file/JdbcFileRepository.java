@@ -48,7 +48,7 @@ public class JdbcFileRepository implements FileRepository {
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -84,10 +84,10 @@ public class JdbcFileRepository implements FileRepository {
                 throw new NoMatchParentRowException();
             }
             else {
-                throw new DataAccessException();
+                throw new DataAccessException(e);
             }
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -117,7 +117,7 @@ public class JdbcFileRepository implements FileRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -143,7 +143,7 @@ public class JdbcFileRepository implements FileRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -181,7 +181,7 @@ public class JdbcFileRepository implements FileRepository {
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -221,7 +221,7 @@ public class JdbcFileRepository implements FileRepository {
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -253,7 +253,7 @@ public class JdbcFileRepository implements FileRepository {
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -269,7 +269,7 @@ public class JdbcFileRepository implements FileRepository {
         try {
             connection.prepareStatement(sql).execute();
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }

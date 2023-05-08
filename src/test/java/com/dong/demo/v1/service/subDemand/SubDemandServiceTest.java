@@ -2,15 +2,20 @@ package com.dong.demo.v1.service.subDemand;
 
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
+import com.dong.demo.v1.domain.readAuth.ReadAuth;
 import com.dong.demo.v1.domain.readAuth.ReadAuthRepository;
 import com.dong.demo.v1.domain.subDemand.SubDemand;
 import com.dong.demo.v1.domain.subDemand.SubDemandRepository;
+import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
+import com.dong.demo.v1.exception.NoMatchParentRowException;
 import com.dong.demo.v1.exception.VerifyFailedException;
 import com.dong.demo.v1.service.readAuth.ReadAuthService;
 import com.dong.demo.v1.util.Base58;
 import com.dong.demo.v1.util.CipherUtil;
+import com.dong.demo.v1.util.KeyCompressor;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import com.dong.demo.v1.web.dto.SubscribeDemandsAddRequestDto;
+import com.dong.demo.v1.web.dto.SubscribeDemandsAllowRequestDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,6 +85,7 @@ class SubDemandServiceTest {
         Assertions.assertEquals("accountPK_TEST", subDemands.get(0));
     }
 
+    // todo : 롤백 되는지도 확인 + 무결성 제약 위반 시 롤백 되는지도
     @Test
     public void addSubscribeDemand_verify_fail_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
@@ -118,6 +124,8 @@ class SubDemandServiceTest {
                 subDemandService.addSubscribeDemand(dto);
             }
         });
+
+        Assertions.assertEquals(0, subDemandRepository.findAccountPublicKeyByFolderCP("folderCP_TEST").size());
     }
 
     @Test
@@ -160,5 +168,317 @@ class SubDemandServiceTest {
         // then
         String actual = subDemandRepository.findAccountPublicKeyByFolderCP("folderCP_TEST").get(0);
         Assertions.assertEquals(actual, dto.getAccountPublicKey());
+    }
+
+    @Test
+    public void addSubscribeDemand_ref_violation_fail_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // given
+        // verify sign 준비
+        KeyPair keyPair = CipherUtil.genRSAKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(publicKey.getEncoded());
+
+        byte[] sign = signature.sign();
+
+        SubscribeDemandsAddRequestDto dto = SubscribeDemandsAddRequestDto.builder()
+                .accountPublicKey(Base58.encode(publicKey.getEncoded()))
+                .byteSign(sign)
+                .folderCP("folderCP_TEST")
+                .build();
+
+        // when, mariadb 로 환경 바뀌면 돌아간다, h2랑 무결성 에외 달라서 그럼
+        // todo : dataAccessException 이거 너무 원인 알기 어렵다. cause 넣은 생성자로 레포지토리 예외 전환 부분 다 바꾸기
+
+        Assertions.assertThrows(NoMatchParentRowException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                subDemandService.addSubscribeDemand(dto);
+            }
+        });
+
+        // then
+        Assertions.assertEquals(0, subDemandRepository.findAccountPublicKeyByFolderCP("folderCP_TEST").size());
+    }
+
+    @Test
+    public void addSubscribeDemand_ent_violation_fail_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // given
+        // verify sign 준비
+        KeyPair keyPair = CipherUtil.genRSAKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(publicKey.getEncoded());
+
+        byte[] sign = signature.sign();
+
+        SubscribeDemandsAddRequestDto dto = SubscribeDemandsAddRequestDto.builder()
+                .accountPublicKey(Base58.encode(publicKey.getEncoded()))
+                .byteSign(sign)
+                .folderCP("folderCP_TEST")
+                .build();
+
+        folderRepository.save(Folder.builder()
+                .folderCP("folderCP_TEST")
+                .title("title_TEST")
+                .isTitleOpen(true)
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build());
+
+        subDemandService.addSubscribeDemand(dto);
+
+        // when, mariadb 로 환경 바뀌면 돌아간다, h2랑 무결성 에외 달라서 그럼
+        // todo : dataAccessException 이거 너무 원인 알기 어렵다. cause 넣은 생성자로 레포지토리 예외 전환 부분 다 바꾸기
+
+        Assertions.assertThrows(DuplicatePrimaryKeyException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                subDemandService.addSubscribeDemand(dto);
+            }
+        });
+
+        // then
+        Assertions.assertEquals(1, subDemandRepository.findAccountPublicKeyByFolderCP("folderCP_TEST").size());
+    }
+
+    // todo : 이거 테스트 돌려보기. 아직 안돌려봄
+    @Test
+    public void allowSubscribe_success_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // given
+        KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        PublicKey folderPublicKey = folderKeyPair.getPublic();
+        PrivateKey folderPrivateKey = folderKeyPair.getPrivate();
+
+        KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        PublicKey accountPublicKey = accountKeyPair.getPublic();
+        PrivateKey accountPrivateKey = accountKeyPair.getPrivate();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(folderPrivateKey);
+        signature.update(folderPublicKey.getEncoded());
+
+        byte[] sign = signature.sign();
+
+        SubscribeDemandsAllowRequestDto dto = SubscribeDemandsAllowRequestDto.builder()
+                .folderPublicKey(Base58.encode(folderPublicKey.getEncoded()))
+                .byteSign(sign)
+                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .symmetricKeyEWA("EWA_TEST")
+                .build();
+
+        folderRepository.save(Folder.builder()
+                .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build());
+
+        SubDemand expectedSub = SubDemand.builder()
+                .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
+                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .accountPublicKey(Base58.encode(accountPublicKey.getEncoded()))
+                .build();
+
+        subDemandRepository.save(expectedSub);
+
+        Assertions.assertTrue(subDemandRepository.exist(expectedSub.getFolderCP(), expectedSub.getAccountCP()));
+
+        // when
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                subDemandService.allowSubscribe(dto);
+            }
+        });
+
+        // then
+        Assertions.assertFalse(subDemandRepository.exist(expectedSub.getFolderCP(), expectedSub.getAccountCP()));
+        Assertions.assertEquals(1, readAuthRepository.findByAccountCP(expectedSub.getAccountCP()).size());
+        Assertions.assertEquals(
+                    ReadAuth.builder()
+                        .accountCP(expectedSub.getAccountCP())
+                        .folderCP(expectedSub.getFolderCP())
+                        .symmetricKeyEWA("EWA_TEST")
+                        .build(),
+                    readAuthRepository.findByAccountCP(expectedSub.getAccountCP()).get(0)
+        );
+    }
+
+    // fail 뜨면 트랜잭션 반영 x
+    @Test
+    public void allowSubscribe_verify_fail_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // given
+        KeyPair keyPair_true = CipherUtil.genRSAKeyPair();
+        PublicKey publicKey_true = keyPair_true.getPublic();
+        PrivateKey privateKey_true = keyPair_true.getPrivate();
+
+        KeyPair keyPair_false = CipherUtil.genRSAKeyPair();
+        PublicKey publicKey_false = keyPair_false.getPublic();
+        PrivateKey privateKey_false = keyPair_false.getPrivate();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey_false);
+        signature.update(publicKey_true.getEncoded());
+
+        byte[] sign = signature.sign();
+
+        SubscribeDemandsAllowRequestDto dto = SubscribeDemandsAllowRequestDto.builder()
+                .folderPublicKey(Base58.encode(publicKey_true.getEncoded()))
+                .byteSign(sign)
+                .accountCP("accountCP_TEST")
+                .symmetricKeyEWA("EWA_TEST")
+                .build();
+
+        // when
+        Executable executable = new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                subDemandService.allowSubscribe(dto);
+            }
+        };
+
+        // then
+        Assertions.assertThrows(VerifyFailedException.class, executable);
+    }
+
+    // verify 통과해도 subDemand 없으면 뜨면 트랜잭션 반영 x
+    @Test
+    public void allowSubscribe_subscribe_if_not_exist_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // given
+        KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        PublicKey folderPublicKey = folderKeyPair.getPublic();
+        PrivateKey folderPrivateKey = folderKeyPair.getPrivate();
+
+        KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        PublicKey accountPublicKey = accountKeyPair.getPublic();
+        PrivateKey accountPrivateKey = accountKeyPair.getPrivate();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(folderPrivateKey);
+        signature.update(folderPublicKey.getEncoded());
+
+        byte[] sign = signature.sign();
+
+        SubscribeDemandsAllowRequestDto dto = SubscribeDemandsAllowRequestDto.builder()
+                .folderPublicKey(Base58.encode(folderPublicKey.getEncoded()))
+                .byteSign(sign)
+                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .symmetricKeyEWA("EWA_TEST")
+                .build();
+
+        folderRepository.save(Folder.builder()
+                .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build());
+
+        SubDemand expectedSub = SubDemand.builder()
+                .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
+                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .accountPublicKey(Base58.encode(accountPublicKey.getEncoded()))
+                .build();
+
+        Assertions.assertFalse(subDemandRepository.exist(expectedSub.getFolderCP(), expectedSub.getAccountCP()));
+
+        // when
+        Assertions.assertDoesNotThrow(new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                subDemandService.allowSubscribe(dto);
+            }
+        });
+
+        // then
+        Assertions.assertFalse(subDemandRepository.exist(expectedSub.getFolderCP(), expectedSub.getAccountCP()));
+        Assertions.assertEquals(0, readAuthRepository.findByAccountCP(dto.getAccountCP()).size());
+    }
+
+    // 밑에 두 개는 안해도 될 것 같지만
+    // 병행수행 될 경우 위반 될 가능성이 있어서 테스트를 한다.
+    // 중간에 예외 터졌을 때 롤백 되는지 확인한다.
+    // crash 를 중간에 내서 DataAccessException 에 대해서도 롤백이 되는지 확인해보면 좋을 거 같기도 하고
+
+    @Test
+    public void allowSubscribe_read_auth_ent_violation_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // given
+        KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        PublicKey folderPublicKey = folderKeyPair.getPublic();
+        PrivateKey folderPrivateKey = folderKeyPair.getPrivate();
+
+        KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        PublicKey accountPublicKey = accountKeyPair.getPublic();
+        PrivateKey accountPrivateKey = accountKeyPair.getPrivate();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(folderPrivateKey);
+        signature.update(folderPublicKey.getEncoded());
+
+        byte[] sign = signature.sign();
+
+        SubscribeDemandsAllowRequestDto dto = SubscribeDemandsAllowRequestDto.builder()
+                .folderPublicKey(Base58.encode(folderPublicKey.getEncoded()))
+                .byteSign(sign)
+                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .symmetricKeyEWA("EWA_TEST")
+                .build();
+
+        folderRepository.save(Folder.builder()
+                .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build());
+
+        SubDemand expectedSub = SubDemand.builder()
+                .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
+                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .accountPublicKey(Base58.encode(accountPublicKey.getEncoded()))
+                .build();
+
+        subDemandRepository.save(expectedSub);
+        readAuthRepository.save(ReadAuth.builder()
+                .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
+                .accountCP(dto.getAccountCP())
+                .symmetricKeyEWA(dto.getSymmetricKeyEWA())
+                .build());
+
+        // when
+        Assertions.assertThrows(DuplicatePrimaryKeyException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                subDemandService.allowSubscribe(dto);
+            }
+        });
+
+        // then, 삭제가 롤백되어 subDemand 에 하나, readAuth 에도 하나가 있어야 한다.
+        // 롤백 안되면 subDemand 에 아무것도 없고, readAuth 에 하나가 있을 것
+        // 물론 이렇게 롤백 되면 안된다. 다시 알아보자.
+        Assertions.assertEquals(1, subDemandRepository.findAccountPublicKeyByFolderCP(expectedSub.getFolderCP()).size());
+        Assertions.assertEquals(1, readAuthRepository.findByAccountCP(expectedSub.getAccountCP()).size());
+        Assertions.assertEquals(
+                ReadAuth.builder()
+                        .accountCP(expectedSub.getAccountCP())
+                        .folderCP(expectedSub.getFolderCP())
+                        .symmetricKeyEWA("EWA_TEST")
+                        .build(),
+                readAuthRepository.findByAccountCP(expectedSub.getAccountCP()).get(0)
+        );
+    }
+
+    // 생각해보니까 이거는 일어날 수가 없다. 중간에 folder 삭제해야 하는데, 참조 무결성 때문에 불가능하다. 테스트 할 수가 없다.
+    // 멀티스레딩 써도 동시성 제어 때문에 안될 듯.
+    public void allowSubscribe_read_auth_ref_violation_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+
     }
 }

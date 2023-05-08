@@ -10,6 +10,7 @@ import com.dong.demo.v1.util.CipherUtil;
 import com.dong.demo.v1.util.KeyCompressor;
 import com.dong.demo.v1.util.RSAVerifier;
 import com.dong.demo.v1.web.dto.SubscribeDemandsAddRequestDto;
+import com.dong.demo.v1.web.dto.SubscribeDemandsAllowRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +46,29 @@ public class SubDemandService {
                     .folderCP(dto.getFolderCP())
                     .accountPublicKey(dto.getAccountPublicKey())
                     .build());
+        }
+    }
+
+    // check rollback
+    // verify fail, ref, ent violation
+    @Transactional
+    public void allowSubscribe(SubscribeDemandsAllowRequestDto dto) {
+        if (!RSAVerifier.verify(
+                dto.getByteSign(), CipherUtil.getPublicKeyFromBase58String(dto.getFolderPublicKey())
+        )) {
+            throw new VerifyFailedException();
+        }
+        else {
+            String folderCP = KeyCompressor.compress(dto.getFolderPublicKey());
+
+            if (subDemandRepository.exist(folderCP, dto.getAccountCP())) {
+                subDemandRepository.delete(folderCP, dto.getAccountCP());
+                readAuthRepository.save(ReadAuth.builder()
+                        .folderCP(folderCP)
+                        .accountCP(dto.getAccountCP())
+                        .symmetricKeyEWA(dto.getSymmetricKeyEWA())
+                        .build());
+            }
         }
     }
 

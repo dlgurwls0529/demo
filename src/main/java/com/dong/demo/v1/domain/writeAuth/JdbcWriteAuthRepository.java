@@ -41,10 +41,10 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
                 throw new NoMatchParentRowException();
             }
             else {
-                throw new DataAccessException();
+                throw new DataAccessException(e);
             }
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -73,7 +73,7 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -91,7 +91,7 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }

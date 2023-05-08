@@ -58,10 +58,10 @@ public class JdbcFolderRepository implements FolderRepository {
                 throw new DuplicatePrimaryKeyException();
             }
             else {
-                throw new DataAccessException();
+                throw new DataAccessException(e);
             }
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -79,7 +79,7 @@ public class JdbcFolderRepository implements FolderRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -116,7 +116,7 @@ public class JdbcFolderRepository implements FolderRepository {
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -143,7 +143,7 @@ public class JdbcFolderRepository implements FolderRepository {
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
@@ -159,7 +159,7 @@ public class JdbcFolderRepository implements FolderRepository {
         try {
             connection.prepareStatement(sql).execute();
         } catch (SQLException e) {
-            throw new DataAccessException();
+            throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
