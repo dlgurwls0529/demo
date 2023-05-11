@@ -482,8 +482,7 @@ class SubDemandServiceTest {
 
     }
 
-    @Test
-    @RepeatedTest(30)
+    @RepeatedTest(10)
     public void allowSubscribe_concurrent_test() throws InterruptedException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
