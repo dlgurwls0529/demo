@@ -16,10 +16,7 @@ import com.dong.demo.v1.util.KeyCompressor;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import com.dong.demo.v1.web.dto.SubscribeDemandsAddRequestDto;
 import com.dong.demo.v1.web.dto.SubscribeDemandsAllowRequestDto;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +26,10 @@ import org.springframework.test.context.ActiveProfiles;
 import javax.crypto.KeyGenerator;
 import java.security.*;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -248,7 +249,6 @@ class SubDemandServiceTest {
         Assertions.assertEquals(1, subDemandRepository.findAccountPublicKeyByFolderCP("folderCP_TEST").size());
     }
 
-    // todo : 이거 테스트 돌려보기. 아직 안돌려봄
     @Test
     public void allowSubscribe_success_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
@@ -480,5 +480,101 @@ class SubDemandServiceTest {
     // 멀티스레딩 써도 동시성 제어 때문에 안될 듯.
     public void allowSubscribe_read_auth_ref_violation_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 
+    }
+
+    @Test
+    @RepeatedTest(30)
+    public void allowSubscribe_concurrent_test() throws InterruptedException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // given
+        KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        PublicKey folderPublicKey = folderKeyPair.getPublic();
+        PrivateKey folderPrivateKey = folderKeyPair.getPrivate();
+
+        KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        PublicKey accountPublicKey = accountKeyPair.getPublic();
+        PrivateKey accountPrivateKey = accountKeyPair.getPrivate();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(folderPrivateKey);
+        signature.update(folderPublicKey.getEncoded());
+
+        byte[] sign = signature.sign();
+
+        SubscribeDemandsAllowRequestDto dto = SubscribeDemandsAllowRequestDto.builder()
+                .folderPublicKey(Base58.encode(folderPublicKey.getEncoded()))
+                .byteSign(sign)
+                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .symmetricKeyEWA("EWA_TEST")
+                .build();
+
+        folderRepository.save(Folder.builder()
+                .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
+                .isTitleOpen(true)
+                .title("title_TEST")
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build());
+
+        SubDemand expectedSub = SubDemand.builder()
+                .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
+                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .accountPublicKey(Base58.encode(accountPublicKey.getEncoded()))
+                .build();
+
+        subDemandRepository.save(expectedSub);
+
+        Assertions.assertTrue(subDemandRepository.exist(expectedSub.getFolderCP(), expectedSub.getAccountCP()));
+
+        // multithreading, concurrent environment.
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        // for waiting
+        CountDownLatch latch = new CountDownLatch(2);
+
+        // when
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println(Thread.currentThread() + " start");
+                try {
+                    subDemandService.allowSubscribe(dto);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    System.out.println(Thread.currentThread() + " end");
+                    latch.countDown();
+                }
+            }
+        });
+
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println(Thread.currentThread() + " start");
+                try {
+                    subDemandService.allowSubscribe(dto);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    System.out.println(Thread.currentThread() + " end");
+                    latch.countDown();
+                }
+            }
+        });
+
+        latch.await();
+
+        // then
+        Assertions.assertFalse(subDemandRepository.exist(expectedSub.getFolderCP(), expectedSub.getAccountCP()));
+        Assertions.assertEquals(1, readAuthRepository.findByAccountCP(expectedSub.getAccountCP()).size());
+        Assertions.assertEquals(
+                ReadAuth.builder()
+                        .accountCP(expectedSub.getAccountCP())
+                        .folderCP(expectedSub.getFolderCP())
+                        .symmetricKeyEWA("EWA_TEST")
+                        .build(),
+                readAuthRepository.findByAccountCP(expectedSub.getAccountCP()).get(0)
+        );
     }
 }
