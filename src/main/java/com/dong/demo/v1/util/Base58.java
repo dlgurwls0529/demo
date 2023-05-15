@@ -3,6 +3,7 @@ package com.dong.demo.v1.util;
 import java.math.BigInteger;
 
 public class Base58 {
+
     private static final String ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
     private static final BigInteger BASE = BigInteger.valueOf(58);
 

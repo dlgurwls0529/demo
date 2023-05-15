@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.net.ssl.SSLEngineResult;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,20 @@ public class FoldersApiController {
     public ResponseEntity<String> generateFolder(
             @PathVariable String folderCP,
             @RequestBody FoldersGenerateRequestDto dto) throws JsonProcessingException {
-        return new ResponseEntity<>(folderCP, HttpStatus.OK);
+
+        // /api/v1/folders/{folderPublicKey}/files
+        // 여기에서 folderPublicKey 가 비어있는 경우 folders url 로 인식된다.
+        // /api/v1/folders/files 이런 느낌으로. 문제는 없지만 정책 상 안되니까 CONFLICT 로 처리.
+        if (folderCP.equals("files")) {
+            return new ResponseEntity<String>(
+                    "Maybe you requested api/v1/folders/~/files." +
+                    "folderPublicKey is empty. ",
+                    HttpStatus.CONFLICT);
+        }
+        else {
+            return new ResponseEntity<String>(folderCP, HttpStatus.OK);
+        }
+
     }
 
     @GetMapping("/api/v1/folders")

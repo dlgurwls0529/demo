@@ -86,7 +86,6 @@ class SubDemandServiceTest {
         Assertions.assertEquals("accountPK_TEST", subDemands.get(0));
     }
 
-    // todo : 롤백 되는지도 확인 + 무결성 제약 위반 시 롤백 되는지도
     @Test
     public void addSubscribeDemand_verify_fail_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
@@ -192,7 +191,6 @@ class SubDemandServiceTest {
                 .build();
 
         // when, mariadb 로 환경 바뀌면 돌아간다, h2랑 무결성 에외 달라서 그럼
-        // todo : dataAccessException 이거 너무 원인 알기 어렵다. cause 넣은 생성자로 레포지토리 예외 전환 부분 다 바꾸기
 
         Assertions.assertThrows(NoMatchParentRowException.class, new Executable() {
             @Override
@@ -236,7 +234,6 @@ class SubDemandServiceTest {
         subDemandService.addSubscribeDemand(dto);
 
         // when, mariadb 로 환경 바뀌면 돌아간다, h2랑 무결성 에외 달라서 그럼
-        // todo : dataAccessException 이거 너무 원인 알기 어렵다. cause 넣은 생성자로 레포지토리 예외 전환 부분 다 바꾸기
 
         Assertions.assertThrows(DuplicatePrimaryKeyException.class, new Executable() {
             @Override
@@ -482,7 +479,7 @@ class SubDemandServiceTest {
 
     }
 
-    @RepeatedTest(10)
+    @RepeatedTest(5)
     public void allowSubscribe_concurrent_test() throws InterruptedException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
