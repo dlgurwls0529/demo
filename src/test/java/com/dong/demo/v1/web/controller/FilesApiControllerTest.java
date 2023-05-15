@@ -406,6 +406,215 @@ class FilesApiControllerTest {
     }
 
     @Test
+    public void modifyFileFailByInvalidContentsTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // null
+        // given
+        KeyPair keyPair = CipherUtil.genRSAKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(publicKey.getEncoded());
+        byte[] byteSign = signature.sign();
+
+        FilesModifyRequestDto dto = FilesModifyRequestDto
+                .builder()
+                .byteSign(byteSign)
+                .subhead("subhead_TEST")
+                .contents(null)
+                .build();
+
+        String folderPublicKey = Base58.encode(publicKey.getEncoded());
+        String fileId = UUIDGenerator.createUUIDWithoutHyphen();
+
+        String url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files/" + fileId;
+
+        // when
+        ResponseEntity<String> responseEntity = restTemplate
+                .exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), String.class);
+
+        // then
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void modifyFileFailByInvalidPublicKeyTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // given
+        KeyPair keyPair = CipherUtil.genRSAKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(publicKey.getEncoded());
+        byte[] byteSign = signature.sign();
+
+        FilesModifyRequestDto dto = FilesModifyRequestDto
+                .builder()
+                .byteSign(byteSign)
+                .subhead("subhead_TEST")
+                .contents("contents_TEST")
+                .build();
+
+        String folderPublicKey = Base58.encode(privateKey.getEncoded());
+        String fileId = UUIDGenerator.createUUIDWithoutHyphen();
+        String url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files/" + fileId;
+        ResponseEntity<String> responseEntity = restTemplate
+                .exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), String.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+
+
+        // ****************** TEST ISOLATION ******************
+        //
+        this.cleanUp();
+        //
+        // ****************************************************
+
+
+        // 얘도 위에꺼랑 마찬가지로 PUT : api/v1/folders/files 이거라서 NOT FOUND 뜬다.
+        folderPublicKey = "";
+        fileId = UUIDGenerator.createUUIDWithoutHyphen();
+        url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files/" + fileId;
+        responseEntity = restTemplate
+                .exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), String.class);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+
+
+        // ****************** TEST ISOLATION ******************
+        //
+        this.cleanUp();
+        //
+        // ****************************************************
+
+
+        folderPublicKey = "fdsaf sfasdf fdsaf";
+        fileId = UUIDGenerator.createUUIDWithoutHyphen();
+        url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files/" + fileId;
+        responseEntity = restTemplate
+                .exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), String.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+
+
+        // ****************** TEST ISOLATION ******************
+        //
+        this.cleanUp();
+        //
+        // ****************************************************
+
+
+        folderPublicKey = "         ";
+        fileId = UUIDGenerator.createUUIDWithoutHyphen();
+        url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files/" + fileId;
+        responseEntity = restTemplate
+                .exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), String.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+
+
+        // ****************** TEST ISOLATION ******************
+        //
+        this.cleanUp();
+        //
+        // ****************************************************
+
+
+        folderPublicKey = " fdsafsf/ fdsf/sd/f";
+        fileId = UUIDGenerator.createUUIDWithoutHyphen();
+        url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files/" + fileId;
+        responseEntity = restTemplate
+                .exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), String.class);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+
+
+        // ****************** TEST ISOLATION ******************
+        //
+        this.cleanUp();
+        //
+        // ****************************************************
+
+
+        folderPublicKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
+        fileId = UUIDGenerator.createUUIDWithoutHyphen();
+        url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files/" + fileId;
+        responseEntity = restTemplate
+                .exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), String.class);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void modifyFileFailByInvalidUUIDTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // given
+        KeyPair keyPair = CipherUtil.genRSAKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(publicKey.getEncoded());
+        byte[] byteSign = signature.sign();
+
+        FilesModifyRequestDto dto = FilesModifyRequestDto
+                .builder()
+                .byteSign(byteSign)
+                .subhead("subhead_TEST")
+                .contents("contents_TEST")
+                .build();
+
+        String folderPublicKey = Base58.encode(publicKey.getEncoded());
+        String fileId = "------------------";
+        String url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files/" + fileId;
+        ResponseEntity<String> responseEntity = restTemplate
+                .exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), String.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+
+
+        // ****************** TEST ISOLATION ******************
+        //
+        this.cleanUp();
+        //
+        // ****************************************************
+
+
+        // url 경로에 아무것도 없으면 그냥 404로 처리되나보다.
+        folderPublicKey = Base58.encode(publicKey.getEncoded());
+        fileId = "";
+        url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files/" + fileId;
+        responseEntity = restTemplate
+                .exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), String.class);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+
+
+        // ****************** TEST ISOLATION ******************
+        //
+        this.cleanUp();
+        //
+        // ****************************************************
+
+
+        folderPublicKey = Base58.encode(publicKey.getEncoded());
+        fileId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaf8979aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files/" + fileId;
+        responseEntity = restTemplate
+                .exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), String.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+
+
+        // ****************** TEST ISOLATION ******************
+        //
+        this.cleanUp();
+        //
+        // ****************************************************
+
+
+        folderPublicKey = Base58.encode(publicKey.getEncoded());
+        fileId = "aaaaaaaaa/aaaa/aaaaaa";
+        url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files/" + fileId;
+        responseEntity = restTemplate
+                .exchange(url, HttpMethod.PUT, new HttpEntity<>(dto), String.class);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    }
+
+    @Test
     public void getFileByFolderCPStubTest() {
         // given
         String folderCP = "folderCP_TEST";

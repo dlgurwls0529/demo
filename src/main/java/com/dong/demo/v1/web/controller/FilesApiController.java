@@ -6,6 +6,7 @@ import com.dong.demo.v1.web.dto.FilesGetResponseDto;
 import com.dong.demo.v1.web.dto.FilesModifyRequestDto;
 import com.dong.demo.v1.web.validate.Base58FormatValidator;
 import com.dong.demo.v1.web.validate.RSAFormatValidator;
+import com.dong.demo.v1.web.validate.UUIDFormatValidator;
 import com.dong.demo.v1.web.validate.ValidBase58RSAPublicKeyFormat;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
@@ -27,6 +28,7 @@ public class FilesApiController {
 
     private final Base58FormatValidator base58FormatValidator;
     private final RSAFormatValidator rsaFormatValidator;
+    private final UUIDFormatValidator uuidFormatValidator;
 
     @PostMapping("/api/v1/folders/{folderPublicKey}/files")
     public ResponseEntity<String> generateFile(
@@ -43,13 +45,13 @@ public class FilesApiController {
 
         // 퍼블릭키로 "" 이게 들어오면 폴더 포스트 URL 으로 인식된다. 사실 이게 맞으니까, 여기에선 ""에 대해서는 테스트 하면 안되는 것이다.
         if (!base58FormatValidator.validate(folderPublicKey) || !rsaFormatValidator.validatePublicKey(Base58.decode(folderPublicKey))) {
-            return new ResponseEntity<>("folderPublicKey format is invalid." +
+            return new ResponseEntity<String>("folderPublicKey format is invalid." +
                             "It may be violation Base58 or RSAPublicKey Format or blank",
                     HttpStatus.BAD_REQUEST);
         }
         else {
             String uuid = "uuid_TEST";
-            return new ResponseEntity<>(uuid, HttpStatus.OK);
+            return new ResponseEntity<String>(uuid, HttpStatus.OK);
         }
     }
 
@@ -59,9 +61,23 @@ public class FilesApiController {
             @PathVariable String fileId,
             @Valid @RequestBody FilesModifyRequestDto requestDto
             ) {
-        return new ResponseEntity<>(fileId, HttpStatus.OK);
+
+        // folderPublicKey 가 null, "", "   "
+
+        if (!base58FormatValidator.validate(folderPublicKey) || !rsaFormatValidator.validatePublicKey(Base58.decode(folderPublicKey))) {
+            return new ResponseEntity<String>("folderPublicKey format is invalid." +
+                    "It may be violation Base58 or RSAPublicKey Format or blank",
+                    HttpStatus.BAD_REQUEST);
+        } else if (!uuidFormatValidator.validate(fileId)) {
+            return new ResponseEntity<String>("fileId format is invalid. check it please.",
+                    HttpStatus.BAD_REQUEST);
+        }
+        else {
+            return new ResponseEntity<String>(fileId, HttpStatus.OK);
+        }
     }
 
+    // todo: 밑에 기능 검증하고 테스트하기
     @GetMapping("api/v1/folders/{folderCP}/files")
     public ResponseEntity<List<FilesGetResponseDto>> getFileByFolderCP(
             @PathVariable String folderCP
