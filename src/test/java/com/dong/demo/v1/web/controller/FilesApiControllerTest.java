@@ -204,6 +204,19 @@ class FilesApiControllerTest {
         folderPublicKey = "";
         url = "http://localhost:" + port + "/api/v1/folders/" + folderPublicKey + "/files";
         responseEntity = restTemplate.postForEntity(url, requestDto, String.class);
+
+        // Validation 하면서 DTO 에 대한 검사도 수행하다보니 Bad Request 가 뜨는 모양
+        // 그러니까, folders/files 가 folder 컨트롤러에 매핑되는 건 맞는데, Validation 과정에서 걸러진다.
+        // 근데 혹시라도 files 로 접근했으면 세밀하게 응답 해주는 게 좋으니까
+        // files 이고 Validation 까지 fail 했어야 CONFLICT 가 뜨게 했다. 그냥 Validation 만 실패하면 Bad Request 가 뜬다.
+
+        // * 우선 FileGenDTO 의 JSON 과 FolderGenDTO 의 JSON 필드 이름이 겹치는 게 없다.
+        // * 그래서 folder 컨트롤러에 전달되는 FolderGenDTO 는 전부 null 혹은 기본 값이 세팅되어있다.
+        // * 이런 식으로 세팅 된 후 Validation 을 수행하면, Validation Fail 로 인해 Bad Request 가 된다.
+        // * 아무튼 Validation 덕에 folder 로 매핑되는 문제는 생각 안해도 되지만
+        // * 혹시라도 Valid 를 빼면 위험하니 검사 로직은 넣었다.
+
+        // Validation Fail By api/v1/folders/files : generateFolder()
         Assertions.assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
 
         // ****************** TEST ISOLATION ******************

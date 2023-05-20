@@ -3,7 +3,9 @@ package com.dong.demo.v1.web.controller;
 import com.dong.demo.v1.web.dto.FoldersGenerateRequestDto;
 import com.dong.demo.v1.web.dto.FoldersSearchResponseDto;
 import jdk.jfr.ContentType;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -30,8 +32,14 @@ public class FoldersApiControllerTest {
     @Autowired
     TestRestTemplate restTemplate;
 
+    @AfterEach
+    @BeforeEach
+    public void cleanUp() {
+
+    }
+
     @Test
-    public void generateFolderStubTest() {
+    public void generateFolderSuccessTest() {
         // given
         String folderCP = "MIIBIjANBgkqhki";
 
@@ -49,6 +57,112 @@ public class FoldersApiControllerTest {
 
         // then
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+        // ****************** TEST ISOLATION ******************
+        //
+        this.cleanUp();
+        //
+        // ****************************************************
+
+        folderCP = "files";
+
+        url = "http://localhost:" + port + "/api/v1/folders/" + folderCP;
+
+        responseEntity = restTemplate.
+                postForEntity(url, dto, String.class);
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void generateFolderFailByInvalidSymTest() {
+
+        String folderCP = "fsafdsafsas";
+
+        FoldersGenerateRequestDto dto = FoldersGenerateRequestDto.builder()
+                .isTitleOpen(true)
+                .symmetricKeyEWF(null)
+                .title("test_TITLE")
+                .build();
+
+        String url = "http://localhost:" + port + "/api/v1/folders/" + folderCP;
+
+        ResponseEntity<String> responseEntity = restTemplate.
+                postForEntity(url, dto, String.class);
+
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void generateFolderFailByInvalidTitleTest() {
+
+        String folderCP = "fsafdsafsas";
+
+        FoldersGenerateRequestDto dto = FoldersGenerateRequestDto.builder()
+                .isTitleOpen(true)
+                .symmetricKeyEWF("sym_TEST")
+                .title(null)
+                .build();
+
+        String url = "http://localhost:" + port + "/api/v1/folders/" + folderCP;
+
+        ResponseEntity<String> responseEntity = restTemplate.
+                postForEntity(url, dto, String.class);
+
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+
+        // ****************** TEST ISOLATION ******************
+        //
+        this.cleanUp();
+        //
+        // ****************************************************
+
+        dto = FoldersGenerateRequestDto.builder()
+                .isTitleOpen(true)
+                .symmetricKeyEWF("sym_TEST")
+                .title("   ")
+                .build();
+
+        url = "http://localhost:" + port + "/api/v1/folders/" + folderCP;
+
+        responseEntity = restTemplate.
+                postForEntity(url, dto, String.class);
+
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void generateFolderFailByInvalidFolderCPTest() {
+
+        String folderCP = null;
+
+        FoldersGenerateRequestDto dto = FoldersGenerateRequestDto.builder()
+                .isTitleOpen(true)
+                .symmetricKeyEWF("sym_TEST")
+                .title("title_TEST")
+                .build();
+
+        String url = "http://localhost:" + port + "/api/v1/folders/" + folderCP;
+
+        ResponseEntity<String> responseEntity = restTemplate.
+                postForEntity(url, dto, String.class);
+
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+
+        // ****************** TEST ISOLATION ******************
+        //
+        this.cleanUp();
+        //
+        // ****************************************************
+
+        folderCP = "    ";
+
+        url = "http://localhost:" + port + "/api/v1/folders/" + folderCP;
+
+        responseEntity = restTemplate.
+                postForEntity(url, dto, String.class);
+
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
 
     @Test

@@ -1,6 +1,8 @@
 package com.dong.demo.v1.web.controller;
 
+import com.dong.demo.v1.util.KeyCompressor;
 import com.dong.demo.v1.web.dto.*;
+import jakarta.validation.Valid;
 import org.springframework.boot.autoconfigure.security.ConditionalOnDefaultWebSecurity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import java.util.List;
 @RestController
 public class AuthsApiController {
 
+    // 서칭 기능이라 validation 필요 없다.
     @GetMapping("/api/v1/write-auths/{accountCP}/folders")
     public ResponseEntity<List<WriteAuthsGetResponseDto>> getWriteAuthByAccountCP(
             @PathVariable String accountCP
@@ -36,6 +39,7 @@ public class AuthsApiController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    // 얘도 그렇다.
     @GetMapping("/api/v1/read-auths/{accountCP}/folders")
     public ResponseEntity<List<ReadAuthsGetResponseDto>> getReadAuthByAccountCP(
             @PathVariable String accountCP) {
@@ -55,8 +59,16 @@ public class AuthsApiController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    // 얘는 Invalid 해도 상관 없지만, 혹시 모르니 Valid 를 한다.
+    // 만약 publicKey compress 했는데, CP 안나오면 Bad Request.
     @PostMapping("/api/v1/write-auths")
-    public ResponseEntity<Void> addWriteAuthority(@RequestBody WriteAuthsAddRequestDto dto) {
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<Void> addWriteAuthority(@Valid @RequestBody WriteAuthsAddRequestDto dto) {
+
+        if (!KeyCompressor.compress(dto.getFolderPublicKey()).equals(dto.getFolderCP())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
 }

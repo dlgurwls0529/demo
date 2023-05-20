@@ -4,6 +4,8 @@ import com.dong.demo.v1.util.Base58;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,9 +17,6 @@ public class Base58RSAPublicKeyFormatValidator implements ConstraintValidator<Va
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        System.out.println("Base58RSAPublicKeyFormatValidator.isValid");
-        boolean res = base58FormatValidator.validate(value) && !rsaFormatValidator.validatePublicKey(Base58.decode(value));
-        System.out.println("res = " + res);
-        return res;
+        return base58FormatValidator.validate(value) && rsaFormatValidator.validatePublicKey(Base58.decode(value));
     }
 }
