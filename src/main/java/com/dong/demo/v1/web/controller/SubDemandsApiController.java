@@ -2,6 +2,7 @@ package com.dong.demo.v1.web.controller;
 
 import com.dong.demo.v1.web.dto.SubscribeDemandsAddRequestDto;
 import com.dong.demo.v1.web.dto.SubscribeDemandsAllowRequestDto;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +14,15 @@ import java.util.List;
 @RestController
 public class SubDemandsApiController {
 
+    // todo : validation test 하기 !
+
     @PostMapping("/api/v1/subscribe-demands/add")
-    public ResponseEntity<Void> addSubScribeDemand(@RequestBody SubscribeDemandsAddRequestDto dto) {
+    public ResponseEntity<Void> addSubScribeDemand(@Valid @RequestBody SubscribeDemandsAddRequestDto dto) {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/api/v1/subscribe-demands/allow")
-    public ResponseEntity<Void> allowSubscribe(@RequestBody SubscribeDemandsAllowRequestDto dto) {
+    public ResponseEntity<Void> allowSubscribe(@Valid @RequestBody SubscribeDemandsAllowRequestDto dto) {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
