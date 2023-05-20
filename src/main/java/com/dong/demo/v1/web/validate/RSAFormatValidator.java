@@ -14,7 +14,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 
 
-// todo : 이거 RSA 클래스로 통합하고, UTIL 클래스 다 빈으로 만들기
 @Component
 public class RSAFormatValidator {
 

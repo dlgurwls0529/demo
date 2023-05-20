@@ -14,8 +14,6 @@ import java.util.List;
 @RestController
 public class SubDemandsApiController {
 
-    // todo : validation test 하기 !
-
     @PostMapping("/api/v1/subscribe-demands/add")
     public ResponseEntity<Void> addSubScribeDemand(@Valid @RequestBody SubscribeDemandsAddRequestDto dto) {
         return new ResponseEntity<>(HttpStatus.OK);

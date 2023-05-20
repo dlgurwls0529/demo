@@ -7,7 +7,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-// todo : 이거 Base58 클래스로 통합하고, UTIL 클래스 다 빈으로 만들기. 이거 만들고 테스트하기
 @Component
 public class Base58FormatValidator {
 
