@@ -24,7 +24,7 @@ public class FoldersApiController {
     // file 에서는 selection 작업이었기 때문에, 데이터가 무결할 필요가 없었다.
     // 하지만 여기는 좀 중요하다. DB 에서도 세밀하게 체크한 건 아니라, 여기서 안하면 핸들링하기 복잡해진다.
     // todo : DB 단에서 중복, 참조 무결성 예외 말고도 몇개 더 rethrow 하면 좋을 듯.
-    // todo : ex) folderCP 길이 검사, 타입 변환 예외, NULL 예외 (거의 안뜨긴 한다.)
+    // todo : ex) folderCP 길이 검사, 타입 변환 예외, NULL 예외 (거의 안뜨긴 한다.) -> 다 안해도 되김 함.
     @PostMapping("/api/v1/folders/{folderCP}")
     public ResponseEntity<String> generateFolder(
             @PathVariable String folderCP,
