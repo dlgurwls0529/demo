@@ -166,7 +166,7 @@ public class FoldersApiControllerTest {
     }
 
     @Test
-    public void searchStubTest() {
+    public void searchSuccessTest() {
         // given
         String keyword = "keyword_TEST";
         String url = "http://localhost:" + port + "/api/v1/folders?keyword=" + keyword;
@@ -178,7 +178,5 @@ public class FoldersApiControllerTest {
         // then
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(keyword.length(), response.getBody().size());
-        Assertions.assertEquals(response.getBody().get(0), response.getBody().get(1));
     }
 }

@@ -1,25 +1,28 @@
 package com.dong.demo.v1.web.controller;
 
+import com.dong.demo.v1.exception.DataAccessException;
+import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
+import com.dong.demo.v1.service.folder.FolderService;
 import com.dong.demo.v1.web.dto.FoldersGenerateRequestDto;
 import com.dong.demo.v1.web.dto.FoldersSearchResponseDto;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.dong.demo.v1.web.validate.InValidInputMessageWriter;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import javax.net.ssl.SSLEngineResult;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class FoldersApiController {
+
+    private final FolderService folderService;
+    private final InValidInputMessageWriter inputMessageWriter;
 
     // file 에서는 selection 작업이었기 때문에, 데이터가 무결할 필요가 없었다.
     // 하지만 여기는 좀 중요하다. DB 에서도 세밀하게 체크한 건 아니라, 여기서 안하면 핸들링하기 복잡해진다.
@@ -29,7 +32,8 @@ public class FoldersApiController {
     public ResponseEntity<String> generateFolder(
             @PathVariable String folderCP,
             @Valid @RequestBody FoldersGenerateRequestDto dto,
-            BindingResult bindingResult) {
+            BindingResult bindingResult
+    ) {
 
         // /api/v1/folders/{folderPublicKey}/files
         // 여기에서 folderPublicKey 가 비어있는 경우 folders url 로 인식된다.
@@ -47,48 +51,72 @@ public class FoldersApiController {
                     HttpStatus.CONFLICT);
         } */
 
-        // validation fail -> Bad Request or Conflict
-        if (bindingResult.hasErrors()) {
-            if (folderCP.equals("files")) {
-                return new ResponseEntity<String>(
-                        "Maybe you requested api/v1/folders/~/files." +
-                                "folderPublicKey is empty. ",
-                        HttpStatus.CONFLICT);
-            }
-            else {
-                return new ResponseEntity<String>(
-                        HttpStatus.BAD_REQUEST
-                );
-            }
+        // validate folderCP and validation complete.
+        if (folderCP.equals("null") || folderCP.replaceAll(" ", "").length() == 0) {
+            bindingResult.addError(new FieldError(
+                    "dto",
+                    "folderCP",
+                    "must not be blank")
+            );
         }
-        else if (folderCP.equals("null")) {
-            return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
-        }
-        else if (folderCP.replaceAll(" ", "").length() == 0) {
-            return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
-        }
-        else {
-            return new ResponseEntity<String>(folderCP, HttpStatus.OK);
+        else if (folderCP.length() > 60) {
+            bindingResult.addError(new FieldError(
+                    "dto",
+                    "folderCP",
+                    "must not longer than 60")
+            );
         }
 
+        // conflict handling
+        if (folderCP.equals("files") &&
+            !dto.getIsTitleOpen() &&
+            dto.getTitle() == null &&
+            dto.getSymmetricKeyEWF() == null) {
+            return new ResponseEntity<String>(
+                    "Maybe you requested api/v1/folders/~/files." +
+                            "folderPublicKey is empty. ",
+                    HttpStatus.CONFLICT);
+        }
+        // not conflict.
+        else {
+            if (bindingResult.hasErrors()) {
+                return new ResponseEntity<String>(
+                    inputMessageWriter.write(bindingResult.getFieldErrors()),
+                    HttpStatus.BAD_REQUEST);
+            }
+            else {
+                try {
+                    folderService.generateFolder(folderCP, dto);
+                    return new ResponseEntity<String>(folderCP, HttpStatus.OK);
+                } catch (DuplicatePrimaryKeyException e) {
+                    return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+                } catch (DataAccessException e) {
+                    return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
+                }
+            }
+        }
     }
 
     // 이거는 딱히 상관 없다.
     @GetMapping("/api/v1/folders")
     public ResponseEntity<List<FoldersSearchResponseDto>> search(@RequestParam("keyword") String keyword) {
-        FoldersSearchResponseDto dto = FoldersSearchResponseDto.builder()
-                .title("title_TEST")
-                .folderCP("folderCP_TEST")
-                .build();
 
-        int length = keyword.length();
+        try {
+            List<String[]> resultFolderCPAndTitleList = folderService.search(keyword);
+            List<FoldersSearchResponseDto> responseDtoList = new ArrayList<>();
 
-        List<FoldersSearchResponseDto> list = new ArrayList<>();
+            for (String[] strings : resultFolderCPAndTitleList) {
+                responseDtoList.add(FoldersSearchResponseDto.builder()
+                        .folderCP(strings[0])
+                        .title(strings[1])
+                        .build()
+                );
+            }
 
-        for(int i = 0; i < length; i++) {
-            list.add(dto);
+            return new ResponseEntity<List<FoldersSearchResponseDto>>(responseDtoList, HttpStatus.OK);
         }
-
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        catch (DataAccessException e) {
+            return new ResponseEntity<List<FoldersSearchResponseDto>>((List<FoldersSearchResponseDto>) null, HttpStatus.BAD_REQUEST);
+        }
     }
 }
