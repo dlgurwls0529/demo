@@ -1,5 +1,7 @@
 package com.dong.demo.v1.web.controller;
 
+import com.dong.demo.v1.exception.*;
+import com.dong.demo.v1.service.file.FileService;
 import com.dong.demo.v1.util.Base58;
 import com.dong.demo.v1.web.dto.FilesGenerateRequestDto;
 import com.dong.demo.v1.web.dto.FilesGetResponseDto;
@@ -12,6 +14,8 @@ import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -24,15 +28,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FilesApiController {
 
-    /*private final Base58FormatValidator base58FormatValidator;
-    private final RSAFormatValidator rsaFormatValidator;*/
+    // 이거 테스트. validation 실패 테스트는 이미 끝났으니, 밑단에서 올라온 예외 핸들링만 테스트.
+
     private final Base58RSAPublicKeyFormatValidator base58RSAPublicKeyFormatValidator;
     private final UUIDFormatValidator uuidFormatValidator;
+    private final InValidInputMessageWriter messageWriter;
+    private final FileService fileService;
+
+    // [generateFile]
+    // 참조 무결성 (부모 없이 넣고, BAD REQUEST 및 안들어가있는지)
+    // 잘못된 byteSign 형식 (validation 안함. BAD REQUEST 및 DB에 안들어가있는지)
+    // verify 실패 (키 byteSign 형식은 맞지만 다르게. UNAUTHORIZED 뜨는지, DB에 안들어가있는지)
 
     @PostMapping("/api/v1/folders/{folderPublicKey}/files")
     public ResponseEntity<String> generateFile(
             @PathVariable String folderPublicKey,
-            @Valid @RequestBody FilesGenerateRequestDto requestDto) {
+            @Valid @RequestBody FilesGenerateRequestDto requestDto,
+            BindingResult bindingResult) {
 
         /* 막아야 하는 것들
             ** http://localhost:65468/api/v1/folders//files <- 얘는 folders 단에서 막는다.
@@ -45,57 +57,106 @@ public class FilesApiController {
         // 퍼블릭키로 "" 이게 들어오면 폴더 포스트 URL 으로 인식된다. 사실 이게 맞으니까, 여기에선 ""에 대해서는 테스트 하면 안되는 것이다.
         // if (!base58FormatValidator.validate(folderPublicKey) || !rsaFormatValidator.validatePublicKey(Base58.decode(folderPublicKey))) {
         if (!base58RSAPublicKeyFormatValidator.isValid(folderPublicKey, null)) {
-            return new ResponseEntity<String>("folderPublicKey format is invalid." +
-                            "It may be violation Base58 or RSAPublicKey Format or blank",
-                    HttpStatus.BAD_REQUEST);
+            bindingResult.addError(new FieldError(
+                    "dto",
+                    "folderPublicKey",
+                    "is invalid. It may be violation Base58 or RSAPublicKey Format or blank"
+            ));
+        }
+
+        if (bindingResult.hasErrors()) {
+            return new ResponseEntity<String>(
+                    messageWriter.write(bindingResult.getFieldErrors()),
+                    HttpStatus.BAD_REQUEST
+            );
         }
         else {
-            String uuid = "uuid_TEST";
-            return new ResponseEntity<String>(uuid, HttpStatus.OK);
+            try {
+                String uuid = fileService.generateFile(folderPublicKey, requestDto);
+                return new ResponseEntity<String>(uuid, HttpStatus.OK);
+            }
+            catch (DuplicatePrimaryKeyException | NoMatchParentRowException e) {
+                return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+            catch (DataAccessException | VerifyInvalidInputException e) {
+                return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
+            }
+            catch (VerifyFailedException e) {
+                return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+            }
+            /* 얘는 처리하지 말고 그냥 서버 죽인다.
+            catch (CompressAlgorithmDeprecatedException e) {
+                return new ResponseEntity<String>(e.getMessage(), )
+            }*/
         }
     }
+
+    // [modifyFile]
+    // 파일 없는데 수정하려하면? (No Content 확인)
+    // 잘못된 byteSign 형식 (validation 안함. BAD REQUEST 및 DB에 안들어가있는지)
+    // verify 실패 (키 byteSign 형식은 맞지만 다르게. UNAUTHORIZED 뜨는지, DB에 안들어가있는지)
 
     @PutMapping("api/v1/folders/{folderPublicKey}/files/{fileId}")
     public ResponseEntity<String> modifyFile(
             @PathVariable String folderPublicKey,
             @PathVariable String fileId,
-            @Valid @RequestBody FilesModifyRequestDto requestDto
+            @Valid @RequestBody FilesModifyRequestDto requestDto,
+            BindingResult bindingResult
             ) {
 
         // folderPublicKey 가 null, "", "   "
 
         // if (!base58FormatValidator.validate(folderPublicKey) || !rsaFormatValidator.validatePublicKey(Base58.decode(folderPublicKey))) {
         if (!base58RSAPublicKeyFormatValidator.isValid(folderPublicKey, null)) {
-            return new ResponseEntity<String>("folderPublicKey format is invalid." +
-                    "It may be violation Base58 or RSAPublicKey Format or blank",
-                    HttpStatus.BAD_REQUEST);
-        } else if (!uuidFormatValidator.validate(fileId)) {
-            return new ResponseEntity<String>("fileId format is invalid. check it please.",
-                    HttpStatus.BAD_REQUEST);
+            bindingResult.addError(new FieldError(
+                    "dto",
+                    "folderPublicKey",
+                    "is invalid. It may be violation Base58 or RSAPublicKey Format or blank"
+            ));
+        }
+        if (!uuidFormatValidator.validate(fileId)) {
+            bindingResult.addError(new FieldError(
+                    "dto",
+                    "fileId",
+                    "is invalid. check it please."
+            ));
+        }
+
+        if (bindingResult.hasErrors()) {
+            return new ResponseEntity<String>(
+                    messageWriter.write(bindingResult.getFieldErrors()),
+                    HttpStatus.BAD_REQUEST
+            );
         }
         else {
-            return new ResponseEntity<String>(fileId, HttpStatus.OK);
+            try {
+                String uuid = fileService.modifyFile(folderPublicKey, fileId, requestDto);
+                return new ResponseEntity<String>(uuid, HttpStatus.OK);
+            }
+            catch (NoSuchFileException e) {
+                return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
+            }
+            catch (DataAccessException | VerifyInvalidInputException e) {
+                return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
+            }
+            catch (VerifyFailedException e) {
+                return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+            }
         }
     }
 
     @GetMapping("api/v1/folders/{folderCP}/files")
-    public ResponseEntity<List<FilesGetResponseDto>> getFileByFolderCP(
+    public ResponseEntity<?> getFileByFolderCP(
             @PathVariable String folderCP
     ) {
         // 얘는 뭐 할게 없다. invalid 하면 어차피 검색 안되니까.
-
-        FilesGetResponseDto dto = FilesGetResponseDto.builder()
-                .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK4so+Q=")
-                .fileId(String.valueOf(UUID.randomUUID()))
-                .lastChangedDate(LocalDateTime.now())
-                .subheadEWS("what meal do I eat?")
-                .build();
-
-        List<FilesGetResponseDto> list = new ArrayList<>();
-        list.add(dto);
-        list.add(dto);
-
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        try {
+            List<FilesGetResponseDto> dtoList = fileService.getFileByFolderCP(folderCP);
+            return new ResponseEntity<List<FilesGetResponseDto>>(dtoList, HttpStatus.OK);
+        }
+        catch (DataAccessException e) {
+            return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("api/v1/folders/{folderCP}/files/{fileId}")
@@ -104,7 +165,12 @@ public class FilesApiController {
             @PathVariable String fileId
     ) {
         // 얘도 마찬가지 뭐 할게 없다. invalid 하면 어차피 검색 안되니까.
-
-        return new ResponseEntity<>("배고파" + folderCP + fileId, HttpStatus.OK);
+        try {
+            String content = fileService.getContentsByFileIdAndFolderCP(folderCP, fileId);
+            return new ResponseEntity<String>(content, HttpStatus.OK);
+        }
+        catch (DataAccessException e) {
+            return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 }

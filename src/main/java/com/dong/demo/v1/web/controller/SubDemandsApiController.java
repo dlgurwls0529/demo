@@ -14,6 +14,8 @@ import java.util.List;
 @RestController
 public class SubDemandsApiController {
 
+    // todo : 성공 및 실패 테스트 write 작업만 실패 테스트까지 하고, read only 는 성공 테스트만 해도 된다.
+
     @PostMapping("/api/v1/subscribe-demands/add")
     public ResponseEntity<Void> addSubScribeDemand(@Valid @RequestBody SubscribeDemandsAddRequestDto dto) {
         return new ResponseEntity<>(HttpStatus.OK);

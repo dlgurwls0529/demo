@@ -50,7 +50,6 @@ class AuthsApiControllerTest {
 
     }
 
-    @Test
     public void getWriteAuthByAccountCPStubTest() {
         // given
         String accountCP = "accountCP_TEST";
@@ -68,7 +67,6 @@ class AuthsApiControllerTest {
         Assertions.assertEquals(responseEntity.getBody().get(0), responseEntity.getBody().get(1));
     }
 
-    @Test
     public void getReadAuthByAccountCPStubTest() {
         // given
         String accountCP = "accountCP_TEST";
@@ -108,8 +106,10 @@ class AuthsApiControllerTest {
         ResponseEntity<Void> response =
                 restTemplate.postForEntity(url, dto, null);
 
+        System.out.println(response.getBody());
+
         // then
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test

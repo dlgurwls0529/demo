@@ -77,10 +77,10 @@ public class JdbcFileRepository implements FileRepository {
             preparedStatement.execute();
 
         } catch (SQLIntegrityConstraintViolationException e) {
-            if (e.getErrorCode() == ICsViolationCode.ENTITY) {
+            if (ICsViolationCode.isEntityIntegrityViolation(e.getErrorCode())) {
                 throw new DuplicatePrimaryKeyException();
             }
-            else if (e.getErrorCode() == ICsViolationCode.REFERENTIAL) {
+            else if (ICsViolationCode.isReferentialIntegrityViolation(e.getErrorCode())) {
                 throw new NoMatchParentRowException();
             }
             else {

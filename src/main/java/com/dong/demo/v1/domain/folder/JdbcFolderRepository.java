@@ -54,7 +54,7 @@ public class JdbcFolderRepository implements FolderRepository {
             preparedStatement.execute();
 
         } catch (SQLIntegrityConstraintViolationException e) {
-            if (e.getErrorCode() == ICsViolationCode.ENTITY) {
+            if (ICsViolationCode.isEntityIntegrityViolation(e.getErrorCode())) {
                 throw new DuplicatePrimaryKeyException();
             }
             else {
