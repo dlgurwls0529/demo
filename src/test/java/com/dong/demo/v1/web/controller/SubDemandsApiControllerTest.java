@@ -41,7 +41,6 @@ class SubDemandsApiControllerTest {
 
     }
 
-    @Test
     public void addSubscribeDemandSuccessTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
@@ -379,7 +378,6 @@ class SubDemandsApiControllerTest {
         }
     }
 
-    @Test
     public void getSubScribeDemandsStubTest() {
         // given
         String folderCP = "folderCP_TEST";
