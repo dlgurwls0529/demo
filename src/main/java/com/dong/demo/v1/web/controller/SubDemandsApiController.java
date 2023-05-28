@@ -20,17 +20,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SubDemandsApiController {
 
-    // todo : 성공 및 실패 테스트 write 작업만 실패 테스트까지 하고, read only 는 성공 테스트만 해도 된다.
-    // todo : BindingResult 받아서, 그거로
+    // 성공 및 실패 테스트 write 작업만 실패 테스트까지 하고, read only 는 성공 테스트만 해도 된다.
+    // BindingResult 받아서, 그거로
 
     private final SubDemandService subDemandService;
     private final InValidInputMessageWriter writer;
 
     /*
-        todo : [addSubscribeDemand]
-        todo : 성공 테스트
-        todo : 키 중복 예외, 참조 무결성, verify invalid -> Bad Request
-        todo : verify 실패 -> unAuthorized
+        [addSubscribeDemand]
+        성공 테스트
+        키 중복 예외, 참조 무결성, verify invalid -> Bad Request
+        verify 실패 -> unAuthorized
     */
 
     @PostMapping("/api/v1/subscribe-demands/add")
@@ -49,24 +49,21 @@ public class SubDemandsApiController {
             catch (DuplicatePrimaryKeyException | NoMatchParentRowException | VerifyInvalidInputException e) {
                 return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
-            catch (DataAccessException e) {
-                return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
-            }
             catch (VerifyFailedException e) {
                 return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
             }
         }
     }
 
-    // todo : 성공 실패 테스트 다 짜면 밑에 꺼 하기
+    // 성공 실패 테스트 다 짜면 밑에 꺼 하기
     // todo : 그 만약에 subscribe 중간에 없어지면(버튼 같은거 눌렀는데, delete 되어서 if 절에서 걸리면) -> else 에서 커스텀 예외 던진다.
     // todo : DataAccess Exception 은 핸들링되면 안된다. 무결성만 처리한다.
 
     /*
-        todo : [allowSubscribeDemand]
-        todo : 성공 테스트
-        todo : 키 중복 예외, 참조 무결성, verify invalid -> Bad Request
-        todo : verify 실패 -> unAuthorized
+        [allowSubscribeDemand]
+        성공 테스트
+        키 중복 예외, 참조 무결성, verify invalid -> Bad Request
+        verify 실패 -> unAuthorized
     */
 
     @PostMapping("/api/v1/subscribe-demands/allow")
@@ -84,24 +81,19 @@ public class SubDemandsApiController {
             catch (DuplicatePrimaryKeyException | NoMatchParentRowException | VerifyInvalidInputException e) {
                 return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
-            catch (DataAccessException e) {
-                return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
-            }
             catch (VerifyFailedException e) {
                 return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+            }
+            catch (NoSuchSubscribeDemandException e) {
+                return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
             }
         }
     }
 
 
-    // todo : 성공 테스트.
+    // 성공 테스트.
     @GetMapping("/api/v1/subscribe-demands")
     public ResponseEntity<?> getSubscribeDemands(@RequestParam("folderCP") String folderCP) {
-        try {
-            return new ResponseEntity<List<String>>(subDemandService.getSubscribeDemand(folderCP), HttpStatus.OK);
-        }
-        catch (DataAccessException e) {
-            return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity<List<String>>(subDemandService.getSubscribeDemand(folderCP), HttpStatus.OK);
     }
 }

@@ -5,6 +5,7 @@ import com.dong.demo.v1.domain.readAuth.ReadAuth;
 import com.dong.demo.v1.domain.readAuth.ReadAuthRepository;
 import com.dong.demo.v1.domain.subDemand.SubDemand;
 import com.dong.demo.v1.domain.subDemand.SubDemandRepository;
+import com.dong.demo.v1.exception.NoSuchSubscribeDemandException;
 import com.dong.demo.v1.exception.VerifyFailedException;
 import com.dong.demo.v1.util.CipherUtil;
 import com.dong.demo.v1.util.KeyCompressor;
@@ -68,6 +69,9 @@ public class SubDemandService {
                         .accountCP(dto.getAccountCP())
                         .symmetricKeyEWA(dto.getSymmetricKeyEWA())
                         .build());
+            }
+            else {
+                throw new NoSuchSubscribeDemandException();
             }
         }
     }

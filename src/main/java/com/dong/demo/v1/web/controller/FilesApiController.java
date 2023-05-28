@@ -78,7 +78,7 @@ public class FilesApiController {
             catch (DuplicatePrimaryKeyException | NoMatchParentRowException e) {
                 return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
-            catch (DataAccessException | VerifyInvalidInputException e) {
+            catch (VerifyInvalidInputException e) {
                 return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
             }
             catch (VerifyFailedException e) {
@@ -136,7 +136,7 @@ public class FilesApiController {
             catch (NoSuchFileException e) {
                 return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
             }
-            catch (DataAccessException | VerifyInvalidInputException e) {
+            catch (VerifyInvalidInputException e) {
                 return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
             }
             catch (VerifyFailedException e) {
@@ -150,13 +150,8 @@ public class FilesApiController {
             @PathVariable String folderCP
     ) {
         // 얘는 뭐 할게 없다. invalid 하면 어차피 검색 안되니까.
-        try {
-            List<FilesGetResponseDto> dtoList = fileService.getFileByFolderCP(folderCP);
-            return new ResponseEntity<List<FilesGetResponseDto>>(dtoList, HttpStatus.OK);
-        }
-        catch (DataAccessException e) {
-            return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        List<FilesGetResponseDto> dtoList = fileService.getFileByFolderCP(folderCP);
+        return new ResponseEntity<List<FilesGetResponseDto>>(dtoList, HttpStatus.OK);
     }
 
     @GetMapping("api/v1/folders/{folderCP}/files/{fileId}")
@@ -165,12 +160,7 @@ public class FilesApiController {
             @PathVariable String fileId
     ) {
         // 얘도 마찬가지 뭐 할게 없다. invalid 하면 어차피 검색 안되니까.
-        try {
-            String content = fileService.getContentsByFileIdAndFolderCP(folderCP, fileId);
-            return new ResponseEntity<String>(content, HttpStatus.OK);
-        }
-        catch (DataAccessException e) {
-            return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        String content = fileService.getContentsByFileIdAndFolderCP(folderCP, fileId);
+        return new ResponseEntity<String>(content, HttpStatus.OK);
     }
 }

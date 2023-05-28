@@ -35,26 +35,16 @@ public class AuthsApiController {
     public ResponseEntity<?> getWriteAuthByAccountCP(
             @PathVariable String accountCP
     ) {
-        try {
-            List<WriteAuthsGetResponseDto> dtoList = writeAuthService.getWriteAuthByAccountCP(accountCP);
-            return new ResponseEntity<List<WriteAuthsGetResponseDto>>(dtoList, HttpStatus.OK);
-        }
-        catch (DataAccessException e) {
-            return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        List<WriteAuthsGetResponseDto> dtoList = writeAuthService.getWriteAuthByAccountCP(accountCP);
+        return new ResponseEntity<List<WriteAuthsGetResponseDto>>(dtoList, HttpStatus.OK);
     }
 
     // 얘도 그렇다.
     @GetMapping("/api/v1/read-auths/{accountCP}/folders")
     public ResponseEntity<?> getReadAuthByAccountCP(
             @PathVariable String accountCP) {
-        try {
-            List<ReadAuthsGetResponseDto> dtoList = readAuthService.getReadAuthByAccountCP(accountCP);
-            return new ResponseEntity<List<ReadAuthsGetResponseDto>>(dtoList, HttpStatus.OK);
-        }
-        catch (DataAccessException e) {
-            return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        List<ReadAuthsGetResponseDto> dtoList = readAuthService.getReadAuthByAccountCP(accountCP);
+        return new ResponseEntity<List<ReadAuthsGetResponseDto>>(dtoList, HttpStatus.OK);
     }
 
     // 실패 테스트
@@ -70,8 +60,8 @@ public class AuthsApiController {
     ) {
 
         if (bindingResult.getFieldErrors("folderCP").size() == 0 &&
-            bindingResult.getFieldErrors("folderPublicKey").size() == 0 &&
-            !KeyCompressor.compress(dto.getFolderPublicKey()).equals(dto.getFolderCP())) {
+                bindingResult.getFieldErrors("folderPublicKey").size() == 0 &&
+                !KeyCompressor.compress(dto.getFolderPublicKey()).equals(dto.getFolderCP())) {
             bindingResult.addError(new FieldError(
                     "dto",
                     "folderCP",
@@ -81,24 +71,21 @@ public class AuthsApiController {
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<String>(writer.write(bindingResult.getFieldErrors()), HttpStatus.BAD_REQUEST);
-        }
-        else {
+        } else {
             try {
                 writeAuthService.addWriteAuthority(dto);
                 return new ResponseEntity<String>(HttpStatus.OK);
-            }
-            catch (DuplicatePrimaryKeyException | NoMatchParentRowException e) {
+            } catch (DuplicatePrimaryKeyException | NoMatchParentRowException e) {
                 return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
-            }
-            catch (DataAccessException e) {
+            } // catch (DataAccessException e) {
                 // 밑에 에러 있었는데, 고침.
                 // Referential integrity constraint violation: "CONSTRAINT_AE: PUBLIC.WRITEAUTHORITY FOREIGN ~~
                 // INSERT INTO WriteAuthority VALUES(?, ?, ?, ?) [23506-214]
                 // h2 환경에서 실행할 때, 원래 있던 ICs의 mariaDB 기준 참조 무결성 에러 코드가
                 // h2 의 참조 무결성 에러 코드랑 다르니까 예외 전환을 잘 못한 듯 하다.
                 // 아무튼 그거 추가해서 NoMatch~ 로 잘 전환 된다.
-                return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
-            }
+              //  return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
+            // }
         }
     }
 }

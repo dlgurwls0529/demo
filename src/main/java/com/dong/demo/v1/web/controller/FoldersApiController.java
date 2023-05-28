@@ -90,8 +90,6 @@ public class FoldersApiController {
                     return new ResponseEntity<String>(folderCP, HttpStatus.OK);
                 } catch (DuplicatePrimaryKeyException e) {
                     return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
-                } catch (DataAccessException e) {
-                    return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
                 }
             }
         }
@@ -100,22 +98,17 @@ public class FoldersApiController {
     // 이거는 딱히 상관 없다.
     @GetMapping("/api/v1/folders")
     public ResponseEntity<List<FoldersSearchResponseDto>> search(@RequestParam("keyword") String keyword) {
-        try {
-            List<String[]> resultFolderCPAndTitleList = folderService.search(keyword);
-            List<FoldersSearchResponseDto> responseDtoList = new ArrayList<>();
+        List<String[]> resultFolderCPAndTitleList = folderService.search(keyword);
+        List<FoldersSearchResponseDto> responseDtoList = new ArrayList<>();
 
-            for (String[] strings : resultFolderCPAndTitleList) {
-                responseDtoList.add(FoldersSearchResponseDto.builder()
-                        .folderCP(strings[0])
-                        .title(strings[1])
-                        .build()
-                );
-            }
+        for (String[] strings : resultFolderCPAndTitleList) {
+            responseDtoList.add(FoldersSearchResponseDto.builder()
+                    .folderCP(strings[0])
+                    .title(strings[1])
+                    .build()
+            );
+        }
 
-            return new ResponseEntity<List<FoldersSearchResponseDto>>(responseDtoList, HttpStatus.OK);
-        }
-        catch (DataAccessException e) {
-            return new ResponseEntity<List<FoldersSearchResponseDto>>((List<FoldersSearchResponseDto>) null, HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity<List<FoldersSearchResponseDto>>(responseDtoList, HttpStatus.OK);
     }
 }

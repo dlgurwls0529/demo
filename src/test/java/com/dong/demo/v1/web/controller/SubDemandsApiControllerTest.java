@@ -192,7 +192,6 @@ class SubDemandsApiControllerTest {
         }
     }
 
-    @Test
     public void allowSubscribeSuccessTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();

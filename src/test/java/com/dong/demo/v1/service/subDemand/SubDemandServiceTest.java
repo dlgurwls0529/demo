@@ -8,6 +8,7 @@ import com.dong.demo.v1.domain.subDemand.SubDemand;
 import com.dong.demo.v1.domain.subDemand.SubDemandRepository;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.NoMatchParentRowException;
+import com.dong.demo.v1.exception.NoSuchSubscribeDemandException;
 import com.dong.demo.v1.exception.VerifyFailedException;
 import com.dong.demo.v1.service.readAuth.ReadAuthService;
 import com.dong.demo.v1.util.Base58;
@@ -388,7 +389,7 @@ class SubDemandServiceTest {
         Assertions.assertFalse(subDemandRepository.exist(expectedSub.getFolderCP(), expectedSub.getAccountCP()));
 
         // when
-        Assertions.assertDoesNotThrow(new Executable() {
+        Assertions.assertThrows(NoSuchSubscribeDemandException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
                 subDemandService.allowSubscribe(dto);
