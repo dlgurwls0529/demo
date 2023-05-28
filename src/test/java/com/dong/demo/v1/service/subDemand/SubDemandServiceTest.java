@@ -26,7 +26,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 import javax.crypto.KeyGenerator;
 import java.security.*;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -480,7 +482,7 @@ class SubDemandServiceTest {
 
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(10)
     public void allowSubscribe_concurrent_test() throws InterruptedException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
@@ -531,30 +533,37 @@ class SubDemandServiceTest {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                System.out.println(Thread.currentThread() + " start");
                 try {
                     subDemandService.allowSubscribe(dto);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 finally {
-                    System.out.println(Thread.currentThread() + " end");
                     latch.countDown();
                 }
             }
         });
 
+        Random random = new Random();
+        int minDelay = 0; // 최소 딜레이(ms)
+        int maxDelay = 100; // 최대 딜레이(ms)
+
+        try {
+            int delay = random.nextInt(maxDelay - minDelay + 1) + minDelay;
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                System.out.println(Thread.currentThread() + " start");
                 try {
                     subDemandService.allowSubscribe(dto);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 finally {
-                    System.out.println(Thread.currentThread() + " end");
                     latch.countDown();
                 }
             }
