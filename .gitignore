@@ -36,6 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
-application-oauth.properties
 .idea
+application-test-db.properties
 application-real-db.properties
