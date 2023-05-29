@@ -26,7 +26,7 @@ public class JDBCTest {
     private DataSource dataSource;
 
     // 어차피 테스트는 h2 환경에서 돌아가서(ec2 이더라도) insert 된게 막 보이지는 않는다.
-    // 한번 닫히면 다 초기화됨.
+    // 한번 닫히면 다 초기화됨
 
     @Test
     public void emptyFindTest() {
