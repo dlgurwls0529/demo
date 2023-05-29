@@ -21,7 +21,7 @@ import java.security.*;
 import java.util.List;
 
 @SpringBootTest
-@ActiveProfiles("real-db")
+@ActiveProfiles("test-db")
 class FileServiceTest {
 
     @Autowired

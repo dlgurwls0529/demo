@@ -28,7 +28,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@ActiveProfiles("real-db")
+@ActiveProfiles("test-db")
 class JdbcFileRepositoryTest {
 
     @Autowired

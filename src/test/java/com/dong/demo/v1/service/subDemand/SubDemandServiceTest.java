@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
-@ActiveProfiles("real-db")
+@ActiveProfiles("test-db")
 class SubDemandServiceTest {
 
     @Autowired

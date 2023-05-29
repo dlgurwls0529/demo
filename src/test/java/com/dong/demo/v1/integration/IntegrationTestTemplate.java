@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@ActiveProfiles("real-db")
+@ActiveProfiles("test-db")
 @Disabled  // 이거는 템플릿이니까.
 @AutoConfigureMockMvc // SpringBootTest 할 때, WebMvcTest 에 있는 빈 띄워주는 듯?
 public class IntegrationTestTemplate {
