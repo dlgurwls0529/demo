@@ -134,7 +134,7 @@ public class FilesApiController {
                 return new ResponseEntity<String>(uuid, HttpStatus.OK);
             }
             catch (NoSuchFileException e) {
-                return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
+                return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
             }
             catch (VerifyInvalidInputException e) {
                 return new ResponseEntity<String>(e.getCause().getMessage(), HttpStatus.BAD_REQUEST);
@@ -146,7 +146,7 @@ public class FilesApiController {
     }
 
     @GetMapping("api/v1/folders/{folderCP}/files")
-    public ResponseEntity<?> getFileByFolderCP(
+    public ResponseEntity<List<FilesGetResponseDto>> getFileByFolderCP(
             @PathVariable String folderCP
     ) {
         // 얘는 뭐 할게 없다. invalid 하면 어차피 검색 안되니까.

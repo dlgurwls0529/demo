@@ -34,7 +34,7 @@ public class SubDemandsApiController {
     */
 
     @PostMapping("/api/v1/subscribe-demands/add")
-    public ResponseEntity<?> addSubScribeDemand(
+    public ResponseEntity<String> addSubScribeDemand(
             @Valid @RequestBody SubscribeDemandsAddRequestDto dto,
             BindingResult bindingResult
     ) {
@@ -44,7 +44,7 @@ public class SubDemandsApiController {
         else {
             try {
                 subDemandService.addSubscribeDemand(dto);
-                return new ResponseEntity<Void>(HttpStatus.OK);
+                return new ResponseEntity<String>(HttpStatus.OK);
             }
             catch (DuplicatePrimaryKeyException | NoMatchParentRowException | VerifyInvalidInputException e) {
                 return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -67,7 +67,7 @@ public class SubDemandsApiController {
     */
 
     @PostMapping("/api/v1/subscribe-demands/allow")
-    public ResponseEntity<?> allowSubscribe(
+    public ResponseEntity<String> allowSubscribe(
             @Valid @RequestBody SubscribeDemandsAllowRequestDto dto,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -76,7 +76,7 @@ public class SubDemandsApiController {
         else {
             try {
                 subDemandService.allowSubscribe(dto);
-                return new ResponseEntity<Void>(HttpStatus.OK);
+                return new ResponseEntity<String>(HttpStatus.OK);
             }
             catch (DuplicatePrimaryKeyException | NoMatchParentRowException | VerifyInvalidInputException e) {
                 return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -85,7 +85,7 @@ public class SubDemandsApiController {
                 return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
             }
             catch (NoSuchSubscribeDemandException e) {
-                return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
+                return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
             }
         }
     }
@@ -93,7 +93,7 @@ public class SubDemandsApiController {
 
     // 성공 테스트.
     @GetMapping("/api/v1/subscribe-demands")
-    public ResponseEntity<?> getSubscribeDemands(@RequestParam("folderCP") String folderCP) {
+    public ResponseEntity<List<String>> getSubscribeDemands(@RequestParam("folderCP") String folderCP) {
         return new ResponseEntity<List<String>>(subDemandService.getSubscribeDemand(folderCP), HttpStatus.OK);
     }
 }

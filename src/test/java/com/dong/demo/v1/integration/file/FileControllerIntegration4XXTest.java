@@ -232,7 +232,7 @@ public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
 
         // then
         resultActions
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
 
         /* database check */
         Assertions.assertEquals(1, folderRepository.findAllFolderCPAndTitle().size());

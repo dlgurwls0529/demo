@@ -32,7 +32,7 @@ public class AuthsApiController {
 
     // 서칭 기능이라 validation 필요 없다.
     @GetMapping("/api/v1/write-auths/{accountCP}/folders")
-    public ResponseEntity<?> getWriteAuthByAccountCP(
+    public ResponseEntity<List<WriteAuthsGetResponseDto>> getWriteAuthByAccountCP(
             @PathVariable String accountCP
     ) {
         List<WriteAuthsGetResponseDto> dtoList = writeAuthService.getWriteAuthByAccountCP(accountCP);
@@ -41,7 +41,7 @@ public class AuthsApiController {
 
     // 얘도 그렇다.
     @GetMapping("/api/v1/read-auths/{accountCP}/folders")
-    public ResponseEntity<?> getReadAuthByAccountCP(
+    public ResponseEntity<List<ReadAuthsGetResponseDto>> getReadAuthByAccountCP(
             @PathVariable String accountCP) {
         List<ReadAuthsGetResponseDto> dtoList = readAuthService.getReadAuthByAccountCP(accountCP);
         return new ResponseEntity<List<ReadAuthsGetResponseDto>>(dtoList, HttpStatus.OK);

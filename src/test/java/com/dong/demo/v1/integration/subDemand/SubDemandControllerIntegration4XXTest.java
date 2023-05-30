@@ -416,7 +416,7 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
 
         // then
         resultActions
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
 
         // db test
         Assertions.assertEquals(0,
