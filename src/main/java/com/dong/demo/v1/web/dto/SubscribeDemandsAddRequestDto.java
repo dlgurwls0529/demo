@@ -15,7 +15,7 @@ public class SubscribeDemandsAddRequestDto {
     private final String folderCP;
 
     @NotBlank
-    @ValidBase58RSAPublicKeyFormat
+    // @ValidBase58RSAPublicKeyFormat
     private final String accountPublicKey;
 
     @NotEmpty

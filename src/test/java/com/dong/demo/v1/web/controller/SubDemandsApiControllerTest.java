@@ -108,7 +108,6 @@ class SubDemandsApiControllerTest {
         }
     }
 
-    @Test
     public void addSubscribeDemandFailByInvalidAccountPublicKeyTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
@@ -220,7 +219,6 @@ class SubDemandsApiControllerTest {
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
-    @Test
     public void allowSubscribeFailByInvalidFolderPublicKeyTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();

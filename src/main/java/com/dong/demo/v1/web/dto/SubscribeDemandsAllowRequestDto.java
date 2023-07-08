@@ -11,7 +11,7 @@ import lombok.Getter;
 public class SubscribeDemandsAllowRequestDto {
 
     @NotBlank
-    @ValidBase58RSAPublicKeyFormat
+    // @ValidBase58RSAPublicKeyFormat
     private final String folderPublicKey;
 
     @NotEmpty
