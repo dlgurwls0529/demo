@@ -40,7 +40,7 @@ public class FolderService {
         List<String[]> search_list = folderRepository.findAllFolderCPAndTitle();
         int length = search_list.size();
 
-        if (length == 0) {
+        if (length == 0 || keyword.length() == 0) {
             return new ArrayList<>();
         }
 

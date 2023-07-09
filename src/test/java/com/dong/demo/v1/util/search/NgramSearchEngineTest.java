@@ -13,7 +13,7 @@ class NgramSearchEngineTest {
     public void similarity_test() {
         NgramSearchEngine ngramSearchEngine = new NgramSearchEngine();
 
-        String input = "i am hungri";
+        String input = " ";
 
         List<String> targets = new ArrayList<>();
         targets.add("i a hungri");

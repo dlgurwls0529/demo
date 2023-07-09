@@ -165,6 +165,10 @@ public class FoldersApiControllerTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
 
+    // 이거 폴더 아예 없으면, 예외 떠도 바로 리턴해서, 테스트는 잘 돌아갈 수 있다.
+    // 뭔 소리냐면, 빈 값 넣고, DB에 폴더 아무것도 없게 하면, DB 비어서 서비스에서 바로 리턴해버리니까
+    // 빈 값이 키워드로 들어가도 그냥 잘 돌아가는 것처럼 보이는 것이다.
+    // 폴더 넣어서도 테스트 해보든가, 그냥 막든가
     @Test
     public void searchSuccessTest() {
         // given

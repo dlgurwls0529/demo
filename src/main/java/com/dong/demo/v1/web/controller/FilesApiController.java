@@ -56,13 +56,13 @@ public class FilesApiController {
 
         // 퍼블릭키로 "" 이게 들어오면 폴더 포스트 URL 으로 인식된다. 사실 이게 맞으니까, 여기에선 ""에 대해서는 테스트 하면 안되는 것이다.
         // if (!base58FormatValidator.validate(folderPublicKey) || !rsaFormatValidator.validatePublicKey(Base58.decode(folderPublicKey))) {
-        if (!base58RSAPublicKeyFormatValidator.isValid(folderPublicKey, null)) {
+        /*if (!base58RSAPublicKeyFormatValidator.isValid(folderPublicKey, null)) {
             bindingResult.addError(new FieldError(
                     "dto",
                     "folderPublicKey",
                     "is invalid. It may be violation Base58 or RSAPublicKey Format or blank"
             ));
-        }
+        }*/
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<String>(
