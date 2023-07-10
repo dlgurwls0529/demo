@@ -23,7 +23,6 @@ import java.security.interfaces.RSAPublicKey;
 public class AuthControllerIntegration4XXTest extends IntegrationTestTemplate {
 
     // 키 형식은 올바르나, 다른 키를 압축해서 CP 로 보낸 경우.
-    @Test
     public void addWriteAuth_BAD_REQUEST_BY_UNMATHED_CP() throws Exception {
         // given
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();

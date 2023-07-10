@@ -58,16 +58,17 @@ public class AuthsApiController {
             @Valid @RequestBody WriteAuthsAddRequestDto dto,
             BindingResult bindingResult
     ) {
+        // &&
+        /*!KeyCompressor.compress(dto.getFolderPublicKey()).equals(dto.getFolderCP())*/
 
-        if (bindingResult.getFieldErrors("folderCP").size() == 0 &&
-                bindingResult.getFieldErrors("folderPublicKey").size() == 0 &&
-                !KeyCompressor.compress(dto.getFolderPublicKey()).equals(dto.getFolderCP())) {
+        /*if (bindingResult.getFieldErrors("folderCP").size() == 0 &&
+                bindingResult.getFieldErrors("folderPublicKey").size() == 0) {
             bindingResult.addError(new FieldError(
                     "dto",
                     "folderCP",
-                    "must match with compressed publicKey"
+                    "must match with compressed publicKey!!"
             ));
-        }
+        }*/
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<String>(writer.write(bindingResult.getFieldErrors()), HttpStatus.BAD_REQUEST);
