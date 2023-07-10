@@ -1,6 +1,5 @@
 package com.dong.demo.v1.service.subDemand;
 
-import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.readAuth.ReadAuth;
 import com.dong.demo.v1.domain.readAuth.ReadAuthRepository;
 import com.dong.demo.v1.domain.subDemand.SubDemand;
@@ -36,7 +35,7 @@ public class SubDemandService {
     // + test success of transaction
     @Transactional
     public void addSubscribeDemand(SubscribeDemandsAddRequestDto dto) {
-        if (!RSAVerifier.verify(dto.getByteSign(), CipherUtil.getPublicKeyFromBase58String(dto.getAccountPublicKey()))) {
+        if (!RSAVerifier.verify(dto.getByteSign(), CipherUtil.getPublicKeyFromEncodedKeyString(dto.getAccountPublicKey()))) {
             throw new VerifyFailedException();
         }
         else {
@@ -55,7 +54,7 @@ public class SubDemandService {
     @Transactional
     public void allowSubscribe(SubscribeDemandsAllowRequestDto dto) {
         if (!RSAVerifier.verify(
-                dto.getByteSign(), CipherUtil.getPublicKeyFromBase58String(dto.getFolderPublicKey())
+                dto.getByteSign(), CipherUtil.getPublicKeyFromEncodedKeyString(dto.getFolderPublicKey())
         )) {
             throw new VerifyFailedException();
         }

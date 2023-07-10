@@ -26,6 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import javax.crypto.KeyGenerator;
 import java.security.*;
+import java.security.interfaces.RSAPublicKey;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
@@ -93,10 +94,14 @@ class SubDemandServiceTest {
     public void addSubscribeDemand_verify_fail_test() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
         PublicKey publicKey = keyPair.getPublic();
+        String encodedPublicKey =
+                ((RSAPublicKey)publicKey).getModulus() + "and" + ((RSAPublicKey)publicKey).getPublicExponent();
         PrivateKey privateKey = keyPair.getPrivate();
 
         KeyPair keyPair_false = CipherUtil.genRSAKeyPair();
         PublicKey publicKey_false = keyPair_false.getPublic();
+        String encodedPublicKey_false =
+                ((RSAPublicKey)publicKey_false).getModulus() + "and" + ((RSAPublicKey)publicKey_false).getPublicExponent();
         PrivateKey privateKey_false = keyPair_false.getPrivate();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
@@ -106,7 +111,7 @@ class SubDemandServiceTest {
         byte[] sign = signature.sign();
 
         SubscribeDemandsAddRequestDto dto = SubscribeDemandsAddRequestDto.builder()
-                .accountPublicKey(Base58.encode(publicKey_false.getEncoded()))
+                .accountPublicKey(encodedPublicKey_false)
                 .byteSign(sign)
                 .folderCP("folderCP_TEST")
                 .build();
@@ -137,6 +142,8 @@ class SubDemandServiceTest {
         // verify sign 준비
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
         PublicKey publicKey = keyPair.getPublic();
+        String encodedPublicKey =
+                ((RSAPublicKey)publicKey).getModulus() + "and" + ((RSAPublicKey)publicKey).getPublicExponent();
         PrivateKey privateKey = keyPair.getPrivate();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
@@ -146,7 +153,7 @@ class SubDemandServiceTest {
         byte[] sign = signature.sign();
 
         SubscribeDemandsAddRequestDto dto = SubscribeDemandsAddRequestDto.builder()
-                .accountPublicKey(Base58.encode(publicKey.getEncoded()))
+                .accountPublicKey(encodedPublicKey)
                 .byteSign(sign)
                 .folderCP("folderCP_TEST")
                 .build();
@@ -179,6 +186,8 @@ class SubDemandServiceTest {
         // verify sign 준비
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
         PublicKey publicKey = keyPair.getPublic();
+        String encodedPublicKey =
+                ((RSAPublicKey)publicKey).getModulus() + "and" + ((RSAPublicKey)publicKey).getPublicExponent();
         PrivateKey privateKey = keyPair.getPrivate();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
@@ -188,7 +197,7 @@ class SubDemandServiceTest {
         byte[] sign = signature.sign();
 
         SubscribeDemandsAddRequestDto dto = SubscribeDemandsAddRequestDto.builder()
-                .accountPublicKey(Base58.encode(publicKey.getEncoded()))
+                .accountPublicKey(encodedPublicKey)
                 .byteSign(sign)
                 .folderCP("folderCP_TEST")
                 .build();
@@ -211,7 +220,11 @@ class SubDemandServiceTest {
         // given
         // verify sign 준비
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
+
         PublicKey publicKey = keyPair.getPublic();
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+        String encodedPublicKey = rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent();
+
         PrivateKey privateKey = keyPair.getPrivate();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
@@ -221,7 +234,7 @@ class SubDemandServiceTest {
         byte[] sign = signature.sign();
 
         SubscribeDemandsAddRequestDto dto = SubscribeDemandsAddRequestDto.builder()
-                .accountPublicKey(Base58.encode(publicKey.getEncoded()))
+                .accountPublicKey(encodedPublicKey)
                 .byteSign(sign)
                 .folderCP("folderCP_TEST")
                 .build();
@@ -254,10 +267,14 @@ class SubDemandServiceTest {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
         PublicKey folderPublicKey = folderKeyPair.getPublic();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderPublicKey;
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
         PrivateKey folderPrivateKey = folderKeyPair.getPrivate();
 
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
         PublicKey accountPublicKey = accountKeyPair.getPublic();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountPublicKey;
+        String encodedAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
         PrivateKey accountPrivateKey = accountKeyPair.getPrivate();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
@@ -267,9 +284,9 @@ class SubDemandServiceTest {
         byte[] sign = signature.sign();
 
         SubscribeDemandsAllowRequestDto dto = SubscribeDemandsAllowRequestDto.builder()
-                .folderPublicKey(Base58.encode(folderPublicKey.getEncoded()))
+                .folderPublicKey(encodedFolderPublicKey)
                 .byteSign(sign)
-                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
                 .symmetricKeyEWA("EWA_TEST")
                 .build();
 
@@ -283,8 +300,8 @@ class SubDemandServiceTest {
 
         SubDemand expectedSub = SubDemand.builder()
                 .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
-                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
-                .accountPublicKey(Base58.encode(accountPublicKey.getEncoded()))
+                .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
+                .accountPublicKey(encodedAccountPublicKey)
                 .build();
 
         subDemandRepository.save(expectedSub);
@@ -318,10 +335,10 @@ class SubDemandServiceTest {
         // given
         KeyPair keyPair_true = CipherUtil.genRSAKeyPair();
         PublicKey publicKey_true = keyPair_true.getPublic();
-        PrivateKey privateKey_true = keyPair_true.getPrivate();
+        String publicKey_true_encoded =
+                ((RSAPublicKey)publicKey_true).getModulus() + "and" + ((RSAPublicKey)publicKey_true).getPublicExponent();
 
         KeyPair keyPair_false = CipherUtil.genRSAKeyPair();
-        PublicKey publicKey_false = keyPair_false.getPublic();
         PrivateKey privateKey_false = keyPair_false.getPrivate();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
@@ -331,7 +348,7 @@ class SubDemandServiceTest {
         byte[] sign = signature.sign();
 
         SubscribeDemandsAllowRequestDto dto = SubscribeDemandsAllowRequestDto.builder()
-                .folderPublicKey(Base58.encode(publicKey_true.getEncoded()))
+                .folderPublicKey(publicKey_true_encoded)
                 .byteSign(sign)
                 .accountCP("accountCP_TEST")
                 .symmetricKeyEWA("EWA_TEST")
@@ -355,10 +372,14 @@ class SubDemandServiceTest {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
         PublicKey folderPublicKey = folderKeyPair.getPublic();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderPublicKey;
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
         PrivateKey folderPrivateKey = folderKeyPair.getPrivate();
 
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
         PublicKey accountPublicKey = accountKeyPair.getPublic();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountPublicKey;
+        String encodedAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
         PrivateKey accountPrivateKey = accountKeyPair.getPrivate();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
@@ -368,9 +389,9 @@ class SubDemandServiceTest {
         byte[] sign = signature.sign();
 
         SubscribeDemandsAllowRequestDto dto = SubscribeDemandsAllowRequestDto.builder()
-                .folderPublicKey(Base58.encode(folderPublicKey.getEncoded()))
+                .folderPublicKey(encodedFolderPublicKey)
                 .byteSign(sign)
-                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
                 .symmetricKeyEWA("EWA_TEST")
                 .build();
 
@@ -384,8 +405,8 @@ class SubDemandServiceTest {
 
         SubDemand expectedSub = SubDemand.builder()
                 .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
-                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
-                .accountPublicKey(Base58.encode(accountPublicKey.getEncoded()))
+                .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
+                .accountPublicKey(encodedAccountPublicKey)
                 .build();
 
         Assertions.assertFalse(subDemandRepository.exist(expectedSub.getFolderCP(), expectedSub.getAccountCP()));
@@ -413,10 +434,14 @@ class SubDemandServiceTest {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
         PublicKey folderPublicKey = folderKeyPair.getPublic();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderPublicKey;
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
         PrivateKey folderPrivateKey = folderKeyPair.getPrivate();
 
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
         PublicKey accountPublicKey = accountKeyPair.getPublic();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountPublicKey;
+        String encodedAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
         PrivateKey accountPrivateKey = accountKeyPair.getPrivate();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
@@ -426,9 +451,9 @@ class SubDemandServiceTest {
         byte[] sign = signature.sign();
 
         SubscribeDemandsAllowRequestDto dto = SubscribeDemandsAllowRequestDto.builder()
-                .folderPublicKey(Base58.encode(folderPublicKey.getEncoded()))
+                .folderPublicKey(encodedFolderPublicKey)
                 .byteSign(sign)
-                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
                 .symmetricKeyEWA("EWA_TEST")
                 .build();
 
@@ -442,8 +467,8 @@ class SubDemandServiceTest {
 
         SubDemand expectedSub = SubDemand.builder()
                 .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
-                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
-                .accountPublicKey(Base58.encode(accountPublicKey.getEncoded()))
+                .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
+                .accountPublicKey(encodedAccountPublicKey)
                 .build();
 
         subDemandRepository.save(expectedSub);
@@ -487,10 +512,14 @@ class SubDemandServiceTest {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
         PublicKey folderPublicKey = folderKeyPair.getPublic();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderPublicKey;
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
         PrivateKey folderPrivateKey = folderKeyPair.getPrivate();
 
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
         PublicKey accountPublicKey = accountKeyPair.getPublic();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountPublicKey;
+        String encodedAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
         PrivateKey accountPrivateKey = accountKeyPair.getPrivate();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
@@ -500,9 +529,9 @@ class SubDemandServiceTest {
         byte[] sign = signature.sign();
 
         SubscribeDemandsAllowRequestDto dto = SubscribeDemandsAllowRequestDto.builder()
-                .folderPublicKey(Base58.encode(folderPublicKey.getEncoded()))
+                .folderPublicKey(encodedFolderPublicKey)
                 .byteSign(sign)
-                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
+                .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
                 .symmetricKeyEWA("EWA_TEST")
                 .build();
 
@@ -516,8 +545,8 @@ class SubDemandServiceTest {
 
         SubDemand expectedSub = SubDemand.builder()
                 .folderCP(KeyCompressor.compress(dto.getFolderPublicKey()))
-                .accountCP(KeyCompressor.compress(Base58.encode(accountPublicKey.getEncoded())))
-                .accountPublicKey(Base58.encode(accountPublicKey.getEncoded()))
+                .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
+                .accountPublicKey(encodedAccountPublicKey)
                 .build();
 
         subDemandRepository.save(expectedSub);

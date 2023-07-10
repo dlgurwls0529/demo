@@ -1,7 +1,7 @@
 package com.dong.demo.v1.web.dto;
 
 
-import com.dong.demo.v1.web.validate.ValidBase58RSAPublicKeyFormat;
+import com.dong.demo.v1.web.validate.ValidRSAPublicKeyEncodingFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -19,7 +19,7 @@ public class WriteAuthsAddRequestDto {
     private final String folderCP;
 
     @NotBlank
-    // @ValidBase58RSAPublicKeyFormat
+    @ValidRSAPublicKeyEncodingFormat
     private final String folderPublicKey;
 
     @NotBlank

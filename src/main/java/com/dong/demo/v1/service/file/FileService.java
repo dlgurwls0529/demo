@@ -28,7 +28,7 @@ public class FileService {
     public String generateFile(String folderPublicKey, FilesGenerateRequestDto dto) {
         if (!RSAVerifier.verify(
                 dto.getByteSign(),
-                CipherUtil.getPublicKeyFromBase58String(folderPublicKey)
+                CipherUtil.getPublicKeyFromEncodedKeyString(folderPublicKey)
         )) {
             throw new VerifyFailedException();
         }
@@ -55,7 +55,7 @@ public class FileService {
     public String modifyFile(String folderPublicKey, String fileId, FilesModifyRequestDto dto) {
         if (!RSAVerifier.verify(
                 dto.getByteSign(),
-                CipherUtil.getPublicKeyFromBase58String(folderPublicKey)
+                CipherUtil.getPublicKeyFromEncodedKeyString(folderPublicKey)
         )) {
             throw new VerifyFailedException();
         }

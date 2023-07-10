@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.security.*;
+import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
 @SpringBootTest
@@ -59,11 +60,13 @@ class FileServiceTest {
 
         // 키들
         PublicKey publicKey = keyPair.getPublic();
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+
         PrivateKey privateKey = keyPair.getPrivate();
 
         // input : base64 output : base58 compressed
         // 폴더 씨피 얻기
-        String folderCP = KeyCompressor.compress(Base58.encode(publicKey.getEncoded()));
+        String folderCP = KeyCompressor.compress(rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent());
 
         // dto 얻기
         FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -83,7 +86,7 @@ class FileServiceTest {
         byte[] sign = signature.sign();
 
         // sign 이랑 해서 file 생성 준비
-        String folderPublicKey = Base58.encode(publicKey.getEncoded());
+        String folderPublicKey = rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent();
 
         FilesGenerateRequestDto filesGenerateRequestDto = FilesGenerateRequestDto.builder()
                 .subhead("sub_TEST")
@@ -123,12 +126,14 @@ class FileServiceTest {
 
         // 키들
         PublicKey publicKey = keyPair.getPublic();
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+
         PrivateKey privateKey = keyPair.getPrivate();
         PrivateKey falsePrivateKey = CipherUtil.genRSAKeyPair().getPrivate();
 
         // input : base64 output : base58 compressed
         // 폴더 씨피 얻기
-        String folderCP = KeyCompressor.compress(Base58.encode(publicKey.getEncoded()));
+        String folderCP = KeyCompressor.compress(rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent());
 
         // dto 얻기
         FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -148,7 +153,7 @@ class FileServiceTest {
         byte[] sign = signature.sign();
 
         // sign 이랑 해서 file 생성 준비
-        String folderPublicKey = Base58.encode(publicKey.getEncoded());
+        String folderPublicKey = rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent();
 
         FilesGenerateRequestDto filesGenerateRequestDto = FilesGenerateRequestDto.builder()
                 .subhead("sub_TEST")
@@ -181,6 +186,8 @@ class FileServiceTest {
 
         // 키들
         PublicKey publicKey = keyPair.getPublic();
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+
         PrivateKey privateKey = keyPair.getPrivate();
 
         /*
@@ -211,7 +218,7 @@ class FileServiceTest {
         }
 
         // sign 이랑 해서 file 생성 준비
-        String folderPublicKey = Base58.encode(publicKey.getEncoded());
+        String folderPublicKey = rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent();
 
         FilesGenerateRequestDto filesGenerateRequestDto = FilesGenerateRequestDto.builder()
                 .subhead("sub_TEST")
@@ -244,6 +251,8 @@ class FileServiceTest {
         Assertions.assertNotNull(keyPair);
 
         PublicKey publicKey = keyPair.getPublic();
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+
         PrivateKey privateKey = keyPair.getPrivate();
 
         // input : base64 output : base58 compressed
@@ -258,7 +267,7 @@ class FileServiceTest {
         byte[] sign = signature.sign();
 
         // sign 이랑 해서 file 생성 준비
-        String folderPublicKey = Base58.encode(publicKey.getEncoded());
+        String folderPublicKey = rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent();
         String fileId_false = "tefdsafsafsad";
 
         FilesModifyRequestDto filesModifyRequestDto = FilesModifyRequestDto.builder()
@@ -291,12 +300,14 @@ class FileServiceTest {
 
         // 키들
         PublicKey publicKey = keyPair.getPublic();
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+
         PrivateKey truePrivateKey = keyPair.getPrivate();
         PrivateKey falsePrivateKey = CipherUtil.genRSAKeyPair().getPrivate();
 
         // input : base64 output : base58 compressed
         // 폴더 씨피 얻기
-        String folderCP = KeyCompressor.compress(Base58.encode(publicKey.getEncoded()));
+        String folderCP = KeyCompressor.compress(rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent());
 
         // dto 얻기
         FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -332,7 +343,7 @@ class FileServiceTest {
         }
 
         // sign 이랑 해서 file 생성 준비
-        String folderPublicKey = Base58.encode(publicKey.getEncoded());
+        String folderPublicKey = rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent();
 
         FilesGenerateRequestDto filesGenerateRequestDto = FilesGenerateRequestDto.builder()
                 .subhead("sub_TEST")
@@ -375,11 +386,13 @@ class FileServiceTest {
 
         // 키들
         PublicKey publicKey = keyPair.getPublic();
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+
         PrivateKey privateKey = keyPair.getPrivate();
 
         // input : base64 output : base58 compressed
         // 폴더 씨피 얻기
-        String folderCP = KeyCompressor.compress(Base58.encode(publicKey.getEncoded()));
+        String folderCP = KeyCompressor.compress(rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent());
 
         // dto 얻기
         FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -399,7 +412,7 @@ class FileServiceTest {
         byte[] sign = signature.sign();
 
         // sign 이랑 해서 file 생성 준비
-        String folderPublicKey = Base58.encode(publicKey.getEncoded());
+        String folderPublicKey = rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent();
 
         FilesGenerateRequestDto filesGenerateRequestDto = FilesGenerateRequestDto.builder()
                 .subhead("sub_TEST")

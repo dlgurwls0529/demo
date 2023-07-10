@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
 
 public class AuthControllerIntegration2XXTest extends IntegrationTestTemplate {
 
@@ -28,11 +29,23 @@ public class AuthControllerIntegration2XXTest extends IntegrationTestTemplate {
     public void getWriteAuthByAccountCP_OK_test() throws Exception {
         // given
         KeyPair targetAccountKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedTargetAccountPublicKey =
+                        ((RSAPublicKey)targetAccountKeyPair.getPublic()).getModulus()
+                        + "and"
+                        + ((RSAPublicKey)targetAccountKeyPair.getPublic()).getPublicExponent();
         KeyPair nonTargetAccountKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedNonTargetAccountPublicKey =
+                        ((RSAPublicKey)nonTargetAccountKeyPair.getPublic()).getModulus()
+                        + "and"
+                        + ((RSAPublicKey)nonTargetAccountKeyPair.getPublic()).getPublicExponent();
 
         for (int i = 0; i < 5; i++) {
             // no duplicate
             KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+            String encodedFolderPublicKey =
+                            ((RSAPublicKey)folderKeyPair.getPublic()).getModulus() +
+                            "and" +
+                            ((RSAPublicKey)folderKeyPair.getPublic()).getPublicExponent();
 
             // gen parent folder
             FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -43,7 +56,7 @@ public class AuthControllerIntegration2XXTest extends IntegrationTestTemplate {
 
             mvc.perform(
                     MockMvcRequestBuilders.post("/api/v1/folders/" + KeyCompressor.compress(
-                                    Base58.encode(folderKeyPair.getPublic().getEncoded())
+                                    encodedFolderPublicKey
                             ))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(foldersGenerateRequestDto))
@@ -55,11 +68,11 @@ public class AuthControllerIntegration2XXTest extends IntegrationTestTemplate {
             WriteAuthsAddRequestDto writeAuthsAddRequestDto = WriteAuthsAddRequestDto.builder()
                     .accountCP(
                             i % 2 == 0
-                                    ? KeyCompressor.compress(Base58.encode(targetAccountKeyPair.getPublic().getEncoded()))
-                                    : KeyCompressor.compress(Base58.encode(nonTargetAccountKeyPair.getPublic().getEncoded()))
+                                    ? KeyCompressor.compress(encodedTargetAccountPublicKey)
+                                    : KeyCompressor.compress(encodedNonTargetAccountPublicKey)
                     )
-                    .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
-                    .folderPublicKey(Base58.encode(folderKeyPair.getPublic().getEncoded()))
+                    .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
+                    .folderPublicKey(encodedFolderPublicKey)
                     .folderPrivateKeyEWA("EWA_TEST")
                     .build();
 
@@ -74,7 +87,7 @@ public class AuthControllerIntegration2XXTest extends IntegrationTestTemplate {
         // when
         ResultActions resultActions = mvc.perform(
                 MockMvcRequestBuilders.get("/api/v1/write-auths/" +
-                        KeyCompressor.compress(Base58.encode(targetAccountKeyPair.getPublic().getEncoded()))
+                        KeyCompressor.compress(encodedTargetAccountPublicKey)
                         + "/folders")
         ).andDo(MockMvcResultHandlers.print());
 
@@ -88,11 +101,23 @@ public class AuthControllerIntegration2XXTest extends IntegrationTestTemplate {
     public void getReadAuthByAccountCP_OK_test() throws Exception {
         // given
         KeyPair targetAccountKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedTargetAccountPublicKey =
+                ((RSAPublicKey)targetAccountKeyPair.getPublic()).getModulus()
+                        + "and"
+                        + ((RSAPublicKey)targetAccountKeyPair.getPublic()).getPublicExponent();
         KeyPair nonTargetAccountKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedNonTargetAccountPublicKey =
+                ((RSAPublicKey)nonTargetAccountKeyPair.getPublic()).getModulus()
+                        + "and"
+                        + ((RSAPublicKey)nonTargetAccountKeyPair.getPublic()).getPublicExponent();
 
         for (int i = 0; i < 5; i++) {
             // no duplicate
             KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+            String encodedFolderPublicKey =
+                    ((RSAPublicKey)folderKeyPair.getPublic()).getModulus() +
+                            "and" +
+                            ((RSAPublicKey)folderKeyPair.getPublic()).getPublicExponent();
 
             // gen parent folder
             FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -103,7 +128,7 @@ public class AuthControllerIntegration2XXTest extends IntegrationTestTemplate {
 
             mvc.perform(
                     MockMvcRequestBuilders.post("/api/v1/folders/" + KeyCompressor.compress(
-                                    Base58.encode(folderKeyPair.getPublic().getEncoded())
+                                    encodedFolderPublicKey
                             ))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(foldersGenerateRequestDto))
@@ -115,10 +140,10 @@ public class AuthControllerIntegration2XXTest extends IntegrationTestTemplate {
             ReadAuth readAuth = ReadAuth.builder()
                     .accountCP(
                             i % 2 == 0
-                                    ? KeyCompressor.compress(Base58.encode(targetAccountKeyPair.getPublic().getEncoded()))
-                                    : KeyCompressor.compress(Base58.encode(nonTargetAccountKeyPair.getPublic().getEncoded()))
+                                    ? KeyCompressor.compress(encodedTargetAccountPublicKey)
+                                    : KeyCompressor.compress(encodedNonTargetAccountPublicKey)
                     )
-                    .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                    .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                     .symmetricKeyEWA("EWA_TEST")
                     .build();
 
@@ -128,7 +153,7 @@ public class AuthControllerIntegration2XXTest extends IntegrationTestTemplate {
         // when
         ResultActions resultActions = mvc.perform(
                 MockMvcRequestBuilders.get("/api/v1/read-auths/" +
-                        KeyCompressor.compress(Base58.encode(targetAccountKeyPair.getPublic().getEncoded()))
+                        KeyCompressor.compress(encodedTargetAccountPublicKey)
                         + "/folders")
         ).andDo(MockMvcResultHandlers.print());
 

@@ -7,8 +7,8 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 
 class CipherUtilTest {
 
@@ -25,25 +25,21 @@ class CipherUtilTest {
 
 
     @Test
-    public void conversion_keyPair_Base58_to_String_test() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public void conversion_keyPair_encoded_to_String_test() throws NoSuchAlgorithmException, InvalidKeySpecException {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
 
         PublicKey ex_publicKey = keyPair.getPublic();
         PrivateKey ex_privateKey = keyPair.getPrivate();
 
-        // pkcs8 형식으로 인코딩된 키를 가져온다.
-        byte[] publicKey_encoded = ex_publicKey.getEncoded();
-        byte[] privateKey_encoded = ex_privateKey.getEncoded();
-
-        // 그거를 다시 base58 스트링 변환
-        String publicKey_base58_encoded = Base58.encode(publicKey_encoded);
-        String privateKey_base58_encoded = Base58.encode(privateKey_encoded);
+        // 그거를 다시 스트링 변환
+        String publicKey_encoded = ((RSAPublicKey)ex_publicKey).getModulus() + "and" + ((RSAPublicKey)ex_publicKey).getPublicExponent();
+        String privateKey_encoded = Base58.encode(ex_privateKey.getEncoded());
 
         // when
         // base58 스트링으로부터 키 객체를 얻는다.
-        PublicKey ac_publicKey = CipherUtil.getPublicKeyFromBase58String(publicKey_base58_encoded);
-        PrivateKey ac_privateKey = CipherUtil.getPrivateKeyFromBase58String(privateKey_base58_encoded);
+        PublicKey ac_publicKey = CipherUtil.getPublicKeyFromEncodedKeyString(publicKey_encoded);
+        PrivateKey ac_privateKey = CipherUtil.getPrivateKeyFromBase58String(privateKey_encoded);
 
         // then
         Assertions.assertNotSame(ex_publicKey, ac_publicKey);

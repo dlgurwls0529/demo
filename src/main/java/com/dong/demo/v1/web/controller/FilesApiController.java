@@ -2,15 +2,11 @@ package com.dong.demo.v1.web.controller;
 
 import com.dong.demo.v1.exception.*;
 import com.dong.demo.v1.service.file.FileService;
-import com.dong.demo.v1.util.Base58;
 import com.dong.demo.v1.web.dto.FilesGenerateRequestDto;
 import com.dong.demo.v1.web.dto.FilesGetResponseDto;
 import com.dong.demo.v1.web.dto.FilesModifyRequestDto;
 import com.dong.demo.v1.web.validate.*;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,7 +22,7 @@ public class FilesApiController {
 
     // 이거 테스트. validation 실패 테스트는 이미 끝났으니, 밑단에서 올라온 예외 핸들링만 테스트.
 
-    private final Base58RSAPublicKeyFormatValidator base58RSAPublicKeyFormatValidator;
+    private final RSAPublicKeyEncodingFormatValidator RSAPublicKeyEncodingFormatValidator;
     private final UUIDFormatValidator uuidFormatValidator;
     private final InValidInputMessageWriter messageWriter;
     private final FileService fileService;
@@ -56,13 +48,13 @@ public class FilesApiController {
 
         // 퍼블릭키로 "" 이게 들어오면 폴더 포스트 URL 으로 인식된다. 사실 이게 맞으니까, 여기에선 ""에 대해서는 테스트 하면 안되는 것이다.
         // if (!base58FormatValidator.validate(folderPublicKey) || !rsaFormatValidator.validatePublicKey(Base58.decode(folderPublicKey))) {
-        /*if (!base58RSAPublicKeyFormatValidator.isValid(folderPublicKey, null)) {
+        if (!RSAPublicKeyEncodingFormatValidator.isValid(folderPublicKey, null)) {
             bindingResult.addError(new FieldError(
                     "dto",
                     "folderPublicKey",
                     "is invalid. It may be violation Base58 or RSAPublicKey Format or blank"
             ));
-        }*/
+        }
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<String>(
@@ -107,7 +99,7 @@ public class FilesApiController {
         // folderPublicKey 가 null, "", "   "
 
         // if (!base58FormatValidator.validate(folderPublicKey) || !rsaFormatValidator.validatePublicKey(Base58.decode(folderPublicKey))) {
-        if (!base58RSAPublicKeyFormatValidator.isValid(folderPublicKey, null)) {
+        if (!RSAPublicKeyEncodingFormatValidator.isValid(folderPublicKey, null)) {
             bindingResult.addError(new FieldError(
                     "dto",
                     "folderPublicKey",

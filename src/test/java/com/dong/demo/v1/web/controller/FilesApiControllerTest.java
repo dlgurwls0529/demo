@@ -182,6 +182,7 @@ class FilesApiControllerTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
 
+    @Test
     public void generateFileFailByInvalidPublicKeyTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();

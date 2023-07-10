@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
 
 public class AuthControllerIntegration4XXTest extends IntegrationTestTemplate {
 
@@ -26,7 +27,13 @@ public class AuthControllerIntegration4XXTest extends IntegrationTestTemplate {
     public void addWriteAuth_BAD_REQUEST_BY_UNMATHED_CP() throws Exception {
         // given
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedAccountPublicKey =
+                ((RSAPublicKey)accountKeyPair.getPublic()).getModulus() +
+                        "and" + ((RSAPublicKey)accountKeyPair.getPublic()).getPublicExponent();
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedFolderPublicKey =
+                ((RSAPublicKey)folderKeyPair.getPublic()).getModulus() +
+                        "and" + ((RSAPublicKey)folderKeyPair.getPublic()).getPublicExponent();
 
         // parent insertion
         FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -37,7 +44,7 @@ public class AuthControllerIntegration4XXTest extends IntegrationTestTemplate {
 
         mvc.perform(
                 MockMvcRequestBuilders.post("/api/v1/folders/" + KeyCompressor.compress(
-                                Base58.encode(folderKeyPair.getPublic().getEncoded())
+                                encodedFolderPublicKey
                         ))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(foldersGenerateRequestDto))
@@ -47,9 +54,9 @@ public class AuthControllerIntegration4XXTest extends IntegrationTestTemplate {
 
         // child insertion
         WriteAuthsAddRequestDto writeAuthsAddRequestDto = WriteAuthsAddRequestDto.builder()
-                .accountCP(KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded())))
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
-                .folderPublicKey(Base58.encode(accountKeyPair.getPublic().getEncoded()))
+                .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
+                .folderPublicKey(encodedAccountPublicKey)
                 .folderPrivateKeyEWA("EWA_TEST")
                 .build();
 
@@ -72,7 +79,13 @@ public class AuthControllerIntegration4XXTest extends IntegrationTestTemplate {
     public void addWriteAuth_BAD_REQUEST_BY_DUPLICATE() throws Exception {
         // given
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedAccountPublicKey =
+                ((RSAPublicKey)accountKeyPair.getPublic()).getModulus() +
+                "and" + ((RSAPublicKey)accountKeyPair.getPublic()).getPublicExponent();
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedFolderPublicKey =
+                ((RSAPublicKey)folderKeyPair.getPublic()).getModulus() +
+                "and" + ((RSAPublicKey)folderKeyPair.getPublic()).getPublicExponent();
 
         // parent insertion
         FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -83,7 +96,7 @@ public class AuthControllerIntegration4XXTest extends IntegrationTestTemplate {
 
         mvc.perform(
                 MockMvcRequestBuilders.post("/api/v1/folders/" + KeyCompressor.compress(
-                                Base58.encode(folderKeyPair.getPublic().getEncoded())
+                                encodedFolderPublicKey
                         ))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(foldersGenerateRequestDto))
@@ -93,9 +106,9 @@ public class AuthControllerIntegration4XXTest extends IntegrationTestTemplate {
 
         // child insertion
         WriteAuthsAddRequestDto writeAuthsAddRequestDto = WriteAuthsAddRequestDto.builder()
-                .accountCP(KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded())))
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
-                .folderPublicKey(Base58.encode(folderKeyPair.getPublic().getEncoded()))
+                .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
+                .folderPublicKey(encodedFolderPublicKey)
                 .folderPrivateKeyEWA("EWA_TEST")
                 .build();
 
@@ -125,13 +138,19 @@ public class AuthControllerIntegration4XXTest extends IntegrationTestTemplate {
     public void addWriteAuth_BAD_REQUEST_BY_NO_CHILD() throws Exception {
         // given
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedAccountPublicKey =
+                ((RSAPublicKey)accountKeyPair.getPublic()).getModulus() +
+                        "and" + ((RSAPublicKey)accountKeyPair.getPublic()).getPublicExponent();
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedFolderPublicKey =
+                ((RSAPublicKey)folderKeyPair.getPublic()).getModulus() +
+                        "and" + ((RSAPublicKey)folderKeyPair.getPublic()).getPublicExponent();
 
         // child insertion
         WriteAuthsAddRequestDto writeAuthsAddRequestDto = WriteAuthsAddRequestDto.builder()
-                .accountCP(KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded())))
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
-                .folderPublicKey(Base58.encode(folderKeyPair.getPublic().getEncoded()))
+                .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
+                .folderPublicKey(encodedFolderPublicKey)
                 .folderPrivateKeyEWA("EWA_TEST")
                 .build();
 

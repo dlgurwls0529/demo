@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.security.*;
+import java.security.interfaces.RSAPublicKey;
 
 public class SubDemandControllerIntegration4XXTest extends IntegrationTestTemplate {
 
@@ -27,7 +28,12 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
     public void addSubScribeDemand4XXByDuplicateTtest() throws Exception {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderKeyPair.getPublic();
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
+
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountKeyPair.getPublic();
+        String encodeAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(accountKeyPair.getPrivate());
@@ -35,14 +41,14 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
         byte[] byteSign = signature.sign();
 
         SubscribeDemandsAddRequestDto subscribeDemandsAddRequestDto = SubscribeDemandsAddRequestDto.builder()
-                .accountPublicKey(Base58.encode(accountKeyPair.getPublic().getEncoded()))
+                .accountPublicKey(encodeAccountPublicKey)
                 .byteSign(byteSign)
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .build();
 
         // insert parent
         folderRepository.save(Folder.builder()
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .isTitleOpen(true)
                 .symmetricKeyEWF("sym_TEST")
                 .title("title_TEST")
@@ -79,7 +85,12 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
     public void addSubScribeDemand4XXByNoMatchFolderTest() throws Exception {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderKeyPair.getPublic();
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
+
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountKeyPair.getPublic();
+        String encodeAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(accountKeyPair.getPrivate());
@@ -87,9 +98,9 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
         byte[] byteSign = signature.sign();
 
         SubscribeDemandsAddRequestDto subscribeDemandsAddRequestDto = SubscribeDemandsAddRequestDto.builder()
-                .accountPublicKey(Base58.encode(accountKeyPair.getPublic().getEncoded()))
+                .accountPublicKey(encodeAccountPublicKey)
                 .byteSign(byteSign)
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .build();
 
         // when
@@ -115,7 +126,13 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
     public void addSubScribeDemand4XXByInvalidSignatureTest() throws Exception {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderKeyPair.getPublic();
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
+
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountKeyPair.getPublic();
+        String encodeAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
+
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(accountKeyPair.getPrivate());
@@ -123,13 +140,13 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
         byte[] byteSign = signature.sign();
 
         SubscribeDemandsAddRequestDto subscribeDemandsAddRequestDto = SubscribeDemandsAddRequestDto.builder()
-                .accountPublicKey(Base58.encode(accountKeyPair.getPublic().getEncoded()))
+                .accountPublicKey(encodeAccountPublicKey)
                 .byteSign(new byte[]{1, 2, 4})
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .build();
 
         folderRepository.save(Folder.builder()
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .title("title_TEST")
                 .isTitleOpen(true)
                 .symmetricKeyEWF("sym_TEST")
@@ -160,7 +177,12 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
     public void addSubScribeDemand4XXByVerificationFailTest() throws Exception {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderKeyPair.getPublic();
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
+
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountKeyPair.getPublic();
+        String encodeAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(folderKeyPair.getPrivate());
@@ -168,13 +190,13 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
         byte[] byteSign = signature.sign();
 
         SubscribeDemandsAddRequestDto subscribeDemandsAddRequestDto = SubscribeDemandsAddRequestDto.builder()
-                .accountPublicKey(Base58.encode(accountKeyPair.getPublic().getEncoded()))
+                .accountPublicKey(encodeAccountPublicKey)
                 .byteSign(byteSign)
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .build();
 
         folderRepository.save(Folder.builder()
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .title("title_TEST")
                 .isTitleOpen(true)
                 .symmetricKeyEWF("sym_TEST")
@@ -205,7 +227,13 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
     public void allowSubscribeDemand4XXByDuplicateTest() throws Exception {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderKeyPair.getPublic();
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
+
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountKeyPair.getPublic();
+        String encodeAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
+
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(folderKeyPair.getPrivate());
@@ -214,16 +242,16 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
 
         SubscribeDemandsAllowRequestDto subscribeDemandsAllowRequestDto = SubscribeDemandsAllowRequestDto.builder()
                 .accountCP(KeyCompressor.compress(
-                        Base58.encode(accountKeyPair.getPublic().getEncoded())
+                        encodeAccountPublicKey
                 ))
-                .folderPublicKey(Base58.encode(folderKeyPair.getPublic().getEncoded()))
+                .folderPublicKey(encodedFolderPublicKey)
                 .byteSign(byteSign)
                 .symmetricKeyEWA("sym_TEST")
                 .build();
 
         // insert parent
         folderRepository.save(Folder.builder()
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .isTitleOpen(true)
                 .symmetricKeyEWF("sym_TEST")
                 .title("title_TEST")
@@ -231,15 +259,15 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
                 .build());
 
         subDemandRepository.save(SubDemand.builder()
-                .accountCP(KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded())))
-                .accountPublicKey(Base58.encode(accountKeyPair.getPublic().getEncoded()))
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .accountCP(KeyCompressor.compress(encodeAccountPublicKey))
+                .accountPublicKey(encodeAccountPublicKey)
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .build()
         );
 
         readAuthRepository.save(ReadAuth.builder()
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
-                .accountCP(KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded())))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
+                .accountCP(KeyCompressor.compress(encodeAccountPublicKey))
                 .symmetricKeyEWA("sym_TEST")
                 .build());
 
@@ -259,12 +287,12 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
         // rollback complete ?
         Assertions.assertEquals(1,
                 subDemandRepository.findAccountPublicKeyByFolderCP(
-                        KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded()))).size()
+                        KeyCompressor.compress(encodedFolderPublicKey)).size()
         );
 
         Assertions.assertEquals(1,
                 readAuthRepository.findByAccountCP(
-                        KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded()))).size()
+                        KeyCompressor.compress(encodeAccountPublicKey)).size()
         );
     }
 
@@ -272,24 +300,31 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
     public void allowSubscribeDemand4XXByInvalidSignatureTest() throws Exception {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderKeyPair.getPublic();
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
+
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountKeyPair.getPublic();
+        String encodeAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
+
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(folderKeyPair.getPrivate());
         signature.update(folderKeyPair.getPublic().getEncoded());
+
         byte[] byteSign = signature.sign();
 
         SubscribeDemandsAllowRequestDto subscribeDemandsAllowRequestDto = SubscribeDemandsAllowRequestDto.builder()
                 .accountCP(KeyCompressor.compress(
-                        Base58.encode(accountKeyPair.getPublic().getEncoded())
+                        encodeAccountPublicKey
                 ))
-                .folderPublicKey(Base58.encode(folderKeyPair.getPublic().getEncoded()))
+                .folderPublicKey(encodedFolderPublicKey)
                 .byteSign(new byte[]{1, 2, 3})
                 .symmetricKeyEWA("sym_TEST")
                 .build();
 
         folderRepository.save(Folder.builder()
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .isTitleOpen(true)
                 .symmetricKeyEWF("sym_TEST")
                 .title("title_TEST")
@@ -297,9 +332,9 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
                 .build());
 
         subDemandRepository.save(SubDemand.builder()
-                .accountCP(KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded())))
-                .accountPublicKey(Base58.encode(accountKeyPair.getPublic().getEncoded()))
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .accountCP(KeyCompressor.compress(encodeAccountPublicKey))
+                .accountPublicKey(encodeAccountPublicKey)
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .build()
         );
 
@@ -318,12 +353,12 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
         // db test
         Assertions.assertEquals(1,
                 subDemandRepository.findAccountPublicKeyByFolderCP(
-                        KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded()))).size()
+                        KeyCompressor.compress(encodedFolderPublicKey)).size()
         );
 
         Assertions.assertEquals(0,
                 readAuthRepository.findByAccountCP(
-                        KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded()))).size()
+                        KeyCompressor.compress(encodeAccountPublicKey)).size()
         );
     }
 
@@ -331,7 +366,13 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
     public void allowSubscribeDemand4XXByVerificationFailTest() throws Exception {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderKeyPair.getPublic();
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
+
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountKeyPair.getPublic();
+        String encodeAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
+
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(accountKeyPair.getPrivate());
@@ -340,15 +381,15 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
 
         SubscribeDemandsAllowRequestDto subscribeDemandsAllowRequestDto = SubscribeDemandsAllowRequestDto.builder()
                 .accountCP(KeyCompressor.compress(
-                        Base58.encode(accountKeyPair.getPublic().getEncoded())
+                        encodeAccountPublicKey
                 ))
-                .folderPublicKey(Base58.encode(folderKeyPair.getPublic().getEncoded()))
+                .folderPublicKey(encodedFolderPublicKey)
                 .byteSign(byteSign)
                 .symmetricKeyEWA("sym_TEST")
                 .build();
 
         folderRepository.save(Folder.builder()
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .isTitleOpen(true)
                 .symmetricKeyEWF("sym_TEST")
                 .title("title_TEST")
@@ -356,9 +397,9 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
                 .build());
 
         subDemandRepository.save(SubDemand.builder()
-                .accountCP(KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded())))
-                .accountPublicKey(Base58.encode(accountKeyPair.getPublic().getEncoded()))
-                .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                .accountCP(KeyCompressor.compress(encodeAccountPublicKey))
+                .accountPublicKey(encodeAccountPublicKey)
+                .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                 .build()
         );
 
@@ -377,12 +418,12 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
         // db test
         Assertions.assertEquals(1,
                 subDemandRepository.findAccountPublicKeyByFolderCP(
-                        KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded()))).size()
+                        KeyCompressor.compress(encodedFolderPublicKey)).size()
         );
 
         Assertions.assertEquals(0,
                 readAuthRepository.findByAccountCP(
-                        KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded()))).size()
+                        KeyCompressor.compress(encodeAccountPublicKey)).size()
         );
     }
 
@@ -390,7 +431,13 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
     public void allowSubscribeDemand4XXByNoSuchDemandTest() throws Exception {
         // given
         KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaFolderPublicKey = (RSAPublicKey) folderKeyPair.getPublic();
+        String encodedFolderPublicKey = rsaFolderPublicKey.getModulus() + "and" + rsaFolderPublicKey.getPublicExponent();
+
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaAccountPublicKey = (RSAPublicKey) accountKeyPair.getPublic();
+        String encodeAccountPublicKey = rsaAccountPublicKey.getModulus() + "and" + rsaAccountPublicKey.getPublicExponent();
+
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(folderKeyPair.getPrivate());
@@ -399,9 +446,9 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
 
         SubscribeDemandsAllowRequestDto subscribeDemandsAllowRequestDto = SubscribeDemandsAllowRequestDto.builder()
                 .accountCP(KeyCompressor.compress(
-                        Base58.encode(accountKeyPair.getPublic().getEncoded())
+                        encodeAccountPublicKey
                 ))
-                .folderPublicKey(Base58.encode(folderKeyPair.getPublic().getEncoded()))
+                .folderPublicKey(encodedFolderPublicKey)
                 .byteSign(byteSign)
                 .symmetricKeyEWA("sym_TEST")
                 .build();
@@ -421,12 +468,12 @@ public class SubDemandControllerIntegration4XXTest extends IntegrationTestTempla
         // db test
         Assertions.assertEquals(0,
                 subDemandRepository.findAccountPublicKeyByFolderCP(
-                        KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded()))).size()
+                        KeyCompressor.compress(encodedFolderPublicKey)).size()
         );
 
         Assertions.assertEquals(0,
                 readAuthRepository.findByAccountCP(
-                        KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded()))).size()
+                        KeyCompressor.compress(encodeAccountPublicKey)).size()
         );
     }
 }

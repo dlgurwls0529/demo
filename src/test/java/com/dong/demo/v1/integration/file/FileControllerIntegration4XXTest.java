@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.security.*;
+import java.security.interfaces.RSAPublicKey;
 
 public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
 
@@ -120,8 +121,8 @@ public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
 
     }
 
-    @Test
-    public void generateFile_UNAUTHORIZED_BY_VERIFY_FAIL() throws Exception {
+    // todo : X509 format TEST
+    public void X509_generateFile_UNAUTHORIZED_BY_VERIFY_FAIL() throws Exception {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
         KeyPair falsePair = CipherUtil.genRSAKeyPair();
@@ -173,12 +174,68 @@ public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
     }
 
     @Test
+    public void generateFile_UNAUTHORIZED_BY_VERIFY_FAIL() throws Exception {
+        // given
+        KeyPair keyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+
+        KeyPair falsePair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey falseRsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+
+        String folderCP = KeyCompressor.compress(
+                rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent()
+        );
+
+        FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
+                .isTitleOpen(true)
+                .symmetricKeyEWF("sym_TEST")
+                .title("title_TEST")
+                .build();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(falsePair.getPrivate());
+        signature.update(keyPair.getPublic().getEncoded());
+
+        byte[] sign = signature.sign();
+
+        FilesGenerateRequestDto filesGenerateRequestDto = FilesGenerateRequestDto.builder()
+                .byteSign(sign)
+                .subhead("subhead_TEST")
+                .build();
+
+        mvc.perform(
+                MockMvcRequestBuilders.post("/api/v1/folders/" + folderCP)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(foldersGenerateRequestDto))
+                        .accept(MediaType.APPLICATION_JSON)
+        );
+
+        // when
+        ResultActions resultActions = mvc.perform(
+                MockMvcRequestBuilders.post("/api/v1/folders/" + rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent() + "/files")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(filesGenerateRequestDto))
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andDo(MockMvcResultHandlers.print());
+
+        // then
+        resultActions
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+
+        /* database check */
+        Assertions.assertEquals(1, folderRepository.findAllFolderCPAndTitle().size());
+        Assertions.assertEquals(0, fileRepository.findAllOrderByLastChangedDate().size());
+
+    }
+
+    @Test
     public void modifyFile_NO_CONTENT_BY_NO_SUCH_FILE() throws Exception {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
 
         String folderCP = KeyCompressor.compress(
-                Base58.encode(keyPair.getPublic().getEncoded())
+                rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent()
         );
 
         FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -212,7 +269,7 @@ public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
         );
 
         String fileId = mvc.perform(
-                MockMvcRequestBuilders.post("/api/v1/folders/" + Base58.encode(keyPair.getPublic().getEncoded()) + "/files")
+                MockMvcRequestBuilders.post("/api/v1/folders/" + rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent() + "/files")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filesGenerateRequestDto))
                         .accept(MediaType.APPLICATION_JSON)
@@ -223,7 +280,7 @@ public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
         // when
         ResultActions resultActions = mvc.perform(
                 MockMvcRequestBuilders.put("/api/v1/folders/" +
-                                Base58.encode(keyPair.getPublic().getEncoded()) +
+                                rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent() +
                                 "/files/" + fileId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filesModifyRequestDto))
@@ -244,9 +301,10 @@ public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
     public void modifyFile_BAD_REQUEST_BY_INVALID_BYTESIGN() throws Exception {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
 
         String folderCP = KeyCompressor.compress(
-                Base58.encode(keyPair.getPublic().getEncoded())
+                rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent()
         );
 
         FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -280,7 +338,7 @@ public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
         );
 
         String fileId = mvc.perform(
-                MockMvcRequestBuilders.post("/api/v1/folders/" + Base58.encode(keyPair.getPublic().getEncoded()) + "/files")
+                MockMvcRequestBuilders.post("/api/v1/folders/" + rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent() + "/files")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filesGenerateRequestDto))
                         .accept(MediaType.APPLICATION_JSON)
@@ -289,7 +347,7 @@ public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
         // when
         ResultActions resultActions = mvc.perform(
                 MockMvcRequestBuilders.put("/api/v1/folders/" +
-                                Base58.encode(keyPair.getPublic().getEncoded()) +
+                                rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent() +
                                 "/files/" + fileId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filesModifyRequestDto))
@@ -312,10 +370,10 @@ public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
     public void modifyFile_UNAUTHORIZED_BY_VERIFY_FAIL() throws Exception {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
-
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
 
         String folderCP = KeyCompressor.compress(
-                Base58.encode(keyPair.getPublic().getEncoded())
+                rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent()
         );
 
         FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -355,7 +413,7 @@ public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
         );
 
         String fileId = mvc.perform(
-                MockMvcRequestBuilders.post("/api/v1/folders/" + Base58.encode(keyPair.getPublic().getEncoded()) + "/files")
+                MockMvcRequestBuilders.post("/api/v1/folders/" + rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent() + "/files")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filesGenerateRequestDto))
                         .accept(MediaType.APPLICATION_JSON)
@@ -364,7 +422,7 @@ public class FileControllerIntegration4XXTest extends IntegrationTestTemplate {
         // when
         ResultActions resultActions = mvc.perform(
                 MockMvcRequestBuilders.put("/api/v1/folders/" +
-                                Base58.encode(keyPair.getPublic().getEncoded()) +
+                                rsaPublicKey.getModulus() + "and" + rsaPublicKey.getPublicExponent() +
                                 "/files/" + fileId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filesModifyRequestDto))

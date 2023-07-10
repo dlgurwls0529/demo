@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import javax.swing.text.html.Option;
 import java.awt.*;
 import java.security.*;
+import java.security.interfaces.RSAPublicKey;
 import java.util.*;
 import java.util.List;
 
@@ -108,10 +109,17 @@ class SubDemandsApiControllerTest {
         }
     }
 
+    @Test
     public void addSubscribeDemandFailByInvalidAccountPublicKeyTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
-        KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedAccountPublicKey =
+                ((RSAPublicKey)accountKeyPair.getPublic()).getModulus() +
+                        "and" + ((RSAPublicKey)accountKeyPair.getPublic()).getPublicExponent();
+        KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedFolderPublicKey =
+                ((RSAPublicKey)folderKeyPair.getPublic()).getModulus() +
+                        "and" + ((RSAPublicKey)folderKeyPair.getPublic()).getPublicExponent();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(folderKeyPair.getPrivate());
@@ -134,7 +142,7 @@ class SubDemandsApiControllerTest {
             String url = "http://localhost:" + port + "/api/v1/subscribe-demands/add";
 
             SubscribeDemandsAddRequestDto dto = SubscribeDemandsAddRequestDto.builder()
-                    .folderCP(KeyCompressor.compress(Base58.encode(folderKeyPair.getPublic().getEncoded())))
+                    .folderCP(KeyCompressor.compress(encodedFolderPublicKey))
                     .accountPublicKey(ivAP)
                     .byteSign(byteSign)
                     .build();
@@ -219,10 +227,17 @@ class SubDemandsApiControllerTest {
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
+    @Test
     public void allowSubscribeFailByInvalidFolderPublicKeyTest() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // given
-        KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
         KeyPair accountKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedAccountPublicKey =
+                ((RSAPublicKey)accountKeyPair.getPublic()).getModulus() +
+                        "and" + ((RSAPublicKey)accountKeyPair.getPublic()).getPublicExponent();
+        KeyPair folderKeyPair = CipherUtil.genRSAKeyPair();
+        String encodedFolderPublicKey =
+                ((RSAPublicKey)folderKeyPair.getPublic()).getModulus() +
+                        "and" + ((RSAPublicKey)folderKeyPair.getPublic()).getPublicExponent();
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(folderKeyPair.getPrivate());
@@ -247,7 +262,7 @@ class SubDemandsApiControllerTest {
             SubscribeDemandsAllowRequestDto dto = SubscribeDemandsAllowRequestDto.builder()
                     .folderPublicKey(inFP)
                     .byteSign(byteSign)
-                    .accountCP(KeyCompressor.compress(Base58.encode(accountKeyPair.getPublic().getEncoded())))
+                    .accountCP(KeyCompressor.compress(encodedAccountPublicKey))
                     .symmetricKeyEWA("symmetricKeyEWA_TEST")
                     .build();
 

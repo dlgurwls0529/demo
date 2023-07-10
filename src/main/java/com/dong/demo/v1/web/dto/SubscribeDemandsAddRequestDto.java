@@ -1,6 +1,6 @@
 package com.dong.demo.v1.web.dto;
 
-import com.dong.demo.v1.web.validate.ValidBase58RSAPublicKeyFormat;
+import com.dong.demo.v1.web.validate.ValidRSAPublicKeyEncodingFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -15,7 +15,7 @@ public class SubscribeDemandsAddRequestDto {
     private final String folderCP;
 
     @NotBlank
-    // @ValidBase58RSAPublicKeyFormat
+    @ValidRSAPublicKeyEncodingFormat
     private final String accountPublicKey;
 
     @NotEmpty

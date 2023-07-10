@@ -10,8 +10,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = Base58RSAPublicKeyFormatValidator.class)
-public @interface ValidBase58RSAPublicKeyFormat {
+@Constraint(validatedBy = RSAPublicKeyEncodingFormatValidator.class)
+public @interface ValidRSAPublicKeyEncodingFormat {
 
     String message() default "folderPublicKey format is invalid. It may be violate Base58 or RSAPublicKey Format or blank.";
 

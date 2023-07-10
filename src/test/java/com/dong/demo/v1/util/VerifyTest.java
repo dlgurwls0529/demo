@@ -7,6 +7,7 @@ import org.junit.jupiter.api.function.Executable;
 
 import javax.crypto.NoSuchPaddingException;
 import java.security.*;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 
 class VerifyTest {
@@ -88,8 +89,8 @@ class VerifyTest {
         Assertions.assertFalse(result);
     }
 
-    @Test
-    public void real_verify_success_test() throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
+    // todo : X509 dependent TEST
+    public void X509_verify_success_test() throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
         PublicKey publicKey = keyPair.getPublic();  //
@@ -105,14 +106,38 @@ class VerifyTest {
         byte[] input_sign = signature.sign();  // ...
 
         // when
-        boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromBase58String(input_publicKey));
+        boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromEncodedKeyString(input_publicKey));
 
         // then
         Assertions.assertTrue(result);
     }
 
     @Test
-    public void real_verify_fail_test() throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
+    public void real_verify_success_test() throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
+        // given
+        KeyPair keyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();  //
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // 클라이언트에서 주어지는 값은 Base58 string publicKey(sign 에서도 쓴다.) 와 byte[] sign 이다.
+        String input_publicKey = publicKey.getModulus()+"and"+publicKey.getPublicExponent();  // ...
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(publicKey.getEncoded());
+
+        byte[] input_sign = signature.sign();  // ...
+
+        // when
+        boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromEncodedKeyString(input_publicKey));
+
+        // then
+        Assertions.assertTrue(result);
+    }
+
+
+    // todo : X509 dependant TEST
+    public void X509_verify_fail_test() throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
         PublicKey publicKey = keyPair.getPublic();  //
@@ -128,7 +153,30 @@ class VerifyTest {
         byte[] input_sign = signature.sign();  // ...
 
         // when
-        boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromBase58String(input_publicKey));
+        boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromEncodedKeyString(input_publicKey));
+
+        // then
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    public void real_verify_fail_test() throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
+        // given
+        KeyPair keyPair = CipherUtil.genRSAKeyPair();
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();  //
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // 클라이언트에서 주어지는 값은 Base58 string publicKey(sign 에서도 쓴다.) 와 byte[] sign 이다.
+        String input_publicKey = publicKey.getModulus()+"and"+publicKey.getPublicExponent();  // ...
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(CipherUtil.genRSAKeyPair().getPrivate()); // 가짜 프라이빗 키, 다시 만들었다.
+        signature.update(publicKey.getEncoded());
+
+        byte[] input_sign = signature.sign();  // ...
+
+        // when
+        boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromEncodedKeyString(input_publicKey));
 
         // then
         Assertions.assertFalse(result);
@@ -153,14 +201,14 @@ class VerifyTest {
         Assertions.assertThrows(VerifyInvalidInputException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromBase58String(""));
+                boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromEncodedKeyString(""));
             }
         });
 
         Assertions.assertThrows(VerifyInvalidInputException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromBase58String("test"));
+                boolean result = RSAVerifier.verify(input_sign, CipherUtil.getPublicKeyFromEncodedKeyString("test"));
             }
         });
 

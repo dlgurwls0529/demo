@@ -2,16 +2,12 @@ package com.dong.demo.v1.util;
 
 import com.dong.demo.v1.exception.VerifyInvalidInputException;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.nio.charset.StandardCharsets;
+import java.math.BigInteger;
 import java.security.*;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.*;
 import java.util.Base64;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CipherUtil {
 
@@ -73,7 +69,7 @@ public class CipherUtil {
     }
 
     // Base58 인코딩된 문자열로 된 공개키로부터 공개키 객체를 얻는다.
-    public static PublicKey getPublicKeyFromBase58String(final String keyString) {
+    public static PublicKey X509_getPublicKeyFromBase58String(final String keyString) {
 
         final String publicKeyString =
                 keyString.replaceAll("\\n",  "").replaceAll("-{5}[ a-zA-Z]*-{5}", "");
@@ -89,5 +85,36 @@ public class CipherUtil {
             throw  new VerifyInvalidInputException(e);
         }
 
+    }
+
+    public static PublicKey getPublicKeyFromEncodedKeyString(final String keyString) {
+        final String publicKeyString =
+                keyString.replaceAll("\\n", "").replaceAll("-{5}[ a-zA-Z]*-{5}", "");
+
+        String pattern = "(\\d+)and(\\d+)";
+
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(publicKeyString);
+
+        if (matcher.find()) {
+            KeyFactory keyFactory = null;
+
+            try {
+
+                keyFactory = KeyFactory.getInstance("RSA");
+
+                BigInteger modulus = new BigInteger(matcher.group(1));
+                BigInteger publicExponent = new BigInteger(matcher.group(2));
+                KeySpec key = new RSAPublicKeySpec(modulus, publicExponent);
+
+                return keyFactory.generatePublic(key);
+
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                throw new VerifyInvalidInputException(e);
+            }
+        }
+        else {
+            throw new VerifyInvalidInputException(new Throwable("invalid key format"));
+        }
     }
 }
