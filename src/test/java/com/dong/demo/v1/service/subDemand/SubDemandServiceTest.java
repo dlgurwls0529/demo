@@ -11,10 +11,7 @@ import com.dong.demo.v1.exception.NoMatchParentRowException;
 import com.dong.demo.v1.exception.NoSuchSubscribeDemandException;
 import com.dong.demo.v1.exception.VerifyFailedException;
 import com.dong.demo.v1.service.readAuth.ReadAuthService;
-import com.dong.demo.v1.util.Base58;
-import com.dong.demo.v1.util.CipherUtil;
-import com.dong.demo.v1.util.KeyCompressor;
-import com.dong.demo.v1.util.LocalDateTime6Digit;
+import com.dong.demo.v1.util.*;
 import com.dong.demo.v1.web.dto.SubscribeDemandsAddRequestDto;
 import com.dong.demo.v1.web.dto.SubscribeDemandsAllowRequestDto;
 import org.junit.jupiter.api.*;
@@ -148,7 +145,7 @@ class SubDemandServiceTest {
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
-        signature.update(publicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 
@@ -192,7 +189,7 @@ class SubDemandServiceTest {
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
-        signature.update(publicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 
@@ -229,7 +226,7 @@ class SubDemandServiceTest {
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
-        signature.update(publicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 
@@ -279,7 +276,7 @@ class SubDemandServiceTest {
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(folderPrivateKey);
-        signature.update(folderPublicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 
@@ -384,7 +381,7 @@ class SubDemandServiceTest {
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(folderPrivateKey);
-        signature.update(folderPublicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 
@@ -446,7 +443,7 @@ class SubDemandServiceTest {
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(folderPrivateKey);
-        signature.update(folderPublicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 
@@ -524,7 +521,7 @@ class SubDemandServiceTest {
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(folderPrivateKey);
-        signature.update(folderPublicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 

@@ -3,10 +3,7 @@ package com.dong.demo.v1.integration.subDemand;
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.subDemand.SubDemand;
 import com.dong.demo.v1.integration.IntegrationTestTemplate;
-import com.dong.demo.v1.util.Base58;
-import com.dong.demo.v1.util.CipherUtil;
-import com.dong.demo.v1.util.KeyCompressor;
-import com.dong.demo.v1.util.LocalDateTime6Digit;
+import com.dong.demo.v1.util.*;
 import com.dong.demo.v1.web.dto.SubscribeDemandsAddRequestDto;
 import com.dong.demo.v1.web.dto.SubscribeDemandsAllowRequestDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,7 +35,7 @@ public class SubDemandControllerIntegration2XXTest extends IntegrationTestTempla
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(accountKeyPair.getPrivate());
-        signature.update(accountKeyPair.getPublic().getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
         byte[] byteSign = signature.sign();
 
         SubscribeDemandsAddRequestDto subscribeDemandsAddRequestDto = SubscribeDemandsAddRequestDto.builder()
@@ -88,7 +85,7 @@ public class SubDemandControllerIntegration2XXTest extends IntegrationTestTempla
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(folderKeyPair.getPrivate());
-        signature.update(folderKeyPair.getPublic().getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
         byte[] byteSign = signature.sign();
 
         SubscribeDemandsAllowRequestDto subscribeDemandsAllowRequestDto = SubscribeDemandsAllowRequestDto.builder()

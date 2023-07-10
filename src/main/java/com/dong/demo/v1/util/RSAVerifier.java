@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 public class RSAVerifier {
 
+    public static final byte[] SIGN_MESSAGE = new byte[]{118, 97, 108, 105, 100, 97, 116, 101};
+
     public static boolean pseudo_verify(byte[] signature, PublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         Signature sign = Signature.getInstance("SHA256withRSA");
 
@@ -34,7 +36,7 @@ public class RSAVerifier {
             // byte[] signature = signString.getBytes();
 
             sign.initVerify(publicKey);
-            sign.update(publicKey.getEncoded());
+            sign.update(SIGN_MESSAGE);
 
             // Verifying the signature
             return sign.verify(signature);

@@ -4,6 +4,7 @@ import com.dong.demo.v1.integration.IntegrationTestTemplate;
 import com.dong.demo.v1.util.Base58;
 import com.dong.demo.v1.util.CipherUtil;
 import com.dong.demo.v1.util.KeyCompressor;
+import com.dong.demo.v1.util.RSAVerifier;
 import com.dong.demo.v1.web.dto.FilesGenerateRequestDto;
 import com.dong.demo.v1.web.dto.FilesModifyRequestDto;
 import com.dong.demo.v1.web.dto.FoldersGenerateRequestDto;
@@ -97,7 +98,7 @@ public class FileControllerIntegration2XXTest extends IntegrationTestTemplate {
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(keyPair.getPrivate());
-        signature.update(keyPair.getPublic().getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 
@@ -217,7 +218,7 @@ public class FileControllerIntegration2XXTest extends IntegrationTestTemplate {
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(keyPair.getPrivate());
-        signature.update(keyPair.getPublic().getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 
@@ -359,7 +360,7 @@ public class FileControllerIntegration2XXTest extends IntegrationTestTemplate {
 
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initSign(keyPair.getPrivate());
-            signature.update(keyPair.getPublic().getEncoded());
+            signature.update(RSAVerifier.SIGN_MESSAGE);
             byte[] byteSign = signature.sign();
 
             FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()
@@ -532,7 +533,7 @@ public class FileControllerIntegration2XXTest extends IntegrationTestTemplate {
 
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initSign(keyPair.getPrivate());
-            signature.update(keyPair.getPublic().getEncoded());
+            signature.update(RSAVerifier.SIGN_MESSAGE);
             byte[] byteSign = signature.sign();
 
             FoldersGenerateRequestDto foldersGenerateRequestDto = FoldersGenerateRequestDto.builder()

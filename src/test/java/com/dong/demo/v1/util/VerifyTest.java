@@ -124,7 +124,7 @@ class VerifyTest {
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
-        signature.update(publicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] input_sign = signature.sign();  // ...
 

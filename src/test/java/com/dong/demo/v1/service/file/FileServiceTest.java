@@ -81,7 +81,7 @@ class FileServiceTest {
         // verify sign 준비
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
-        signature.update(publicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 
@@ -208,7 +208,7 @@ class FileServiceTest {
         // verify sign 준비
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
-        signature.update(publicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = new byte[0];
         try {
@@ -262,7 +262,7 @@ class FileServiceTest {
         // verify sign 준비
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
-        signature.update(publicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 
@@ -322,7 +322,7 @@ class FileServiceTest {
         // verify sign 준비
         Signature trueSignature = Signature.getInstance("SHA256withRSA");
         trueSignature.initSign(truePrivateKey);
-        trueSignature.update(publicKey.getEncoded());
+        trueSignature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] trueSign = new byte[0];
         try {
@@ -407,7 +407,7 @@ class FileServiceTest {
         // verify sign 준비
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
-        signature.update(publicKey.getEncoded());
+        signature.update(RSAVerifier.SIGN_MESSAGE);
 
         byte[] sign = signature.sign();
 
