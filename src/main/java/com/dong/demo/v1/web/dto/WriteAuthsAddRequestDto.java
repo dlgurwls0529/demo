@@ -19,6 +19,7 @@ public class WriteAuthsAddRequestDto {
     private final String folderCP;
 
     @NotBlank
+    //
     // @ValidRSAPublicKeyEncodingFormat
     private final String folderPublicKey;
 
