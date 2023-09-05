@@ -25,8 +25,7 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "INSERT INTO WriteAuthority VALUES(?, ?, ?, ?);";
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, writeAuth.getAccountCP());
             preparedStatement.setString(2, writeAuth.getFolderCP());
             preparedStatement.setString(3, writeAuth.getFolderPublicKey());
@@ -54,22 +53,21 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
     public List<WriteAuth> findByAccountCP(String accountCP) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "SELECT * FROM WriteAuthority WHERE accountCP=?;";
-        ResultSet resultSet = null;
         List<WriteAuth> writeAuths = new ArrayList<>();
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, accountCP);
-            resultSet = preparedStatement.executeQuery();
 
-            while(resultSet.next()) {
-                writeAuths.add(WriteAuth.builder()
-                        .accountCP(resultSet.getString("accountCP"))
-                        .folderCP(resultSet.getString("folderCP"))
-                        .folderPublicKey(resultSet.getString("folderPublicKey"))
-                        .folderPrivateKeyEWA(resultSet.getString("folderPrivateKeyEWA"))
-                        .build()
-                );
+            try (ResultSet resultSet = preparedStatement.executeQuery();) {
+                while (resultSet.next()) {
+                    writeAuths.add(WriteAuth.builder()
+                            .accountCP(resultSet.getString("accountCP"))
+                            .folderCP(resultSet.getString("folderCP"))
+                            .folderPublicKey(resultSet.getString("folderPublicKey"))
+                            .folderPrivateKeyEWA(resultSet.getString("folderPrivateKeyEWA"))
+                            .build()
+                    );
+                }
             }
 
         } catch (SQLException e) {
@@ -86,8 +84,7 @@ public class JdbcWriteAuthRepository implements WriteAuthRepository {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "DELETE FROM WriteAuthority;";
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.execute();
 
         } catch (SQLException e) {

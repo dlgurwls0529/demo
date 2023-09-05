@@ -1,6 +1,7 @@
 package com.dong.demo.v1.domain.folder;
 
 
+import com.dong.demo.v1.domain.folder.folder_search.FolderSearch;
 import lombok.Builder;
 
 import java.sql.Timestamp;
@@ -44,5 +45,9 @@ public class Folder {
         boolean lastEquality = this.lastChangedDate.equals(((Folder)obj).lastChangedDate);
 
         return folderCPEquality && isTitleOpenEquality && titleEquality && symEquality && lastEquality;
+    }
+
+    public FolderSearch getFolderSearch() {
+        return FolderSearch.builder().folderCP(folderCP).title(title).build();
     }
 }

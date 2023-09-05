@@ -39,13 +39,13 @@ public class JdbcFolderRepository implements FolderRepository {
     @Autowired
     private DataSource dataSource;
 
+    // todo : 여기 result preparedSTMT 닫기
     @Override
     public void save(Folder folder) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "INSERT INTO Folder VALUES(?, ?, ?, ?, ?);";
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, folder.getFolderCP());
             preparedStatement.setBoolean(2, folder.getIsTitleOpen());
             preparedStatement.setString(3, folder.getTitle());
@@ -72,8 +72,7 @@ public class JdbcFolderRepository implements FolderRepository {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "UPDATE Folder SET lastChangedDate=? WHERE folderCP=?;";
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setTimestamp(1, Timestamp.valueOf(dateTime));
             preparedStatement.setString(2, folderCP);
             preparedStatement.execute();
@@ -89,30 +88,27 @@ public class JdbcFolderRepository implements FolderRepository {
     public Folder find(String folderCP) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "SELECT * FROM Folder WHERE folderCP=?;";
-        ResultSet resultSet = null;
         Folder resultFolder = null;
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, folderCP);
-            resultSet = preparedStatement.executeQuery();
 
-            // && resultSet.isBeforeFirst() 이거 안하면 안된다. 결과 없는게 isBefore 뭐시기
-
-            /*
+            try (ResultSet resultSet = preparedStatement.executeQuery();) {
+                // && resultSet.isBeforeFirst() 이거 안하면 안된다. 결과 없는게 isBefore 뭐시기
+                /*
                 isBeforeFirst() 는 쿼리한 결과의 커서가,
                 첫 로우 바로 앞이면 true,
                 첫 로우 바로 앞이 아니거나, 결과 로우가 없으면 false.
             */
-
-            if (resultSet.next()) {
-                resultFolder = Folder.builder()
-                        .folderCP(resultSet.getString("folderCP"))
-                        .isTitleOpen(resultSet.getBoolean("isTitleOpen"))
-                        .title(resultSet.getString("title"))
-                        .symmetricKeyEWF(resultSet.getString("symmetricKeyEWF"))
-                        .lastChangedDate(resultSet.getTimestamp("lastChangedDate").toLocalDateTime())
-                        .build();
+                if (resultSet.next()) {
+                    resultFolder = Folder.builder()
+                            .folderCP(resultSet.getString("folderCP"))
+                            .isTitleOpen(resultSet.getBoolean("isTitleOpen"))
+                            .title(resultSet.getString("title"))
+                            .symmetricKeyEWF(resultSet.getString("symmetricKeyEWF"))
+                            .lastChangedDate(resultSet.getTimestamp("lastChangedDate").toLocalDateTime())
+                            .build();
+                }
             }
 
         } catch (SQLException e) {
@@ -128,13 +124,10 @@ public class JdbcFolderRepository implements FolderRepository {
     public List<String[]> findAllFolderCPAndTitle() {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "SELECT folderCP, title FROM Folder";
-        ResultSet resultSet = null;
         List<String[]> result = new ArrayList<>();
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            resultSet = preparedStatement.executeQuery();
-
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery();) {
             while(resultSet.next()) {
                 result.add(new String[]{
                         resultSet.getString("folderCP"),
@@ -156,12 +149,68 @@ public class JdbcFolderRepository implements FolderRepository {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "DELETE FROM Folder;";
 
-        try {
-            connection.prepareStatement(sql).execute();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.execute();
         } catch (SQLException e) {
             throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
+        }
+    }
+
+    public FolderFindBatchBuilder getFolderFindBatchBuilder() {
+        return new FolderFindBatchBuilder(dataSource);
+    }
+
+    // todo : 이거 테스트 케이스 만들기
+    public static class FolderFindBatchBuilder {
+        private DataSource dataSource;
+        private StringBuilder query_buffer;
+        private final String query_prefix = "SELECT * FROM Folder WHERE folderCP IN (";
+        private final String query_suffix = ");";
+
+        public FolderFindBatchBuilder(DataSource dataSource) {
+            this.dataSource = dataSource;
+            this.query_buffer = new StringBuilder(query_prefix);
+        }
+
+        public FolderFindBatchBuilder add(String folderCP) {
+            query_buffer.append('\'')
+                    .append(folderCP)
+                    .append('\'')
+                    .append(",");
+            return this;
+        }
+
+        public List<Folder> execute() {
+            // 마지막 반점 지우고, 괄호 넣기.
+            query_buffer.deleteCharAt(query_buffer.length()-1);
+            query_buffer.append(query_suffix);
+
+            // 여기서부터 실행.
+            Connection connection = DataSourceUtils.getConnection(dataSource);
+            List<Folder> folderList = new ArrayList<>();
+
+            try (ResultSet resultSet = connection.prepareStatement(query_buffer.toString()).executeQuery();) {
+                while (resultSet.next()) {
+                    Folder folder = Folder.builder()
+                            .folderCP(resultSet.getString("folderCP"))
+                            .isTitleOpen(resultSet.getBoolean("isTitleOpen"))
+                            .title(resultSet.getString("title"))
+                            .symmetricKeyEWF(resultSet.getString("symmetricKeyEWF"))
+                            .lastChangedDate(resultSet.getTimestamp("lastChangedDate").toLocalDateTime())
+                            .build();
+
+                    folderList.add(folder);
+                }
+
+            } catch (SQLException e) {
+                throw new DataAccessException(e);
+            } finally {
+                DataSourceUtils.releaseConnection(connection, dataSource);
+            }
+
+            return folderList;
         }
     }
 }

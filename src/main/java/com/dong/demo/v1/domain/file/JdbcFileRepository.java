@@ -37,14 +37,14 @@ public class JdbcFileRepository implements FileRepository {
 
         boolean exists = false;
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, folderCP);
             preparedStatement.setString(2, fileId);
-            ResultSet resultSet = preparedStatement.executeQuery();
 
-            if(resultSet.next()) {
-                exists = resultSet.getBoolean("success");
+            try (ResultSet resultSet = preparedStatement.executeQuery();) {
+                if (resultSet.next()) {
+                    exists = resultSet.getBoolean("success");
+                }
             }
 
         } catch (SQLException e) {
@@ -67,8 +67,7 @@ public class JdbcFileRepository implements FileRepository {
 
         // String uuid 를 헥스코드 풀어서 Binary(16)으로 바꿔서 저장.
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, file.getFolderCP());
             preparedStatement.setString(2, file.getFileId());
             preparedStatement.setString(3, file.getSubheadEWS());
@@ -107,8 +106,7 @@ public class JdbcFileRepository implements FileRepository {
                                 fileId=UNHEX(REPLACE(?, '-', ''));
                     """;
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, file.getSubheadEWS());
             preparedStatement.setTimestamp(2, Timestamp.valueOf(file.getLastChangedDate()));
             preparedStatement.setString(3, file.getContentsEWS());
@@ -135,8 +133,7 @@ public class JdbcFileRepository implements FileRepository {
                                 fileId=UNHEX(REPLACE(?, '-', ''));
                     """;
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setTimestamp(1, Timestamp.valueOf(dateTime));
             preparedStatement.setString(2, folderCP);
             preparedStatement.setString(3, fileId);
@@ -165,9 +162,8 @@ public class JdbcFileRepository implements FileRepository {
 
         List<File> files = new ArrayList<>();
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            ResultSet resultSet = preparedStatement.executeQuery();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery();) {
 
             while (resultSet.next()) {
                 files.add(File.builder()
@@ -205,19 +201,19 @@ public class JdbcFileRepository implements FileRepository {
 
         List<File> files = new ArrayList<>();
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, folderCP);
-            ResultSet resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
-                files.add(File.builder()
-                        .folderCP(resultSet.getString("folderCP"))
-                        .fileId(resultSet.getString("fileId_hex"))
-                        .subheadEWS(resultSet.getString("subheadEWS"))
-                        .lastChangedDate(resultSet.getTimestamp("lastChangedDate").toLocalDateTime())
-                        .contentsEWS(resultSet.getString("contentsEWS"))
-                        .build());
+            try (ResultSet resultSet = preparedStatement.executeQuery();) {
+                while (resultSet.next()) {
+                    files.add(File.builder()
+                            .folderCP(resultSet.getString("folderCP"))
+                            .fileId(resultSet.getString("fileId_hex"))
+                            .subheadEWS(resultSet.getString("subheadEWS"))
+                            .lastChangedDate(resultSet.getTimestamp("lastChangedDate").toLocalDateTime())
+                            .contentsEWS(resultSet.getString("contentsEWS"))
+                            .build());
+                }
             }
 
         } catch (SQLException e) {
@@ -242,14 +238,14 @@ public class JdbcFileRepository implements FileRepository {
                     """;
         String result = "";
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, folderCP);
             preparedStatement.setString(2, fileId);
-            ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (resultSet.next()) {
-                result = resultSet.getString("contentsEWS");
+            try (ResultSet resultSet = preparedStatement.executeQuery();) {
+                if (resultSet.next()) {
+                    result = resultSet.getString("contentsEWS");
+                }
             }
 
         } catch (SQLException e) {
@@ -266,8 +262,9 @@ public class JdbcFileRepository implements FileRepository {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "DELETE FROM File;";
 
-        try {
-            connection.prepareStatement(sql).execute();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.execute();
+
         } catch (SQLException e) {
             throw new DataAccessException(e);
         } finally {

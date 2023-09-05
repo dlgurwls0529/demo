@@ -34,14 +34,14 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
 
         boolean exists = false;
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, folderCP);
             preparedStatement.setString(2, accountCP);
-            ResultSet resultSet = preparedStatement.executeQuery();
 
-            if(resultSet.next()) {
-                exists = resultSet.getBoolean("success");
+            try (ResultSet resultSet = preparedStatement.executeQuery();) {
+                if (resultSet.next()) {
+                    exists = resultSet.getBoolean("success");
+                }
             }
 
         } catch (SQLException e) {
@@ -58,8 +58,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "INSERT INTO SubscribeDemand VALUES(?, ?, ?);";
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, demand.getAccountCP());
             preparedStatement.setString(2, demand.getFolderCP());
             preparedStatement.setString(3, demand.getAccountPublicKey());
@@ -87,8 +86,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "DELETE FROM SubscribeDemand WHERE folderCP=? AND accountCP=?";
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, folderCP);
             preparedStatement.setString(2, accountCP);
             preparedStatement.execute();
@@ -111,13 +109,13 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
 
         List<String> accountPubs = new ArrayList<>();
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.setString(1, folderCP);
-            ResultSet resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
-                accountPubs.add(resultSet.getString("accountPublicKey"));
+            try (ResultSet resultSet = preparedStatement.executeQuery();) {
+                while (resultSet.next()) {
+                    accountPubs.add(resultSet.getString("accountPublicKey"));
+                }
             }
 
         } catch (SQLException e) {
@@ -134,8 +132,7 @@ public class JdbcSubDemandRepository implements SubDemandRepository {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         String sql = "DELETE FROM SubscribeDemand;";
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.execute();
 
         } catch (SQLException e) {

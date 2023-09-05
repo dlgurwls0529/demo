@@ -1,9 +1,9 @@
-package com.dong.demo.v1.domain.readAuth;
+package com.dong.demo.v1.domain.folder.folder_search;
 
+import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.exception.ICsViolationCode;
-import com.dong.demo.v1.exception.NoMatchParentRowException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
@@ -14,28 +14,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class JdbcReadAuthRepository implements ReadAuthRepository {
+public class JdbcFolderSearchRepository implements FolderSearchRepository {
 
     @Autowired
     private DataSource dataSource;
 
     @Override
-    public void save(ReadAuth readAuth) {
+    public void save(FolderSearch folderSearch) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
-        String sql = "INSERT INTO ReadAuthority VALUES(?, ?, ?);";
+        String sql = "INSERT INTO Folder_SEARCH VALUES(?, ?);";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
-            preparedStatement.setString(1, readAuth.getAccountCP());
-            preparedStatement.setString(2, readAuth.getFolderCP());
-            preparedStatement.setString(3, readAuth.getSymmetricKeyEWA());
+            preparedStatement.setString(1, folderSearch.getFolderCP());
+            preparedStatement.setString(2, folderSearch.getTitle());
             preparedStatement.execute();
 
         } catch (SQLIntegrityConstraintViolationException e) {
             if (ICsViolationCode.isEntityIntegrityViolation(e.getErrorCode())) {
                 throw new DuplicatePrimaryKeyException();
-            }
-            else if (ICsViolationCode.isReferentialIntegrityViolation(e.getErrorCode())) {
-                throw new NoMatchParentRowException();
             }
             else {
                 throw new DataAccessException(e);
@@ -48,21 +44,20 @@ public class JdbcReadAuthRepository implements ReadAuthRepository {
     }
 
     @Override
-    public List<ReadAuth> findByAccountCP(String accountCP) {
+    public FolderSearch find(String folderCP) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
-        String sql = "SELECT * FROM ReadAuthority WHERE accountCP=?;";
-        List<ReadAuth> readAuths = new ArrayList<>();
+        String sql = "SELECT * FROM Folder_SEARCH WHERE folderCP=?;";
+        FolderSearch resultFolderSearch = null;
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
-            preparedStatement.setString(1, accountCP);
+            preparedStatement.setString(1, folderCP);
 
             try (ResultSet resultSet = preparedStatement.executeQuery();) {
-                while (resultSet.next()) {
-                    readAuths.add(ReadAuth.builder()
-                            .accountCP(resultSet.getString("accountCP"))
+                if (resultSet.next()) {
+                    resultFolderSearch = FolderSearch.builder()
                             .folderCP(resultSet.getString("folderCP"))
-                            .symmetricKeyEWA(resultSet.getString("symmetricKeyEWA"))
-                            .build());
+                            .title(resultSet.getString("title"))
+                            .build();
                 }
             }
 
@@ -72,13 +67,39 @@ public class JdbcReadAuthRepository implements ReadAuthRepository {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
 
-        return readAuths;
+        return resultFolderSearch;
+    }
+
+    @Override
+    public List<FolderSearch> findAll() {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        String sql = "SELECT folderCP, title FROM Folder_SEARCH";
+        List<FolderSearch> result = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery();) {
+
+            while(resultSet.next()) {
+                result.add(FolderSearch.builder()
+                        .folderCP(resultSet.getString("folderCP"))
+                        .title(resultSet.getString("title"))
+                        .build()
+                );
+            }
+
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
+        }
+
+        return result;
     }
 
     @Override
     public void deleteAll() {
         Connection connection = DataSourceUtils.getConnection(dataSource);
-        String sql = "DELETE FROM ReadAuthority;";
+        String sql = "DELETE FROM Folder_SEARCH;";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             preparedStatement.execute();
