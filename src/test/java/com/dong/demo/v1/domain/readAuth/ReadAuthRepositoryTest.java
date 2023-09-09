@@ -1,34 +1,25 @@
-package com.dong.demo.v1.domain.writeAuth;
+package com.dong.demo.v1.domain.readAuth;
 
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
-import com.dong.demo.v1.domain.subDemand.SubDemand;
 import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
-import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.exception.NoMatchParentRowException;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
-import com.dong.demo.v1.web.dto.WriteAuthsAddRequestDto;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test-db")
-class JdbcWriteAuthRepositoryTest {
+class ReadAuthRepositoryTest {
 
     @Autowired
-    private WriteAuthRepository writeAuthRepository;
+    private ReadAuthRepository readAuthRepository;
 
     @Autowired
     private FolderRepository folderRepository;
@@ -36,18 +27,17 @@ class JdbcWriteAuthRepositoryTest {
     @AfterEach
     @BeforeEach
     public void cleanUp() {
-        writeAuthRepository.deleteAll();
+        readAuthRepository.deleteAll();
         folderRepository.deleteAll();
     }
 
     @Test
     public void save_success_test() {
         // given
-        WriteAuth expected_writeAuth = WriteAuth.builder()
+        ReadAuth expected_readAuth = ReadAuth.builder()
                 .accountCP("fsanjflhasfdj=/fsaf/s=sdg=/ga=/fsaf")
                 .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
-                .folderPublicKey("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
-                .folderPrivateKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .symmetricKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
                 .build();
 
         Folder expected_folder = Folder.builder()
@@ -63,7 +53,7 @@ class JdbcWriteAuthRepositoryTest {
             @Override
             public void execute() throws Throwable {
                 folderRepository.save(expected_folder);
-                writeAuthRepository.save(expected_writeAuth);
+                readAuthRepository.save(expected_readAuth);
             }
         };
 
@@ -79,7 +69,7 @@ class JdbcWriteAuthRepositoryTest {
         Executable executable = new Executable() {
             @Override
             public void execute() throws Throwable {
-                List<WriteAuth> writeAuths = writeAuthRepository.findByAccountCP(accountCP);
+                List<ReadAuth> readAuths = readAuthRepository.findByAccountCP(accountCP);
             }
         };
 
@@ -91,7 +81,7 @@ class JdbcWriteAuthRepositoryTest {
         Executable executable = new Executable() {
             @Override
             public void execute() throws Throwable {
-                writeAuthRepository.deleteAll();
+                readAuthRepository.deleteAll();
             }
         };
 
@@ -108,41 +98,38 @@ class JdbcWriteAuthRepositoryTest {
                 .lastChangedDate(LocalDateTime6Digit.now())
                 .build();
 
-        WriteAuth expected_writeAuth_1 = WriteAuth.builder()
-                .accountCP("fsanjflhas35215fdj=/fsaf/s=sdg=/ga=/fsaf")
+        ReadAuth expected_readAuth_1 = ReadAuth.builder()
+                .accountCP("fsanjflhasfdj=/fsaf/s=sdg=/ga=/fsaf")
                 .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
-                .folderPublicKey("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia3fjdsklfjskdlfjskdfsdfsdfsdfsdgsfd=3r232=2/32")
-                .folderPrivateKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .symmetricKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
                 .build();
 
-        WriteAuth expected_writeAuth_2 = WriteAuth.builder()
-                .accountCP("fsanjflhewdf51125sawe/s=sdg=/ga=/fsaf")
+        ReadAuth expected_readAuth_2 = ReadAuth.builder()
+                .accountCP("fsanjflhewdfsawe/s=sdg=/ga=/fsaf")
                 .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
-                .folderPublicKey("mdsjlkafnuwilaw3fadfewfdf32f3fjdsklfjskdlfjskdfsdfsdfsdfsdgsfd=3r232=2/32")
-                .folderPrivateKeyEWA("mdsjlkafnuwilafdsgsdfsge3wga8243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .symmetricKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
                 .build();
 
-        WriteAuth expected_writeAuth_3 = WriteAuth.builder()
-                .accountCP("fsanjflhsdf5331111111anjaslhfauwefga=/fsaf")
+        ReadAuth expected_readAuth_3 = ReadAuth.builder()
+                .accountCP("fsanjflhsdfanjaslhfauwefga=/fsaf")
                 .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
-                .folderPublicKey("mdsjlkafnuwilaw3fadfsdfsdfsdfewa3323aaa3332jskdfsdfsdfsdfsdgsfd=3r232=2/32")
-                .folderPrivateKeyEWA("mdsjlkegafwewfwefwfw43j4nfdsfsfdsafdfsafd23h4832jn[32=r2=3r232=2/32")
+                .symmetricKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
                 .build();
 
         try {
             folderRepository.save(expected_folder);
-            writeAuthRepository.save(expected_writeAuth_1);
-            writeAuthRepository.save(expected_writeAuth_2);
-            writeAuthRepository.save(expected_writeAuth_3);
+            readAuthRepository.save(expected_readAuth_1);
+            readAuthRepository.save(expected_readAuth_2);
+            readAuthRepository.save(expected_readAuth_3);
 
         } catch (DataAccessException e) {
             e.printStackTrace();
         }
 
-        List<WriteAuth> writeAuths = writeAuthRepository.findByAccountCP(expected_writeAuth_1.getAccountCP());
+        List<ReadAuth> readAuths = readAuthRepository.findByAccountCP(expected_readAuth_1.getAccountCP());
 
-        Assertions.assertEquals(1, writeAuths.size());
-        Assertions.assertEquals(expected_writeAuth_1, writeAuths.get(0));
+        Assertions.assertEquals(1, readAuths.size());
+        Assertions.assertEquals(expected_readAuth_1, readAuths.get(0));
 
     }
 
@@ -156,34 +143,32 @@ class JdbcWriteAuthRepositoryTest {
                 .lastChangedDate(LocalDateTime6Digit.now())
                 .build();
 
-        WriteAuth expected_writeAuth= WriteAuth.builder()
+        ReadAuth expected_readAuth = ReadAuth.builder()
                 .accountCP("fsanjflhasfdj=/fsaf/s=sdg=/ga=/fsaf")
                 .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
-                .folderPublicKey("2h3ri233r93h932yqr9fhoy29")
-                .folderPrivateKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .symmetricKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
                 .build();
 
         try {
             folderRepository.save(expected_folder);
-            writeAuthRepository.save(expected_writeAuth);
-
+            readAuthRepository.save(expected_readAuth);
         } catch (DataAccessException e) {
             e.printStackTrace();
         }
 
         Assertions.assertEquals(1,
-                writeAuthRepository.findByAccountCP(expected_writeAuth.getAccountCP()).size());
+                readAuthRepository.findByAccountCP(expected_readAuth.getAccountCP()).size());
 
-        writeAuthRepository.deleteAll();
+        readAuthRepository.deleteAll();
 
         Assertions.assertEquals(0,
-                writeAuthRepository.findByAccountCP(expected_writeAuth.getAccountCP()).size());
+                readAuthRepository.findByAccountCP(expected_readAuth.getAccountCP()).size());
     }
 
     @Test
     public void duplicate_exception_handle_test() {
         // given
-        Folder folder = Folder.builder()
+        Folder expected_folder = Folder.builder()
                 .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
                 .isTitleOpen(true)
                 .title("hello")
@@ -191,18 +176,17 @@ class JdbcWriteAuthRepositoryTest {
                 .lastChangedDate(LocalDateTime6Digit.now())
                 .build();
 
-        WriteAuth writeAuth = WriteAuth.builder()
+        ReadAuth expected_readAuth = ReadAuth.builder()
                 .accountCP("fsanjflhasfdj=/fsaf/s=sdg=/ga=/fsaf")
                 .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
-                .folderPublicKey("2h3ri233r93h932yqr9fhoy29")
-                .folderPrivateKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .symmetricKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
                 .build();
 
         Assertions.assertDoesNotThrow(new Executable() {
             @Override
             public void execute() throws Throwable {
-                folderRepository.save(folder);
-                writeAuthRepository.save(writeAuth);
+                folderRepository.save(expected_folder);
+                readAuthRepository.save(expected_readAuth);
             }
         });
 
@@ -211,7 +195,7 @@ class JdbcWriteAuthRepositoryTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        writeAuthRepository.save(writeAuth);
+                        readAuthRepository.save(expected_readAuth);
                     }
                 });
     }
@@ -219,11 +203,10 @@ class JdbcWriteAuthRepositoryTest {
     @Test
     public void non_folder_exception_handle_test() {
         // given
-        WriteAuth writeAuth = WriteAuth.builder()
+        ReadAuth readAuth = ReadAuth.builder()
                 .accountCP("fsanjflhasfdj=/fsaf/s=sdg=/ga=/fsaf")
                 .folderCP("eUUGcJRYmP4ijNYFetClY0Ju7ifLqGEamuoK/4so+/Q=")
-                .folderPublicKey("2h3ri233r93h932yqr9fhoy29")
-                .folderPrivateKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
+                .symmetricKeyEWA("mdsjlkafnuwilaw3fah9829hudshfl7awlfhusia32blh3u48243j4nj423j4h32j4hj32h4k23h4832jn[32=r2=3r232=2/32")
                 .build();
 
         // when
@@ -231,8 +214,9 @@ class JdbcWriteAuthRepositoryTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        writeAuthRepository.save(writeAuth);
+                        readAuthRepository.save(readAuth);
                     }
                 });
     }
+
 }

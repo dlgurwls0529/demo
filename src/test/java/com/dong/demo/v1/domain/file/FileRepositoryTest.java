@@ -4,11 +4,9 @@ import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
 import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
-import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.exception.NoMatchParentRowException;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import com.dong.demo.v1.util.UUIDGenerator;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 // import jakarta.persistence.criteria.CriteriaBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -19,17 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.xml.crypto.Data;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test-db")
-class JdbcFileRepositoryTest {
+class FileRepositoryTest {
 
     @Autowired
     private FileRepository fileRepository;

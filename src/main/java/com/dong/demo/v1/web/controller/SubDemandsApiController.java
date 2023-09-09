@@ -56,8 +56,8 @@ public class SubDemandsApiController {
     }
 
     // 성공 실패 테스트 다 짜면 밑에 꺼 하기
-    // todo : 그 만약에 subscribe 중간에 없어지면(버튼 같은거 눌렀는데, delete 되어서 if 절에서 걸리면) -> else 에서 커스텀 예외 던진다.
-    // todo : DataAccess Exception 은 핸들링되면 안된다. 무결성만 처리한다.
+    // 그 만약에 subscribe 중간에 없어지면(버튼 같은거 눌렀는데, delete 되어서 if 절에서 걸리면) -> else 에서 커스텀 예외 던진다.
+    // DataAccess Exception 은 핸들링되면 안된다. 무결성만 처리한다.
 
     /*
         [allowSubscribeDemand]

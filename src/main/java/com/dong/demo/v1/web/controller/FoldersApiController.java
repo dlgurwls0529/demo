@@ -1,5 +1,6 @@
 package com.dong.demo.v1.web.controller;
 
+import com.dong.demo.v1.domain.folder.folder_search.FolderSearch;
 import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.service.folder.FolderService;
@@ -98,13 +99,13 @@ public class FoldersApiController {
     // 이거는 딱히 상관 없다.
     @GetMapping("/api/v1/folders")
     public ResponseEntity<List<FoldersSearchResponseDto>> search(@RequestParam("keyword") String keyword) {
-        List<String[]> resultFolderCPAndTitleList = folderService.search(keyword);
+        List<FolderSearch> resultFolderCPAndTitleList = folderService.search(keyword);
         List<FoldersSearchResponseDto> responseDtoList = new ArrayList<>();
 
-        for (String[] strings : resultFolderCPAndTitleList) {
+        for (FolderSearch folderSearch : resultFolderCPAndTitleList) {
             responseDtoList.add(FoldersSearchResponseDto.builder()
-                    .folderCP(strings[0])
-                    .title(strings[1])
+                    .folderCP(folderSearch.getFolderCP())
+                    .title(folderSearch.getTitle())
                     .build()
             );
         }

@@ -1,12 +1,9 @@
 package com.dong.demo.v1.domain.subDemand;
 
-import com.dong.demo.v1.domain.file.File;
 import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
-import com.dong.demo.v1.domain.readAuth.ReadAuth;
 import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
-import com.dong.demo.v1.exception.ICsViolationCode;
 import com.dong.demo.v1.exception.NoMatchParentRowException;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import org.junit.jupiter.api.AfterEach;
@@ -18,15 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.lang.reflect.Field;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test-db")
-class JdbcSubDemandRepositoryTest {
+class SubDemandRepositoryTest {
 
     @Autowired
     private FolderRepository folderRepository;

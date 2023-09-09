@@ -1,5 +1,7 @@
 package com.dong.demo.v1.domain.folder;
 
+import com.dong.demo.v1.domain.folder.folderFindBatchBuilder.FolderFindBatchBuilder;
+import com.dong.demo.v1.domain.folder.folderFindBatchBuilder.JdbcFolderFindBatchBuilder;
 import com.dong.demo.v1.exception.DataAccessException;
 import com.sun.net.httpserver.Authenticator;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
@@ -39,7 +41,6 @@ public class JdbcFolderRepository implements FolderRepository {
     @Autowired
     private DataSource dataSource;
 
-    // todo : 여기 result preparedSTMT 닫기
     @Override
     public void save(Folder folder) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
@@ -155,62 +156,6 @@ public class JdbcFolderRepository implements FolderRepository {
             throw new DataAccessException(e);
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
-        }
-    }
-
-    public FolderFindBatchBuilder getFolderFindBatchBuilder() {
-        return new FolderFindBatchBuilder(dataSource);
-    }
-
-    // todo : 이거 테스트 케이스 만들기
-    public static class FolderFindBatchBuilder {
-        private DataSource dataSource;
-        private StringBuilder query_buffer;
-        private final String query_prefix = "SELECT * FROM Folder WHERE folderCP IN (";
-        private final String query_suffix = ");";
-
-        public FolderFindBatchBuilder(DataSource dataSource) {
-            this.dataSource = dataSource;
-            this.query_buffer = new StringBuilder(query_prefix);
-        }
-
-        public FolderFindBatchBuilder add(String folderCP) {
-            query_buffer.append('\'')
-                    .append(folderCP)
-                    .append('\'')
-                    .append(",");
-            return this;
-        }
-
-        public List<Folder> execute() {
-            // 마지막 반점 지우고, 괄호 넣기.
-            query_buffer.deleteCharAt(query_buffer.length()-1);
-            query_buffer.append(query_suffix);
-
-            // 여기서부터 실행.
-            Connection connection = DataSourceUtils.getConnection(dataSource);
-            List<Folder> folderList = new ArrayList<>();
-
-            try (ResultSet resultSet = connection.prepareStatement(query_buffer.toString()).executeQuery();) {
-                while (resultSet.next()) {
-                    Folder folder = Folder.builder()
-                            .folderCP(resultSet.getString("folderCP"))
-                            .isTitleOpen(resultSet.getBoolean("isTitleOpen"))
-                            .title(resultSet.getString("title"))
-                            .symmetricKeyEWF(resultSet.getString("symmetricKeyEWF"))
-                            .lastChangedDate(resultSet.getTimestamp("lastChangedDate").toLocalDateTime())
-                            .build();
-
-                    folderList.add(folder);
-                }
-
-            } catch (SQLException e) {
-                throw new DataAccessException(e);
-            } finally {
-                DataSourceUtils.releaseConnection(connection, dataSource);
-            }
-
-            return folderList;
         }
     }
 }

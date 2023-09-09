@@ -1,28 +1,26 @@
 package com.dong.demo.v1.service.folder;
 
 import com.dong.demo.v1.domain.folder.FolderRepository;
+import com.dong.demo.v1.domain.folder.folder_search.FolderSearch;
 import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.web.dto.FoldersGenerateRequestDto;
-import org.apache.catalina.LifecycleState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 @ActiveProfiles("test-db")
-class FolderServiceTest {
+class SimpleFolderServiceTest {
 
     @Autowired
     private FolderService folderService;
@@ -154,12 +152,11 @@ class FolderServiceTest {
         }
 
         // when
-        List<String[]> list_sorted = folderService.search("hungryy");
+        List<FolderSearch> list_sorted = folderService.search("hungryy");
 
-        for (String[] strings : list_sorted) {
-            System.out.println("folderCP : " + strings[0]);
-            System.out.println("title : " + strings[1]);
-            System.out.println("similarity : " + strings[2]);
+        for (FolderSearch folderSearch : list_sorted) {
+            System.out.println("folderCP : " + folderSearch.getFolderCP());
+            System.out.println("title : " + folderSearch.getTitle());
             System.out.println();
         }
     }
@@ -226,12 +223,11 @@ class FolderServiceTest {
         }
 
         // when
-        List<String[]> list_sorted = folderService.search("foldeCP2");
+        List<FolderSearch> list_sorted = folderService.search("foldeCP2");
 
-        for (String[] strings : list_sorted) {
-            System.out.println("folderCP : " + strings[0]);
-            System.out.println("title : " + strings[1]);
-            System.out.println("similarity : " + strings[2]);
+        for (FolderSearch folderSearch : list_sorted) {
+            System.out.println("folderCP : " + folderSearch.getFolderCP());
+            System.out.println("title : " + folderSearch.getTitle());
             System.out.println();
         }
     }
@@ -270,12 +266,11 @@ class FolderServiceTest {
         }
 
         // when
-        List<String[]> list_sorted = folderService.search("hungry");
+        List<FolderSearch> list_sorted = folderService.search("hungry");
 
-        for (String[] strings : list_sorted) {
-            System.out.println("folderCP : " + strings[0]);
-            System.out.println("title : " + strings[1]);
-            System.out.println("similarity : " + strings[2]);
+        for (FolderSearch folderSearch : list_sorted) {
+            System.out.println("folderCP : " + folderSearch.getFolderCP());
+            System.out.println("title : " + folderSearch.getTitle());
             System.out.println();
         }
     }
@@ -314,12 +309,11 @@ class FolderServiceTest {
         }
 
         // when
-        List<String[]> list_sorted = folderService.search("hungry");
+        List<FolderSearch> list_sorted = folderService.search("hungry");
 
-        for (String[] strings : list_sorted) {
-            System.out.println("folderCP : " + strings[0]);
-            System.out.println("title : " + strings[1]);
-            System.out.println("similarity : " + strings[2]);
+        for (FolderSearch folderSearch : list_sorted) {
+            System.out.println("folderCP : " + folderSearch.getFolderCP());
+            System.out.println("title : " + folderSearch.getTitle());
             System.out.println();
         }
     }
@@ -332,9 +326,9 @@ class FolderServiceTest {
         Assertions.assertDoesNotThrow(new Executable() {
             @Override
             public void execute() throws Throwable {
-                List<String[]> list_sorted = folderService.search("hungry");
+                List<FolderSearch> list_sorted = folderService.search("hungry");
 
-                for (String[] strings : list_sorted) {
+                for (FolderSearch folderSearch : list_sorted) {
                     System.out.print(" ");
                 }
             }

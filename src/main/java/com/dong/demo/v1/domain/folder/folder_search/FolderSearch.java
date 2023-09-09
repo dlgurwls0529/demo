@@ -19,7 +19,7 @@ public class FolderSearch {
 
     @Override
     public boolean equals(Object obj) {
-        Folder obj_folder = (Folder) obj;
+        FolderSearch obj_folder = (FolderSearch) obj;
         boolean eqFolderCP = folderCP.equals(obj_folder.getFolderCP());
         boolean eqTitle = title.equals(obj_folder.getTitle());
         return eqFolderCP && eqTitle;

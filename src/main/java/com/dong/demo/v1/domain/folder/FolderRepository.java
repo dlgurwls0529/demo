@@ -1,6 +1,7 @@
 package com.dong.demo.v1.domain.folder;
 
 import com.dong.demo.v1.domain.folder.Folder;
+import com.dong.demo.v1.domain.folder.folderFindBatchBuilder.FolderFindBatchBuilder;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;

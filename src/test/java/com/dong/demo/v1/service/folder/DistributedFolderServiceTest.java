@@ -4,7 +4,6 @@ import com.dong.demo.v1.domain.folder.Folder;
 import com.dong.demo.v1.domain.folder.FolderRepository;
 import com.dong.demo.v1.domain.folder.folder_search.FolderSearch;
 import com.dong.demo.v1.domain.folder.folder_search.FolderSearchRepository;
-import com.dong.demo.v1.exception.DataAccessException;
 import com.dong.demo.v1.exception.DuplicatePrimaryKeyException;
 import com.dong.demo.v1.util.LocalDateTime6Digit;
 import com.dong.demo.v1.web.dto.FoldersGenerateRequestDto;
@@ -14,18 +13,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,7 +28,7 @@ import java.util.concurrent.Semaphore;
 
 @SpringBootTest
 @ActiveProfiles("test-db")
-class FolderToFolderSearchSynchronizationTest {
+class DistributedFolderServiceTest {
 
     @Autowired
     private DataSource dataSource;
@@ -45,6 +40,7 @@ class FolderToFolderSearchSynchronizationTest {
     private FolderRepository folderRepository;
 
     @Autowired
+    @Qualifier("distribute")
     private FolderService folderService;
 
     @AfterEach
@@ -323,7 +319,7 @@ class FolderToFolderSearchSynchronizationTest {
         System.out.println("[ RESULT ] : " + folderRepository.find("folderCP_TEST").getTitle());
     }
 
-    // todo : 데드락 발생, DBMS lock conflicts Semaphore
+    // 데드락 발생, DBMS lock conflicts Semaphore
     public void concurrent_test_4() throws SQLException {
         Semaphore semaphore1 = new Semaphore(0);
         Semaphore semaphore2 = new Semaphore(0);
@@ -434,7 +430,7 @@ class FolderToFolderSearchSynchronizationTest {
         Assertions.assertThrows(DuplicatePrimaryKeyException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                folderService.generateFolder_synchronized(folderCP, dto);
+                folderService.generateFolder(folderCP, dto);
             }
         });
 
@@ -463,7 +459,7 @@ class FolderToFolderSearchSynchronizationTest {
         Assertions.assertThrows(DuplicatePrimaryKeyException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                folderService.generateFolder_synchronized(folderCP, dto);
+                folderService.generateFolder(folderCP, dto);
             }
         });
 
@@ -483,13 +479,20 @@ class FolderToFolderSearchSynchronizationTest {
                 .symmetricKeyEWF("sym_TEST")
                 .build();
 
-        folderService.generateFolder(folderCP, dto);
+        // 얘처럼 서비스 테스트는 비 트랜잭션인? 레포지토리 메소드로 환경 세팅하는게 좋다.
+        folderRepository.save(Folder.builder()
+                .folderCP(folderCP)
+                .title("title_TEST")
+                .isTitleOpen(true)
+                .symmetricKeyEWF("sym_TEST")
+                .lastChangedDate(LocalDateTime6Digit.now())
+                .build());
 
         // when
         Assertions.assertThrows(DuplicatePrimaryKeyException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                folderService.generateFolder_synchronized(folderCP, dto);
+                folderService.generateFolder(folderCP, dto);
             }
         });
 

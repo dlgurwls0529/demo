@@ -1,11 +1,9 @@
 package com.dong.demo.v1.util.search;
 
-import org.junit.jupiter.api.Test;
+import com.dong.demo.v1.service.folder.search.NgramSearchEngine;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class NgramSearchEngineTest {
 
