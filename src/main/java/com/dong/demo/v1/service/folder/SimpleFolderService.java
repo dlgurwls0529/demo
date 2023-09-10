@@ -20,7 +20,7 @@ import java.util.List;
 
 
 @RequiredArgsConstructor
-@Primary
+@Qualifier("simple")
 @Service
 public class SimpleFolderService implements FolderService {
 
@@ -42,7 +42,6 @@ public class SimpleFolderService implements FolderService {
         return folderCP;
     }
 
-    // todo : 이거 테스트 해야 함. 명세 바뀐거 대로.
     @Transactional(readOnly = true)
     public List<FolderSearch> search(String keyword) {
         List<String[]> search_list = folderRepository.findAllFolderCPAndTitle();

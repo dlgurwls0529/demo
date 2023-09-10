@@ -21,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,7 +41,7 @@ class DistributedFolderServiceTest {
     private FolderRepository folderRepository;
 
     @Autowired
-    @Qualifier("distribute")
+    @Qualifier("distributed")
     private FolderService folderService;
 
     @AfterEach
@@ -48,6 +49,114 @@ class DistributedFolderServiceTest {
     public void cleanup() {
         folderRepository.deleteAll();
         folderSearchRepository.deleteAll();
+    }
+
+    @Test
+    public void folderSearch_keyword_equal_test() {
+        // given
+        String target_keyword = "FCP_3";
+
+        for (int i = 1; i <= 10; i++) {
+            Folder folder = Folder.builder()
+                    .folderCP("FCP_" + i)
+                    .isTitleOpen(true)
+                    .title("TITLE_" + i)
+                    .symmetricKeyEWF("sym_TEST")
+                    .lastChangedDate(LocalDateTime6Digit.now())
+                    .build();
+
+            folderRepository.save(folder);
+            folderSearchRepository.save(folder.getFolderSearch());
+        }
+
+        // when
+        List<FolderSearch> folderSearches = folderService.search(target_keyword);
+
+        // then
+        Assertions.assertEquals(1, folderSearches.size());
+        Assertions.assertEquals(target_keyword, folderSearches.get(0).getFolderCP());
+    }
+
+    @Test
+    public void folderSearch_keyword_not_equal_test() {
+        // given
+        String target_keyword = "_3";
+
+        for (int i = 1; i <= 10; i++) {
+            Folder folder = Folder.builder()
+                    .folderCP("FCP_" + i)
+                    .isTitleOpen(true)
+                    .title("TITLE_" + i)
+                    .symmetricKeyEWF("sym_TEST")
+                    .lastChangedDate(LocalDateTime6Digit.now())
+                    .build();
+
+            folderRepository.save(folder);
+            folderSearchRepository.save(folder.getFolderSearch());
+        }
+
+        // when
+        List<FolderSearch> folderSearches = folderService.search(target_keyword);
+
+        // then
+        Assertions.assertEquals(10, folderSearches.size());
+        Assertions.assertEquals("TITLE" + target_keyword, folderSearches.get(0).getTitle());
+
+        for (FolderSearch folderSearch : folderSearches) {
+            System.out.print("[folderCP] : ");
+            System.out.println(folderSearch.getFolderCP());
+            System.out.print("[title] : ");
+            System.out.println(folderSearch.getTitle());
+            System.out.println();
+        }
+    }
+
+    @Test
+    public void folderSearch_title_duplicate_test() {
+        // given
+        String target_keyword = "_12";
+
+        for (int i = 1; i <= 8; i++) {
+            Folder folder = Folder.builder()
+                    .folderCP("FCP_" + i)
+                    .isTitleOpen(true)
+                    .title("TITLE_" + i)
+                    .symmetricKeyEWF("sym_TEST")
+                    .lastChangedDate(LocalDateTime6Digit.now())
+                    .build();
+
+            folderRepository.save(folder);
+            folderSearchRepository.save(folder.getFolderSearch());
+        }
+
+        for (int i = 9; i <= 10; i++) {
+            Folder folder = Folder.builder()
+                    .folderCP("FCP_" + i)
+                    .isTitleOpen(true)
+                    .title("TITLE" + target_keyword)
+                    .symmetricKeyEWF("sym_TEST")
+                    .lastChangedDate(LocalDateTime6Digit.now())
+                    .build();
+
+            folderRepository.save(folder);
+            folderSearchRepository.save(folder.getFolderSearch());
+        }
+
+        // when
+        List<FolderSearch> folderSearches = folderService.search(target_keyword);
+
+        // then
+        Assertions.assertEquals(10, folderSearches.size());
+        Assertions.assertEquals("TITLE" + target_keyword, folderSearches.get(0).getTitle());
+        Assertions.assertEquals("TITLE" + target_keyword, folderSearches.get(1).getTitle());
+
+        for (FolderSearch folderSearch : folderSearches) {
+            System.out.print("[folderCP] : ");
+            System.out.println(folderSearch.getFolderCP());
+            System.out.print("[title] : ");
+            System.out.println(folderSearch.getTitle());
+            System.out.println();
+        }
     }
 
     public void concurrent_test_1() throws SQLException {
@@ -150,7 +259,6 @@ class DistributedFolderServiceTest {
                         .lastChangedDate(LocalDateTime6Digit.now())
                         .build()
         );
-
 
         executorService.execute(new Runnable() {
             @Override
@@ -414,8 +522,6 @@ class DistributedFolderServiceTest {
         System.out.println("[ RESULT ] : " + folderRepository.find("folderCP_TEST").getTitle());
     }
 
-
-
     public void rollbackTest() {
         // given
         String folderCP = "folderCP_TEST";
@@ -439,7 +545,7 @@ class DistributedFolderServiceTest {
     }
 
     @Test
-    public void atomicity_test_1() {
+    public void generateFolder_atomicity_test_1() {
         // given
         String folderCP = "folderCP_TEST";
 
@@ -469,7 +575,7 @@ class DistributedFolderServiceTest {
     }
 
     @Test
-    public void atomicity_test_2() {
+    public void generateFolder_atomicity_test_2() {
         // given
         String folderCP = "folderCP_TEST";
 

@@ -14,15 +14,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 
 @RequiredArgsConstructor
-@Qualifier("distribute")
-// todo : 여러 테스트가 SimpleFolderService 에 의존하고 있다. 결합을 인터페이스로 전환하고, 얘를 프라이머리 빈으로 등록한다.
-// todo : 다만, SimpleFolderService 에서는 해당되는 구상클래스 빈을 주입받을 수 있도록 한다.
+@Primary
+@Qualifier("distributed")
 @Service
 public class DistributedFolderService implements FolderService {
 
@@ -47,19 +44,45 @@ public class DistributedFolderService implements FolderService {
         return folderCP;
     }
 
-    // todo : 이거 테스트 해야 함. 명세 바뀐거 대로.
     @Transactional(readOnly = true)
     public List<FolderSearch> search(String keyword) {
-        return null;
-    }
+        // 비어있으면 n-gram 계산 시 문제 생길 수 있음.
+        if (keyword.length() == 0) {return new ArrayList<>();}
 
-    private float getMinMaxScaled(int input, int max, int min) {
-        // max min 같은 경우를 따져봤는데 그냥 0 리턴해도 될 듯
-        if (max == min) {
-            return 0f;
+        List<FolderSearch> fdrSearches = new ArrayList<>();
+
+        Folder folder = folderRepository.find(keyword);
+
+        if (folder != null) {
+            fdrSearches.add(folder.getFolderSearch());
         }
-        else {  
-            return ((float)input - (float)min) / ((float)max - (float)min);
+        else {
+            fdrSearches = folderSearchRepository.findAll();
+
+            if (fdrSearches.size() != 0) {
+                Map<String, Integer> simHash = new HashMap<>();
+
+                for (FolderSearch fdrSearch : fdrSearches) {
+                    if (!simHash.containsKey(fdrSearch.getTitle())) {
+                        simHash.put(
+                                fdrSearch.getTitle(),
+                                (int) searchEngine.similarity(keyword, fdrSearch.getTitle())
+                        );
+                    }
+                }
+
+                fdrSearches.sort(new Comparator<FolderSearch>() {
+                    @Override
+                    public int compare(FolderSearch o1, FolderSearch o2) {
+                        return -Integer.compare(
+                                simHash.get(o1.getTitle()),
+                                simHash.get(o2.getTitle())
+                        );
+                    }
+                });
+            }
         }
+
+        return fdrSearches;
     }
 }

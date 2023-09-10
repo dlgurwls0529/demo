@@ -26,8 +26,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// todo : 조인 결합 순서 바뀌어도 작동하는지, 예외도 테스트.
-
 @SpringBootTest
 @ActiveProfiles("test-db")
 class WriteAuthServiceTest {

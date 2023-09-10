@@ -23,6 +23,7 @@ import java.util.List;
 class SimpleFolderServiceTest {
 
     @Autowired
+    @Qualifier("simple")
     private FolderService folderService;
 
     @Autowired

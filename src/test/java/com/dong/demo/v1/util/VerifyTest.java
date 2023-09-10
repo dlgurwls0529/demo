@@ -89,7 +89,6 @@ class VerifyTest {
         Assertions.assertFalse(result);
     }
 
-    // todo : X509 dependent TEST
     public void X509_verify_success_test() throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
@@ -136,7 +135,6 @@ class VerifyTest {
     }
 
 
-    // todo : X509 dependant TEST
     public void X509_verify_fail_test() throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
         // given
         KeyPair keyPair = CipherUtil.genRSAKeyPair();
