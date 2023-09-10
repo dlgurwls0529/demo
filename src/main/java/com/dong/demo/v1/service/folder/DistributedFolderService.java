@@ -39,7 +39,11 @@ public class DistributedFolderService implements FolderService {
                 .build();
 
         folderRepository.save(folder);
-        folderSearchRepository.save(folder.getFolderSearch());
+
+        // 이렇게 해도, 검색할 때 folder 를 folderCP 로 먼저 검색하니까, 검색은 가능.
+        if (folder.getIsTitleOpen()) {
+            folderSearchRepository.save(folder.getFolderSearch());
+        }
 
         return folderCP;
     }
